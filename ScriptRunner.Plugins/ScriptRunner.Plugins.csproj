@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>ScriptRunner.Plugins</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Your Name</Authors>
+        <Description>Provides core interfaces and utilities for creating plugins in ScriptRunner.</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/petervdpas/ScriptRunner.Plugins</RepositoryUrl>
+        <OutputPath>bin\$(Configuration)</OutputPath>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+    </ItemGroup>
+
+</Project>
