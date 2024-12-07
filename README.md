@@ -1,5 +1,9 @@
 # ScriptRunner.Plugins
 
+[![NuGet](https://img.shields.io/nuget/v/ScriptRunner.Plugins.svg)](https://www.nuget.org/packages/ScriptRunner.Plugins)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/ScriptRunner.Plugins.svg)](https://www.nuget.org/packages/ScriptRunner.Plugins)
+[![License](https://img.shields.io/github/license/petervdpas/ScriptRunner.Plugins.svg)](https://opensource.org/licenses/MIT)
+
 `ScriptRunner.Plugins` provides core interfaces, attributes, and utilities for building and integrating plugins into the `ScriptRunner` framework. It simplifies plugin development and ensures compatibility with the ScriptRunner ecosystem.
 
 ## Features
