@@ -9,11 +9,14 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>ScriptRunner.Plugins</PackageId>
         <Version>1.0.0</Version>
-        <Authors>Your Name</Authors>
-        <Description>Provides core interfaces and utilities for creating plugins in ScriptRunner.</Description>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Authors>Peter van de Pas</Authors>
+        <Description>A plugin framework for ScriptRunner</Description>
+        <PackageTags>ScriptRunner;Plugins;DependencyInjection</PackageTags>
         <RepositoryUrl>https://github.com/petervdpas/ScriptRunner.Plugins</RepositoryUrl>
+        <LicenseUrl>https://opensource.org/licenses/MIT</LicenseUrl>
         <OutputPath>bin\$(Configuration)</OutputPath>
+        <DebugType>embedded</DebugType>
+        <Deterministic>true</Deterministic>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
@@ -23,6 +26,10 @@
     
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
     </ItemGroup>
 
 </Project>
