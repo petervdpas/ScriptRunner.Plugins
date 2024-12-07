@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <PackageOutputPath>bin\$(Configuration)</PackageOutputPath>
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>ScriptRunner.Plugins</PackageId>
@@ -12,16 +13,24 @@
         <Authors>Peter van de Pas</Authors>
         <Description>A plugin framework for ScriptRunner</Description>
         <PackageTags>ScriptRunner;Plugins;DependencyInjection</PackageTags>
-        <RepositoryUrl>https://github.com/petervdpas/ScriptRunner.Plugins</RepositoryUrl>
-        <LicenseUrl>https://opensource.org/licenses/MIT</LicenseUrl>
-        <OutputPath>bin\$(Configuration)</OutputPath>
+        <PackageLicenseFile>assets/LICENSE.txt</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>assets/icon.png</PackageIcon>
         <DebugType>embedded</DebugType>
         <Deterministic>true</Deterministic>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PathMap>$(MSBuildProjectDirectory)=.</PathMap>
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <EnableSourceLink>true</EnableSourceLink>
+        <RepositoryUrl>https://github.com/petervdpas/ScriptRunner.Plugins</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="..\README.md" Pack="true" PackagePath="" />
+        <None Include="assets/icon.png" Pack="true" PackagePath="assets/" />
+        <None Include="assets/LICENSE.txt" Pack="true" PackagePath="assets/" />
+        <None Include="../README.md" Pack="true" PackagePath="" />
     </ItemGroup>
     
     <ItemGroup>
