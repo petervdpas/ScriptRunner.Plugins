@@ -1,4 +1,6 @@
-﻿namespace ScriptRunner.Plugins.Utilities;
+﻿using ScriptRunner.Plugins.Logging;
+
+namespace ScriptRunner.Plugins.Utilities;
 
 /// <summary>
 /// A basic implementation of <see cref="IPluginLogger"/> that logs messages to the console.

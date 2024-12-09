@@ -1,4 +1,4 @@
-﻿namespace ScriptRunner.Plugins;
+﻿namespace ScriptRunner.Plugins.Logging;
 
 /// <summary>
 /// Defines the severity levels for log messages.

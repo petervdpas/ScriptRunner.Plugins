@@ -1,4 +1,4 @@
-﻿namespace ScriptRunner.Plugins;
+﻿namespace ScriptRunner.Plugins.Logging;
 
 /// <summary>
 /// Defines a logging interface for plugins, enabling decoupled and customizable logging functionality.

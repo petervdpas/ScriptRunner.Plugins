@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Microsoft.Extensions.Logging;
 
 namespace ScriptRunner.Plugins.Utilities;
 
@@ -14,13 +15,14 @@ public static class DependencyLoader
     /// Loads all DLLs from the specified directory into the application domain.
     /// </summary>
     /// <param name="dependenciesDirectory">The path to the directory containing dependency DLLs.</param>
+    /// <param name="logger">The logger instance for logging information.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown if the <paramref name="dependenciesDirectory"/> is null or empty.
     /// </exception>
     /// <exception cref="DirectoryNotFoundException">
     /// Thrown if the specified <paramref name="dependenciesDirectory"/> does not exist.
     /// </exception>
-    public static void LoadDependencies(string dependenciesDirectory)
+    public static void LoadDependencies(string dependenciesDirectory, ILogger logger)
     {
         if (string.IsNullOrWhiteSpace(dependenciesDirectory))
             throw new ArgumentNullException(nameof(dependenciesDirectory), "Dependencies directory cannot be null or empty.");
@@ -35,10 +37,11 @@ public static class DependencyLoader
             try
             {
                 Assembly.LoadFrom(dll);
+                logger.LogInformation("Successfully loaded dependency: {DependencyPath}", dll);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to load dependency {dll}: {ex.Message}");
+                logger.LogError(ex, "Failed to load dependency: {DependencyPath}", dll);
             }
         }
     }

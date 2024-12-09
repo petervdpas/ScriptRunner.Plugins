@@ -1,4 +1,4 @@
-﻿namespace ScriptRunner.Plugins;
+﻿namespace ScriptRunner.Plugins.Logging;
 
 /// <summary>
 /// Extends <see cref="IPluginLogger"/> to support structured logging with context and log levels.
