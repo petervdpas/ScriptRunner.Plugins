@@ -35,6 +35,14 @@ public class PluginMetadataAttribute : Attribute
     /// Gets the list of services provided by the plugin, if applicable.
     /// </summary>
     public string[]? Services { get; }
+    
+    /// <summary>
+    /// Gets the list of plugins that this plugin depends on.
+    /// </summary>
+    /// <remarks>
+    /// Dependencies are specified as plugin names that must be available for this plugin to function.
+    /// </remarks>
+    public string[]? Dependencies { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PluginMetadataAttribute"/> class.
@@ -45,13 +53,15 @@ public class PluginMetadataAttribute : Attribute
     /// <param name="version">The version of the plugin.</param>
     /// <param name="frameworkVersion">The target framework version (optional).</param>
     /// <param name="services">An array of service names provided by the plugin (optional).</param>
+    /// <param name="dependencies">An array of plugin names that this plugin depends on (optional).</param>
     public PluginMetadataAttribute(
         string name,
         string description,
         string author,
         string version,
         string frameworkVersion = "",
-        params string[]? services)
+        string[]? services = null,
+        string[]? dependencies = null)
     {
         Name = name;
         Description = description;
@@ -59,5 +69,6 @@ public class PluginMetadataAttribute : Attribute
         Version = version;
         FrameworkVersion = frameworkVersion;
         Services = services ?? [];
+        Dependencies = dependencies ?? [];
     }
 }

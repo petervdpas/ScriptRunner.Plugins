@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace ScriptRunner.Plugins;
+namespace ScriptRunner.Plugins.Interfaces;
 
 /// <summary>
 /// Represents a plugin that can register services into the application's dependency injection container.
