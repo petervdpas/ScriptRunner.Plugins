@@ -20,7 +20,19 @@ public static class PluginSystemInfo
     /// (e.g., <c>&lt;Version&gt;1.0.0&lt;/Version&gt;</c> in the <c>.csproj</c>).
     /// </remarks>
     public static string CurrentPluginSystemVersion =>
-        Assembly.GetExecutingAssembly()
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-            .InformationalVersion ?? "Unknown";
+        NormalizeVersion(
+            Assembly.GetExecutingAssembly()
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+                .InformationalVersion ?? "Unknown");
+
+    /// <summary>
+    /// Normalizes a version string by removing build metadata and retaining only major.minor.patch.
+    /// </summary>
+    /// <param name="version">The version string to normalize.</param>
+    /// <returns>The normalized version string.</returns>
+    private static string NormalizeVersion(string version)
+    {
+        var parts = version.Split('+');
+        return parts[0]; // Keep only the major.minor.patch part or unknown
+    }
 }

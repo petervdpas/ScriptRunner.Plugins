@@ -99,7 +99,7 @@ public class PluginValidator : IPluginValidator
     /// <summary>
     /// Checks if the specified framework version string is valid.
     /// </summary>
-    /// <param name="frameworkVersion">The framework version string to validate.</param>
+    /// <param name="frameworkVersion">The framework version strings to validate.</param>
     /// <returns>
     /// <see langword="true"/> if the framework version string is valid; otherwise, <see langword="false"/>.
     /// </returns>
