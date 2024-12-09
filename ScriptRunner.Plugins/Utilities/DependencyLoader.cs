@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Concurrent;
+using System.Reflection;
 using Microsoft.Extensions.Logging;
 
 namespace ScriptRunner.Plugins.Utilities;
@@ -15,6 +16,7 @@ public static class DependencyLoader
     /// Loads all DLLs from the specified directory into the application domain.
     /// </summary>
     /// <param name="dependenciesDirectory">The path to the directory containing dependency DLLs.</param>
+    /// <param name="loadedDependencies">A thread-safe cache to track loaded dependencies.</param>
     /// <param name="logger">The logger instance for logging information.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown if the <paramref name="dependenciesDirectory"/> is null or empty.
@@ -22,7 +24,8 @@ public static class DependencyLoader
     /// <exception cref="DirectoryNotFoundException">
     /// Thrown if the specified <paramref name="dependenciesDirectory"/> does not exist.
     /// </exception>
-    public static void LoadDependencies(string dependenciesDirectory, ILogger logger)
+    public static void LoadDependencies(
+        string dependenciesDirectory, ConcurrentDictionary<string, bool> loadedDependencies, ILogger logger)
     {
         if (string.IsNullOrWhiteSpace(dependenciesDirectory))
             throw new ArgumentNullException(nameof(dependenciesDirectory), "Dependencies directory cannot be null or empty.");
@@ -34,10 +37,17 @@ public static class DependencyLoader
 
         foreach (var dll in dllFiles)
         {
+            if (loadedDependencies.ContainsKey(dll))
+            {
+                logger.LogDebug("Skipping already loaded dependency: {DependencyPath}", dll);
+                continue;
+            }
+
             try
             {
                 Assembly.LoadFrom(dll);
-                logger.LogInformation("Successfully loaded dependency: {DependencyPath}", dll);
+                loadedDependencies.TryAdd(dll, true);
+                logger.LogDebug("Successfully loaded dependency: {DependencyPath}", dll);
             }
             catch (Exception ex)
             {
