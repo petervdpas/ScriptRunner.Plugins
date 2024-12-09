@@ -48,15 +48,25 @@ public class PluginValidator : IPluginValidator
     /// <param name="metadata">The metadata associated with the plugin.</param>
     /// <param name="pluginType">The type of the plugin being validated.</param>
     /// <exception cref="PluginInitializationException">
-    /// Thrown if required metadata fields (e.g., Name or Version) are missing or invalid.
+    /// Thrown if required metadata fields (e.g., Name, Version, or PluginSystemVersion) are missing or invalid.
     /// </exception>
     private static void ValidateMetadata(PluginMetadataAttribute metadata, Type pluginType)
     {
+        var currentSystemVersion = PluginSystemInfo.CurrentPluginSystemVersion;
+
         if (string.IsNullOrWhiteSpace(metadata.Name))
             throw new PluginInitializationException($"Plugin {pluginType.Name} must have a non-empty Name property in its metadata.");
 
         if (string.IsNullOrWhiteSpace(metadata.Version))
             throw new PluginInitializationException($"Plugin {pluginType.Name} must have a non-empty Version property in its metadata.");
+
+        if (string.IsNullOrWhiteSpace(metadata.PluginSystemVersion))
+            throw new PluginInitializationException($"Plugin {pluginType.Name} must specify the PluginSystemVersion.");
+
+        if (metadata.PluginSystemVersion != currentSystemVersion)
+            throw new PluginInitializationException(
+                $"Plugin {pluginType.Name} is not compatible with the current plugin system version ({currentSystemVersion}). " +
+                $"Required: {metadata.PluginSystemVersion}.");
 
         if (!string.IsNullOrWhiteSpace(metadata.FrameworkVersion) && !IsValidFrameworkVersion(metadata.FrameworkVersion))
             throw new PluginInitializationException($"Plugin {pluginType.Name} specifies an invalid framework version: {metadata.FrameworkVersion}");

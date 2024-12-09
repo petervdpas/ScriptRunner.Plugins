@@ -1,7 +1,7 @@
 ﻿namespace ScriptRunner.Plugins.Attributes;
 
 /// <summary>
-/// Provides metadata for plugins to describe their properties and behavior.
+/// Provides metadata for plugins to describe their properties, behavior, and compatibility.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 public class PluginMetadataAttribute : Attribute
@@ -20,11 +20,16 @@ public class PluginMetadataAttribute : Attribute
     /// Gets the author of the plugin.
     /// </summary>
     public string Author { get; }
-    
+
     /// <summary>
     /// Gets the version of the plugin.
     /// </summary>
     public string Version { get; }
+
+    /// <summary>
+    /// Gets the version of the plugin system this plugin was built for.
+    /// </summary>
+    public string PluginSystemVersion { get; }
 
     /// <summary>
     /// Gets the target framework version for the plugin (optional).
@@ -35,7 +40,7 @@ public class PluginMetadataAttribute : Attribute
     /// Gets the list of services provided by the plugin, if applicable.
     /// </summary>
     public string[]? Services { get; }
-    
+
     /// <summary>
     /// Gets the list of plugins that this plugin depends on.
     /// </summary>
@@ -51,6 +56,7 @@ public class PluginMetadataAttribute : Attribute
     /// <param name="description">A short description of the plugin.</param>
     /// <param name="author">The author of the plugin.</param>
     /// <param name="version">The version of the plugin.</param>
+    /// <param name="pluginSystemVersion">The version of the plugin system this plugin was built for.</param>
     /// <param name="frameworkVersion">The target framework version (optional).</param>
     /// <param name="services">An array of service names provided by the plugin (optional).</param>
     /// <param name="dependencies">An array of plugin names that this plugin depends on (optional).</param>
@@ -59,6 +65,7 @@ public class PluginMetadataAttribute : Attribute
         string description,
         string author,
         string version,
+        string pluginSystemVersion,
         string frameworkVersion = "",
         string[]? services = null,
         string[]? dependencies = null)
@@ -67,6 +74,7 @@ public class PluginMetadataAttribute : Attribute
         Description = description;
         Author = author;
         Version = version;
+        PluginSystemVersion = pluginSystemVersion;
         FrameworkVersion = frameworkVersion;
         Services = services ?? [];
         Dependencies = dependencies ?? [];
