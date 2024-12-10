@@ -1,33 +1,20 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using ScriptRunner.Plugins.Interfaces;
+﻿using ScriptRunner.Plugins.Interfaces;
 
 namespace ScriptRunner.Plugins;
 
 /// <summary>
-/// Provides a base implementation for asynchronous service plugins.
+/// Provides a base implementation for asynchronous lifecycle plugins.
 /// </summary>
 /// <remarks>
-/// This abstract class simplifies the creation of asynchronous service plugins by providing
-/// default asynchronous behavior for initialization and service registration.
+/// This abstract class simplifies the creation of asynchronous lifecycle plugins by providing
+/// default asynchronous behavior for lifecycle methods.
 /// </remarks>
-public abstract class BaseAsyncServicePlugin : IAsyncServicePlugin
+public abstract class BaseAsyncLifecyclePlugin : IAsyncLifecyclePlugin
 {
     /// <summary>
     /// Gets the name of the plugin.
     /// </summary>
-    /// <value>A string representing the name of the plugin.</value>
     public abstract string Name { get; }
-
-    /// <summary>
-    /// Asynchronously registers the plugin's services into the provided DI container.
-    /// </summary>
-    /// <param name="services">The service collection to register services into.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous registration operation.</returns>
-    public virtual Task RegisterServicesAsync(IServiceCollection services)
-    {
-        // Default implementation: Do nothing
-        return Task.CompletedTask;
-    }
 
     /// <summary>
     /// Asynchronously initializes the plugin using the specified configuration.
@@ -36,8 +23,7 @@ public abstract class BaseAsyncServicePlugin : IAsyncServicePlugin
     /// <returns>A <see cref="Task"/> representing the asynchronous initialization operation.</returns>
     public virtual Task InitializeAsync(IDictionary<string, object> configuration)
     {
-        // Default implementation: Do nothing
-        return Task.CompletedTask;
+        return Task.CompletedTask; // Default no-op
     }
 
     /// <summary>
@@ -46,27 +32,34 @@ public abstract class BaseAsyncServicePlugin : IAsyncServicePlugin
     /// <returns>A <see cref="Task"/> representing the asynchronous execution operation.</returns>
     public virtual Task ExecuteAsync()
     {
-        // Default implementation: Do nothing
-        return Task.CompletedTask;
+        return Task.CompletedTask; // Default no-op
     }
 
     /// <summary>
-    /// Synchronously registers the plugin's services. This is a wrapper for <see cref="RegisterServicesAsync"/>.
+    /// Asynchronously starts the plugin's operations.
     /// </summary>
-    /// <param name="services">The service collection to register services into.</param>
-    /// <remarks>
-    /// Calls <see cref="RegisterServicesAsync"/> and unwraps any <see cref="AggregateException"/> to expose the underlying exception.
-    /// </remarks>
-    public void RegisterServices(IServiceCollection services)
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public virtual Task OnStartAsync()
     {
-        try
-        {
-            RegisterServicesAsync(services).Wait();
-        }
-        catch (AggregateException ex)
-        {
-            throw ex.InnerException ?? ex;
-        }
+        return Task.CompletedTask; // Default no-op
+    }
+
+    /// <summary>
+    /// Asynchronously stops the plugin's operations.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public virtual Task OnStopAsync()
+    {
+        return Task.CompletedTask; // Default no-op
+    }
+
+    /// <summary>
+    /// Asynchronously disposes of the plugin's resources.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous cleanup operation.</returns>
+    public virtual Task OnDisposeAsync()
+    {
+        return Task.CompletedTask; // Default no-op
     }
 
     /// <summary>

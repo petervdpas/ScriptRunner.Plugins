@@ -3,49 +3,73 @@
 namespace ScriptRunner.Plugins;
 
 /// <summary>
-/// Provides a base implementation for asynchronous plugins, extending <see cref="IAsyncPlugin"/>.
+/// Provides a base implementation for asynchronous game plugins.
 /// </summary>
 /// <remarks>
-/// This abstract class simplifies the creation of asynchronous plugins by providing default
-/// asynchronous behavior for initialization and execution, while requiring derived classes to
-/// define a unique name.
+/// This abstract class simplifies the creation of asynchronous game plugins by providing
+/// default no-op implementations for lifecycle and game loop methods.
 /// </remarks>
-public abstract class BaseAsyncPlugin : IAsyncPlugin
+public abstract class BaseAsyncGamePlugin : IAsyncGamePlugin
 {
     /// <summary>
     /// Gets the name of the plugin.
     /// </summary>
-    /// <value>A string representing the name of the plugin.</value>
-    /// <remarks>
-    /// Derived classes must implement this property to provide a unique identifier for the plugin.
-    /// </remarks>
     public abstract string Name { get; }
 
     /// <summary>
     /// Asynchronously initializes the plugin using the specified configuration.
     /// </summary>
-    /// <param name="configuration">A dictionary containing configuration key-value pairs for the plugin.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous initialization operation.</returns>
-    /// <remarks>
-    /// This method provides a default no-op implementation. Derived classes can override it to perform
-    /// asynchronous initialization tasks, such as reading configurations or establishing connections.
-    /// </remarks>
     public virtual Task InitializeAsync(IDictionary<string, object> configuration)
     {
-        return Task.CompletedTask;
+        return Task.CompletedTask; // Default no-op
     }
 
     /// <summary>
-    /// Asynchronously executes the main functionality of the plugin.
+    /// Asynchronously executes the plugin's main functionality.
     /// </summary>
-    /// <returns>A <see cref="Task"/> representing the asynchronous execution operation.</returns>
-    /// <remarks>
-    /// This method provides a default no-op implementation. Derived classes can override it to define
-    /// the plugin's core asynchronous behavior.
-    /// </remarks>
     public virtual Task ExecuteAsync()
     {
-        return Task.CompletedTask;
+        return Task.CompletedTask; // Default no-op
+    }
+
+    /// <summary>
+    /// Asynchronously starts the plugin's operations.
+    /// </summary>
+    public virtual Task OnStartAsync()
+    {
+        return Task.CompletedTask; // Default no-op
+    }
+
+    /// <summary>
+    /// Asynchronously stops the plugin's operations.
+    /// </summary>
+    public virtual Task OnStopAsync()
+    {
+        return Task.CompletedTask; // Default no-op
+    }
+
+    /// <summary>
+    /// Asynchronously disposes of the plugin's resources.
+    /// </summary>
+    public virtual Task OnDisposeAsync()
+    {
+        return Task.CompletedTask; // Default no-op
+    }
+
+    /// <summary>
+    /// Asynchronously updates the game logic during each frame.
+    /// </summary>
+    public virtual Task UpdateAsync()
+    {
+        return Task.CompletedTask; // Default no-op
+    }
+
+    /// <summary>
+    /// Asynchronously renders the game visuals during each frame.
+    /// </summary>
+    public virtual Task RenderAsync()
+    {
+        return Task.CompletedTask; // Default no-op
     }
 
     /// <summary>
