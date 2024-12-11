@@ -1,0 +1,79 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <DocumentationFile>..\Plugins\{{sourceName}}.xml</DocumentationFile>
+        <RootNamespace>ScriptRunner.Plugins.{{sourceName}}</RootNamespace>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="ScriptRunner.Plugins" Version="*" />
+    </ItemGroup>
+
+    <Target Name="SeparatePluginAndDependencies" AfterTargets="Build">
+        <MakeDir Directories="..\Plugins\Dependencies" />
+
+        <ItemGroup>
+            <PluginAssembly Include="$(TargetDir){{sourceName}}.dll" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(PluginAssembly)"
+              DestinationFolder="..\Plugins"
+              SkipUnchangedFiles="true" />
+
+        <ItemGroup>
+            <DependencyAssemblies Include="$(TargetDir)**\*.dll"
+                                  Exclude="$(TargetDir){{sourceName}}.dll" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(DependencyAssemblies)"
+              DestinationFolder="..\Plugins\Dependencies"
+              SkipUnchangedFiles="true" />
+
+        <ItemGroup>
+            <DemoScripts Include="$(ProjectDir)DemoScripts\**\*" />
+            <CookBookPages Include="$(ProjectDir)CookBookPages\**\*" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(DemoScripts)"
+              DestinationFolder="..\Plugins\DemoScripts"
+              SkipUnchangedFiles="true" />
+
+        <Copy SourceFiles="@(CookBookPages)"
+              DestinationFolder="..\Plugins\CookBookPages"
+              SkipUnchangedFiles="true" />
+
+        <!-- Check if PowerShell is available -->
+        <Exec Command="powershell -File CheckPowerShell.ps1"
+              IgnoreExitCode="true"
+              StandardOutputImportance="high"
+              StandardErrorImportance="high">
+            <Output TaskParameter="ExitCode" PropertyName="PowerShellAvailable" />
+        </Exec>
+
+        <!-- Define Compression and Cleanup Commands -->
+        <PropertyGroup>
+            <CompressionCommand Condition="'$(PowerShellAvailable)' == '0'">
+                powershell -Command &quot;Compress-Archive -Path '..\Plugins\*' -DestinationPath '..\Plugins\$(AssemblyName).Plugin.zip' -Force&quot;
+            </CompressionCommand>
+            <CleanupCommand Condition="'$(PowerShellAvailable)' == '0'">
+                powershell -Command &quot;Get-ChildItem -Path '..\Plugins' -Exclude '$(AssemblyName).Plugin.zip' | Remove-Item -Recurse -Force&quot;
+            </CleanupCommand>
+            <NotifyCommand Condition="'$(PowerShellAvailable)' != '0'">
+                echo PowerShell is not available. Please ensure PowerShell is installed and accessible in the PATH.
+            </NotifyCommand>
+        </PropertyGroup>
+
+        <!-- Execute Compression and Cleanup if PowerShell is available -->
+        <Exec Command="$(CompressionCommand)" Condition="'$(PowerShellAvailable)' == '0'" />
+        <Exec Command="$(CleanupCommand)" Condition="'$(PowerShellAvailable)' == '0'" />
+
+        <!-- Notify the user if PowerShell is not available -->
+        <Exec Command="$(NotifyCommand)" Condition="'$(PowerShellAvailable)' != '0'" />
+        
+     </Target>
+
+</Project>

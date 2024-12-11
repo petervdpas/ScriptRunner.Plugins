@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Your Name or Organization",
+  "classifications": ["ScriptRunner", "Plugin"],
+  "identity": "ScriptRunner.Plugins.Template",
+  "name": "ScriptRunner Plugin Template",
+  "shortName": "scriptrunner-plugin",
+  "sourceName": "PluginTemplate",
+  "description": "A template for creating ScriptRunner plugins.",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "preferNameDirectory": true,
+  "symbols": {
+    "PluginName": {
+      "type": "parameter",
+      "description": "Name of the plugin",
+      "datatype": "string",
+      "replaces": "ScriptRunner.Plugins.Template"
+    }
+  }
+}

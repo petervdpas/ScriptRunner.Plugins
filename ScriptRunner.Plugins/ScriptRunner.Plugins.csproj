@@ -9,7 +9,7 @@
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>ScriptRunner.Plugins</PackageId>
-        <Version>1.0.18</Version>
+        <Version>1.0.20</Version>
         <Authors>Peter van de Pas</Authors>
         <Description>A plugin framework for ScriptRunner</Description>
         <PackageTags>ScriptRunner;Plugins;DependencyInjection</PackageTags>
@@ -42,5 +42,9 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
     </ItemGroup>
-
+    
+    <ItemGroup>
+        <Content Include="Templates\BasePluginTemplate\**\*" Pack="true" PackagePath="contentFiles\Templates\BasePluginTemplate\" />
+    </ItemGroup>
+    
 </Project>
