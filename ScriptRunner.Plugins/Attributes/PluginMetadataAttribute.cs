@@ -1,4 +1,6 @@
-﻿namespace ScriptRunner.Plugins.Attributes;
+﻿using System;
+
+namespace ScriptRunner.Plugins.Attributes;
 
 /// <summary>
 /// Provides metadata for plugins to describe their properties, behavior, and compatibility.

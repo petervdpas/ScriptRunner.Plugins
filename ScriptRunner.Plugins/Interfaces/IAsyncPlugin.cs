@@ -1,4 +1,7 @@
-﻿namespace ScriptRunner.Plugins.Interfaces;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace ScriptRunner.Plugins.Interfaces;
 
 /// <summary>
 /// Represents an asynchronous plugin that extends the functionality of <see cref="IPlugin"/>.

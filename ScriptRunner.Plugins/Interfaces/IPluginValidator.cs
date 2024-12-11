@@ -1,4 +1,5 @@
-﻿using ScriptRunner.Plugins.Exceptions;
+﻿using System;
+using ScriptRunner.Plugins.Exceptions;
 
 namespace ScriptRunner.Plugins.Interfaces;
 

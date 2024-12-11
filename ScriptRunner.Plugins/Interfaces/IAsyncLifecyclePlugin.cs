@@ -1,4 +1,6 @@
-﻿namespace ScriptRunner.Plugins.Interfaces;
+﻿using System.Threading.Tasks;
+
+namespace ScriptRunner.Plugins.Interfaces;
 
 /// <summary>
 /// Represents an asynchronous plugin that supports lifecycle management through distinct phases of operation.

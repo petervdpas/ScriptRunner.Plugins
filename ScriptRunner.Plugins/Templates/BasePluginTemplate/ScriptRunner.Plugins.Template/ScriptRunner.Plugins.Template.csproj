@@ -4,7 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <DocumentationFile>..\Plugins\{{sourceName}}.xml</DocumentationFile>
+        <DocumentationFile>..\Plugins\$(AssemblyName).xml</DocumentationFile>
         <RootNamespace>ScriptRunner.Plugins.{{sourceName}}</RootNamespace>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
@@ -16,17 +16,20 @@
     <Target Name="SeparatePluginAndDependencies" AfterTargets="Build">
         <MakeDir Directories="..\Plugins\Dependencies" />
 
+        <!-- Collect the plugin DLL -->
         <ItemGroup>
-            <PluginAssembly Include="$(TargetDir){{sourceName}}.dll" />
+            <PluginAssembly Include="$(TargetDir)$(AssemblyName).dll" />
         </ItemGroup>
 
+        <!-- Copy the plugin DLL to the Plugins directory -->
         <Copy SourceFiles="@(PluginAssembly)"
               DestinationFolder="..\Plugins"
               SkipUnchangedFiles="true" />
 
+        <!-- Collect dependencies explicitly from the build output -->
         <ItemGroup>
             <DependencyAssemblies Include="$(TargetDir)**\*.dll"
-                                  Exclude="$(TargetDir){{sourceName}}.dll" />
+                                  Exclude="$(TargetDir)$(AssemblyName).dll" />
         </ItemGroup>
 
         <Copy SourceFiles="@(DependencyAssemblies)"

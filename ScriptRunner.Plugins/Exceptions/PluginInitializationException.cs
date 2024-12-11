@@ -1,4 +1,6 @@
-﻿namespace ScriptRunner.Plugins.Exceptions;
+﻿using System;
+
+namespace ScriptRunner.Plugins.Exceptions;
 
 /// <summary>
 /// Represents an exception that occurs during the initialization of a plugin.

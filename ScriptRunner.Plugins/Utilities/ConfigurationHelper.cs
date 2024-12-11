@@ -1,4 +1,7 @@
-﻿namespace ScriptRunner.Plugins.Utilities;
+﻿using System;
+using System.Collections.Generic;
+
+namespace ScriptRunner.Plugins.Utilities;
 
 /// <summary>
 /// Provides utility methods for retrieving configuration values from a dictionary.

@@ -1,4 +1,6 @@
-﻿namespace ScriptRunner.Plugins.Interfaces;
+﻿using System.Collections.Generic;
+
+namespace ScriptRunner.Plugins.Interfaces;
 
 /// <summary>
 /// Represents a plugin with initialization and execution capabilities.

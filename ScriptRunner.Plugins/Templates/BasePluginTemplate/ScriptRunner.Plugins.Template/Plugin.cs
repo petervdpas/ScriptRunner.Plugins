@@ -12,10 +12,10 @@ namespace ScriptRunner.Plugins.Template;
 /// </remarks>
 [PluginMetadata(
     name: "Your Plugin Name",
-    description: "A plugin that provides ...",
+    description: "A plugin that provides...",
     author: "YourName",
-    version: "1.0.2",
-    pluginSystemVersion: "1.0.18",
+    version: "1.0.0",
+    pluginSystemVersion: "1.0.22", // Check this!!!
     frameworkVersion: ".NET 8.0",
     services: [])]
 public class Plugin : BasePlugin
@@ -23,13 +23,13 @@ public class Plugin : BasePlugin
     /// <summary>
     /// Gets the name of the plugin.
     /// </summary>
-    public override string Name => "RestEase Plugin";
+    public override string Name => "Your Plugin Name";
 
     /// <summary>
     /// Initializes the plugin using the provided configuration.
     /// </summary>
     /// <param name="configuration">A dictionary containing configuration key-value pairs for the plugin.</param>
-    public static void InitializeAsync(IDictionary<string, object> configuration)
+    public override void Initialize(IDictionary<string, object> configuration)
     {
         Console.WriteLine(configuration.TryGetValue("SomeKey", out var someValue)
             ? $"SomeKey value: {someValue}"
@@ -39,8 +39,8 @@ public class Plugin : BasePlugin
     /// <summary>
     /// Executes the plugin's main functionality.
     /// </summary>
-    public static void ExecuteAsync()
+    public override void Execute()
     {
-        Console.WriteLine("RestEase Plugin executed.");
+        Console.WriteLine("Your Plugin executed.");
     }
 }
