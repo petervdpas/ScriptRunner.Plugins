@@ -42,9 +42,8 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
     </ItemGroup>
-    
+
     <ItemGroup>
-        <Content Include="Templates\BasePluginTemplate\**\*" Pack="true" PackagePath="contentFiles\Templates\BasePluginTemplate\" />
+        <Content Include="Templates\BasePluginTemplate\**\*" Pack="true" PackagePath="contentFiles/Templates/BasePluginTemplate/" />
     </ItemGroup>
-    
 </Project>
