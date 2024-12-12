@@ -54,7 +54,8 @@ public class PluginValidator : IPluginValidator
     /// </exception>
     private static void ValidateMetadata(PluginMetadataAttribute metadata, Type pluginType)
     {
-        var currentSystemVersion = PluginSystemInfo.CurrentPluginSystemVersion;
+        const string currentSystemVersion = PluginSystemConstants.CurrentPluginSystemVersion;
+        const string currentFrameworkVersion = PluginSystemConstants.CurrentFrameworkVersion;
 
         if (string.IsNullOrWhiteSpace(metadata.Name))
             throw new PluginInitializationException($"Plugin {pluginType.Name} must have a non-empty Name property in its metadata.");
@@ -70,8 +71,10 @@ public class PluginValidator : IPluginValidator
                 $"Plugin {pluginType.Name} is not compatible with the current plugin system version ({currentSystemVersion}). " +
                 $"Required: {metadata.PluginSystemVersion}.");
 
-        if (!string.IsNullOrWhiteSpace(metadata.FrameworkVersion) && !IsValidFrameworkVersion(metadata.FrameworkVersion))
-            throw new PluginInitializationException($"Plugin {pluginType.Name} specifies an invalid framework version: {metadata.FrameworkVersion}");
+        if (!string.IsNullOrWhiteSpace(metadata.FrameworkVersion) &&
+            metadata.FrameworkVersion != currentFrameworkVersion)
+            throw new PluginInitializationException(
+                $"Plugin {pluginType.Name} specifies a framework version ({metadata.FrameworkVersion}) that does not match the required version ({currentFrameworkVersion}).");
     }
 
     /// <summary>
@@ -96,20 +99,5 @@ public class PluginValidator : IPluginValidator
             throw new PluginInitializationException(
                 $"Plugin {pluginType.Name} declares the following services in its metadata but does not implement them: {string.Join(", ", missingServices)}.");
         }
-    }
-
-    /// <summary>
-    /// Checks if the specified framework version string is valid.
-    /// </summary>
-    /// <param name="frameworkVersion">The framework version strings to validate.</param>
-    /// <returns>
-    /// <see langword="true"/> if the framework version string is valid; otherwise, <see langword="false"/>.
-    /// </returns>
-    /// <remarks>
-    /// The framework version is considered valid if it starts with ".NET".
-    /// </remarks>
-    private static bool IsValidFrameworkVersion(string frameworkVersion)
-    {
-        return frameworkVersion.StartsWith(".NET");
     }
 }

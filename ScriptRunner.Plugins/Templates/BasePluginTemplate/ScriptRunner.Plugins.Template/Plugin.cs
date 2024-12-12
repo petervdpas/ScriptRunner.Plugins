@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ScriptRunner.Plugins.Attributes;
+using ScriptRunner.Plugins.Utilities;
 
 namespace ScriptRunner.Plugins.Template;
 
@@ -15,8 +16,8 @@ namespace ScriptRunner.Plugins.Template;
     description: "A plugin that provides...",
     author: "YourName",
     version: "1.0.0",
-    pluginSystemVersion: "1.0.28", // Check this!!!
-    frameworkVersion: ".NET 8.0",
+    pluginSystemVersion: PluginSystemConstants.CurrentPluginSystemVersion,
+    frameworkVersion: PluginSystemConstants.CurrentFrameworkVersion,
     services: [])]
 public class Plugin : BasePlugin
 {
