@@ -16,6 +16,7 @@
 - **Database Utilities**: Use `IDatabase` for executing SQL queries and `SqlGenerator` for dynamic SQL generation.
 - **Local Storage**: Store plugin data with `ILocalStorage` for runtime use and persistence.
 - **Simplified Development**: Use base classes like `BasePlugin` and `BaseServicePlugin` to reduce boilerplate code.
+- **Plugin Template**: Quickly scaffold a new plugin project using the provided template.
 
 ---
 
@@ -26,6 +27,24 @@ Install via NuGet:
 ```bash
 dotnet add package ScriptRunner.Plugins
 ```
+
+---
+
+## Getting Started
+
+### Scaffold a New Plugin Project
+
+The `ScriptRunner.Plugins` package includes a template to help you quickly set up a plugin project. Use the `dotnet new` command:
+
+```bash
+dotnet new srplugin -n MyNewPlugin
+```
+
+This creates a project with:
+
+- Example plugin class (`Plugin.cs`) using `[PluginMetadata]`.
+- Pre-configured `PluginSystemConstants` for versioning.
+- Example service registration with `IServicePlugin`.
 
 ---
 
