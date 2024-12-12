@@ -15,7 +15,7 @@ namespace ScriptRunner.Plugins.Template;
     description: "A plugin that provides...",
     author: "YourName",
     version: "1.0.0",
-    pluginSystemVersion: "1.0.24", // Check this!!!
+    pluginSystemVersion: "1.0.28", // Check this!!!
     frameworkVersion: ".NET 8.0",
     services: [])]
 public class Plugin : BasePlugin

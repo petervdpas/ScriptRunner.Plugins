@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using ScriptRunner.Plugins.Interfaces;
 
-namespace ScriptRunner.Plugins.Utilities;
+namespace ScriptRunner.Plugins.Tools;
 
 /// <summary>
 ///     Defines methods for generating SQL queries and mapping <see cref="DataRow" /> values to SQL parameters,
@@ -49,7 +49,7 @@ public class SqlGenerator : ISqlGenerator
     /// <param name="tableName">The name of the database table as a string.</param>
     /// <exception cref="ArgumentException">Thrown if <paramref name="tableName" /> is null or empty.</exception>
     /// <remarks>
-    ///     This method should be called prior to generating any SQL queries, as the table name is required
+    ///     This method should be called before generating any SQL queries, as the table name is required
     ///     for generating valid SQL statements. The table name should match the exact name of the table in the database.
     /// </remarks>
     public void SetTableName(string tableName)
@@ -60,7 +60,7 @@ public class SqlGenerator : ISqlGenerator
     }
 
     /// <summary>
-    ///     Generates a SQL SELECT query string that retrieves columns from the specified table.
+    ///     Generates an SQL SELECT query string that retrieves columns from the specified table.
     /// </summary>
     /// <param name="filterById">
     ///     If <c>true</c>, the generated query will include a WHERE clause to filter results by the ID column,
@@ -115,7 +115,7 @@ public class SqlGenerator : ISqlGenerator
     /// </returns>
     /// <remarks>
     ///     The generated UPDATE query uses parameterized placeholders for each column and is designed to update a single row,
-    ///     identified by its primary key (ID). Ensure that the ID column value is provided in the parameters dictionary
+    ///     identified by its primary key (ID). Ensure that the ID column value is provided in the parameter dictionary
     ///     when executing the query.
     /// </remarks>
     public string GenerateUpdateQuery()

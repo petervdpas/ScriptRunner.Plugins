@@ -52,6 +52,11 @@ public class PluginMetadataAttribute : Attribute
     public string[]? Dependencies { get; }
 
     /// <summary>
+    /// Gets the list of library file names to skip during dependency validation.
+    /// </summary>
+    public string[]? SkipLibraryChecks { get; }
+    
+    /// <summary>
     /// Initializes a new instance of the <see cref="PluginMetadataAttribute"/> class.
     /// </summary>
     /// <param name="name">The name of the plugin.</param>
@@ -62,6 +67,7 @@ public class PluginMetadataAttribute : Attribute
     /// <param name="frameworkVersion">The target framework version (optional).</param>
     /// <param name="services">An array of service names provided by the plugin (optional).</param>
     /// <param name="dependencies">An array of plugin names that this plugin depends on (optional).</param>
+    /// <param name="skipLibraryChecks">An array of library names to skip validation (optional).</param>
     public PluginMetadataAttribute(
         string name,
         string description,
@@ -70,7 +76,8 @@ public class PluginMetadataAttribute : Attribute
         string pluginSystemVersion,
         string frameworkVersion = "",
         string[]? services = null,
-        string[]? dependencies = null)
+        string[]? dependencies = null,
+        string[]? skipLibraryChecks = null)
     {
         Name = name;
         Description = description;
@@ -80,5 +87,6 @@ public class PluginMetadataAttribute : Attribute
         FrameworkVersion = frameworkVersion;
         Services = services ?? [];
         Dependencies = dependencies ?? [];
+        SkipLibraryChecks = skipLibraryChecks ?? [];
     }
 }
