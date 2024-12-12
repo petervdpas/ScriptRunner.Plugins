@@ -7,7 +7,7 @@ using Microsoft.Data.Sqlite;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
 
-namespace ScriptRunner.Plugins;
+namespace ScriptRunner.Plugins.Utilities;
 
 /// <summary>
 /// Provides methods for managing an SQLite database connection and executing various SQL commands.

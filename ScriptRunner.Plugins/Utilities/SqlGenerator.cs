@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using ScriptRunner.Plugins.Interfaces;
 
-namespace ScriptRunner.Plugins;
+namespace ScriptRunner.Plugins.Utilities;
 
 /// <summary>
 ///     Defines methods for generating SQL queries and mapping <see cref="DataRow" /> values to SQL parameters,
