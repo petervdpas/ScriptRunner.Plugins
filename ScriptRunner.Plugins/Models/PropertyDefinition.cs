@@ -56,7 +56,7 @@ public class PropertyDefinition
     /// </summary>
     /// <remarks>
     ///     This property is typically used for controls that require pre-defined choices,
-    ///     such as a <see cref="ComboBox" /> or a set of radio buttons.
+    ///     such as a DropDown UI or a set of Radio Buttons UI.
     /// </remarks>
     public IEnumerable<string>? Options { get; init; }
 
@@ -72,8 +72,8 @@ public class PropertyDefinition
     ///     Gets or sets additional parameters to configure the control.
     /// </summary>
     /// <remarks>
-    ///     Examples include "MaxLength" for a <see cref="TextBox" />
-    ///     or "Min" and "Max" for a <see cref="NumericUpDown" />.
+    ///     Examples include "MaxLength" for a TextBox UI
+    ///     or "Min" and "Max" for a Numeric-UpDown UI.
     ///     This allows flexible customization of the UI control's behavior.
     /// </remarks>
     public Dictionary<string, object>? ControlParameters { get; init; }
