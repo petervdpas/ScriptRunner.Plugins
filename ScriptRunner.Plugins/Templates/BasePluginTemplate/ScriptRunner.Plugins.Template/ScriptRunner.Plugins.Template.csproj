@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="ScriptRunner.Plugins" Version="1.2.14" />
+      <PackageReference Include="ScriptRunner.Plugins" Version="1.4.0" />
     </ItemGroup>
 
     <Target Name="SeparatePluginAndDependencies" AfterTargets="Build">

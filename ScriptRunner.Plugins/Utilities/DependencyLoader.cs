@@ -2,17 +2,20 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using Microsoft.Extensions.Logging;
 
 namespace ScriptRunner.Plugins.Utilities;
 
 /// <summary>
-/// Utility to dynamically load dependencies from a specified directory.
+/// Utility to dynamically load dependencies from a specified directory with support for shared and isolated contexts.
 /// </summary>
 public static class DependencyLoader
 {
-    private static readonly ConcurrentDictionary<string, Assembly> LoadedAssemblies = new();
+    private static readonly ConcurrentDictionary<string, PluginLoadContext> PluginContexts = new();
+    private static readonly ConcurrentDictionary<string, Assembly> GlobalSharedAssemblies = new();
     private static readonly HashSet<string> SkipLibraryChecks = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
@@ -30,17 +33,17 @@ public static class DependencyLoader
     }
 
     /// <summary>
-    /// Loads all DLLs from the specified directory into the application domain.
+    /// Loads all DLLs from the specified directory into an isolated AssemblyLoadContext or a global shared context.
     /// </summary>
+    /// <param name="pluginName">The unique name of the plugin.</param>
     /// <param name="dependenciesDirectory">The path to the directory containing dependency DLLs.</param>
+    /// <param name="sharedDependencies">The list of DLLs to be loaded into the global shared context.</param>
     /// <param name="logger">The optional logger instance for logging information.</param>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if the <paramref name="dependenciesDirectory"/> is null or empty.
-    /// </exception>
-    /// <exception cref="DirectoryNotFoundException">
-    /// Thrown if the specified <paramref name="dependenciesDirectory"/> does not exist.
-    /// </exception>
-    public static void LoadDependencies(string dependenciesDirectory, ILogger? logger = null)
+    public static void LoadDependencies(
+        string pluginName, 
+        string dependenciesDirectory, 
+        IEnumerable<string> sharedDependencies, 
+        ILogger? logger = null)
     {
         if (string.IsNullOrWhiteSpace(dependenciesDirectory))
             throw new ArgumentNullException(nameof(dependenciesDirectory), "Dependencies directory cannot be null or empty.");
@@ -48,16 +51,17 @@ public static class DependencyLoader
         if (!Directory.Exists(dependenciesDirectory))
             throw new DirectoryNotFoundException($"Dependencies directory not found: {dependenciesDirectory}");
 
+        // Convert sharedDependencies to a HashSet for fast lookups
+        var sharedDependenciesSet = new HashSet<string>(sharedDependencies, StringComparer.OrdinalIgnoreCase);
+
         var dllFiles = Directory.GetFiles(dependenciesDirectory, "*.dll");
+
+        // Create or retrieve the plugin's AssemblyLoadContext
+        var loadContext = PluginContexts.GetOrAdd(pluginName, name => new PluginLoadContext(name));
 
         foreach (var dll in dllFiles)
         {
-            var assemblyName = AssemblyName.GetAssemblyName(dll).FullName;
-            if (LoadedAssemblies.ContainsKey(assemblyName))
-            {
-                logger?.LogDebug("Skipping already loaded dependency: {DependencyPath}", dll);
-                continue;
-            }
+            var libraryName = Path.GetFileName(dll);
 
             if (ShouldSkipLibrary(dll))
             {
@@ -65,20 +69,70 @@ public static class DependencyLoader
                 continue;
             }
 
-            try
+            if (sharedDependenciesSet.Contains(libraryName))
             {
-                var assembly = Assembly.LoadFrom(dll);
-                LoadedAssemblies[assemblyName] = assembly;
-                logger?.LogDebug("Successfully loaded dependency: {DependencyPath}", dll);
+                // Load into the global shared context
+                LoadSharedDependency(dll, libraryName, logger);
             }
-            catch (BadImageFormatException ex)
+            else
             {
-                logger?.LogWarning("Native library skipped: {DependencyPath}. Error: {Message}", dll, ex.Message);
+                // Load into the plugin's isolated context
+                LoadIsolatedDependency(dll, loadContext, pluginName, logger);
             }
-            catch (Exception ex)
-            {
-                logger?.LogError(ex, "Failed to load dependency: {DependencyPath}", dll);
-            }
+        }
+    }
+
+    /// <summary>
+    /// Loads a shared dependency into the global shared context.
+    /// </summary>
+    /// <param name="dependencyPath">The path to the dependency DLL.</param>
+    /// <param name="libraryName">The name of the library.</param>
+    /// <param name="logger">The optional logger instance for logging information.</param>
+    private static void LoadSharedDependency(string dependencyPath, string libraryName, ILogger? logger)
+    {
+        if (GlobalSharedAssemblies.ContainsKey(libraryName))
+        {
+            logger?.LogDebug("Skipping already loaded shared dependency: {LibraryName}", libraryName);
+            return;
+        }
+
+        try
+        {
+            var assembly = Assembly.LoadFrom(dependencyPath);
+            GlobalSharedAssemblies[libraryName] = assembly;
+            logger?.LogDebug("Successfully loaded shared dependency: {LibraryName}", libraryName);
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(ex, "Failed to load shared dependency: {LibraryName}", libraryName);
+        }
+    }
+
+    /// <summary>
+    /// Loads a dependency into the specified plugin's isolated AssemblyLoadContext.
+    /// </summary>
+    /// <param name="dependencyPath">The path to the dependency DLL.</param>
+    /// <param name="loadContext">The plugin's AssemblyLoadContext.</param>
+    /// <param name="pluginName">The name of the plugin.</param>
+    /// <param name="logger">The optional logger instance for logging information.</param>
+    private static void LoadIsolatedDependency(
+        string dependencyPath, 
+        PluginLoadContext loadContext, 
+        string pluginName, 
+        ILogger? logger)
+    {
+        try
+        {
+            loadContext.LoadFromAssemblyPath(dependencyPath);
+            logger?.LogDebug("Successfully loaded dependency: {DependencyPath} into context: {PluginName}", dependencyPath, pluginName);
+        }
+        catch (BadImageFormatException ex)
+        {
+            logger?.LogWarning("Native library skipped: {DependencyPath}. Error: {Message}", dependencyPath, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(ex, "Failed to load dependency: {DependencyPath}", dependencyPath);
         }
     }
 
@@ -89,7 +143,6 @@ public static class DependencyLoader
     /// <returns>True if the library should be skipped, false otherwise.</returns>
     private static bool ShouldSkipLibrary(string filePath)
     {
-        // Check if explicitly skipped by the user
         var libraryName = Path.GetFileName(filePath);
         return SkipLibraryChecks.Contains(libraryName) || InspectFileForNativeLibrary(filePath);
     }
@@ -129,6 +182,20 @@ public static class DependencyLoader
         catch
         {
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Custom AssemblyLoadContext for isolating plugin dependencies.
+    /// </summary>
+    private class PluginLoadContext : AssemblyLoadContext
+    {
+        public PluginLoadContext(string name) : base(name, isCollectible: true) { }
+
+        protected override Assembly? Load(AssemblyName assemblyName)
+        {
+            // Prevent circular loading by deferring to the default context
+            return null;
         }
     }
 }

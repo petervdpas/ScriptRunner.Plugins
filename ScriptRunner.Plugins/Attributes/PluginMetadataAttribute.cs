@@ -44,12 +44,12 @@ public class PluginMetadataAttribute : Attribute
     public string[]? Services { get; }
 
     /// <summary>
-    /// Gets the list of plugins that this plugin depends on.
+    /// Gets the list of shared library file names that should be loaded globally.
     /// </summary>
     /// <remarks>
-    /// Dependencies are specified as plugin names that must be available for this plugin to function.
+    /// These libraries are shared across plugins to ensure compatibility and avoid duplication.
     /// </remarks>
-    public string[]? Dependencies { get; }
+    public string[]? SharedDependencies { get; }
 
     /// <summary>
     /// Gets the list of library file names to skip during dependency validation.
@@ -66,7 +66,7 @@ public class PluginMetadataAttribute : Attribute
     /// <param name="pluginSystemVersion">The version of the plugin system this plugin was built for.</param>
     /// <param name="frameworkVersion">The target framework version (optional).</param>
     /// <param name="services">An array of service names provided by the plugin (optional).</param>
-    /// <param name="dependencies">An array of plugin names that this plugin depends on (optional).</param>
+    /// <param name="sharedDependencies">An array of library names to be shared globally (optional).</param>
     /// <param name="skipLibraryChecks">An array of library names to skip validation (optional).</param>
     public PluginMetadataAttribute(
         string name,
@@ -76,7 +76,7 @@ public class PluginMetadataAttribute : Attribute
         string pluginSystemVersion,
         string frameworkVersion = "",
         string[]? services = null,
-        string[]? dependencies = null,
+        string[]? sharedDependencies = null,
         string[]? skipLibraryChecks = null)
     {
         Name = name;
@@ -86,7 +86,7 @@ public class PluginMetadataAttribute : Attribute
         PluginSystemVersion = pluginSystemVersion;
         FrameworkVersion = frameworkVersion;
         Services = services ?? [];
-        Dependencies = dependencies ?? [];
+        SharedDependencies = sharedDependencies ?? [];
         SkipLibraryChecks = skipLibraryChecks ?? [];
     }
 }
