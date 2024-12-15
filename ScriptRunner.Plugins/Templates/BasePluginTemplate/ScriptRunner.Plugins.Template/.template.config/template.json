@@ -17,6 +17,12 @@
       "type": "parameter",
       "description": "Name of the plugin",
       "datatype": "string",
+      "defaultValue": "PluginTemplate",
+      "replaces": "PluginTemplate"
+    },
+    "RootNamespace": {
+      "type": "generated",
+      "generator": "safe_namespace",
       "replaces": "ScriptRunner.Plugins.Template"
     }
   }
