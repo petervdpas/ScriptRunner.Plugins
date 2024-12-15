@@ -35,9 +35,9 @@ public static class StringExtensions
     {
         return input.ToLower();
     }
-    
+
     /// <summary>
-    /// Removes all white-space characters from the string.
+    ///     Removes all white-space characters from the string.
     /// </summary>
     /// <param name="input">The string from which to remove white-space characters.</param>
     /// <returns>A new string with all white-space characters removed.</returns>
@@ -45,9 +45,9 @@ public static class StringExtensions
     {
         return string.Concat(input.Where(c => !char.IsWhiteSpace(c)));
     }
-    
+
     /// <summary>
-    /// Checks if the string is a palindrome (reads the same backward as forward).
+    ///     Checks if the string is a palindrome (reads the same backward as forward).
     /// </summary>
     /// <param name="input">The string to check.</param>
     /// <returns>True if the string is a palindrome... otherwise, false.</returns>
@@ -56,21 +56,21 @@ public static class StringExtensions
         var reversed = input.Reverse();
         return string.Equals(input, reversed, StringComparison.OrdinalIgnoreCase);
     }
-    
+
     /// <summary>
-    /// Converts the string to a title case (e.g., "hello world" becomes "Hello World").
+    ///     Converts the string to a title case (e.g., "hello world" becomes "Hello World").
     /// </summary>
     /// <param name="input">The string to convert.</param>
     /// <returns>The string in title case.</returns>
     public static string ToTitleCase(this string input)
     {
-        return string.IsNullOrWhiteSpace(input) 
-            ? input 
+        return string.IsNullOrWhiteSpace(input)
+            ? input
             : string.Join(" ", input.Split(' ').Select(word => char.ToUpper(word[0]) + word[1..].ToLower()));
     }
-    
+
     /// <summary>
-    /// Converts the string to PascalCase (e.g., "hello world" becomes "HelloWorld").
+    ///     Converts the string to PascalCase (e.g., "hello world" becomes "HelloWorld").
     /// </summary>
     /// <param name="input">The string to convert.</param>
     /// <returns>The string in PascalCase.</returns>
@@ -84,20 +84,20 @@ public static class StringExtensions
     }
 
     /// <summary>
-    /// Converts the string to camelCase (e.g., "hello world" becomes "helloWorld").
+    ///     Converts the string to camelCase (e.g., "hello world" becomes "helloWorld").
     /// </summary>
     /// <param name="input">The string to convert.</param>
     /// <returns>The string in camelCase.</returns>
     public static string ToCamelCase(this string input)
     {
         var pascalCase = input.ToPascalCase();
-        return string.IsNullOrWhiteSpace(pascalCase) 
-            ? pascalCase 
+        return string.IsNullOrWhiteSpace(pascalCase)
+            ? pascalCase
             : char.ToLower(pascalCase[0]) + pascalCase[1..];
     }
 
     /// <summary>
-    /// Converts the string to snake_case (e.g., "hello world" becomes "hello_world").
+    ///     Converts the string to snake_case (e.g., "hello world" becomes "hello_world").
     /// </summary>
     /// <param name="input">The string to convert.</param>
     /// <returns>The string in snake_case.</returns>
@@ -111,7 +111,7 @@ public static class StringExtensions
     }
 
     /// <summary>
-    /// Converts the string to a kebab-case (e.g., "hello world" becomes "hello-world").
+    ///     Converts the string to a kebab-case (e.g., "hello world" becomes "hello-world").
     /// </summary>
     /// <param name="input">The string to convert.</param>
     /// <returns>The string in kebab-case.</returns>
@@ -123,5 +123,4 @@ public static class StringExtensions
                 .Where(word => !string.IsNullOrWhiteSpace(word))
                 .Select(word => word.ToLower()));
     }
-
 }

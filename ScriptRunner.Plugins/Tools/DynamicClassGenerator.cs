@@ -22,14 +22,14 @@ public class DynamicClassGenerator : IDynamicClassGenerator
     private readonly IPluginLogger? _logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DynamicClassGenerator"/> class with an optional logger.
+    ///     Initializes a new instance of the <see cref="DynamicClassGenerator" /> class with an optional logger.
     /// </summary>
     /// <param name="logger">An optional logger for diagnostic and error logging.</param>
     public DynamicClassGenerator(IPluginLogger? logger = null)
     {
         _logger = logger;
     }
-    
+
     /// <summary>
     ///     Generates an assembly from JSON definitions, saving it to the specified output path.
     /// </summary>

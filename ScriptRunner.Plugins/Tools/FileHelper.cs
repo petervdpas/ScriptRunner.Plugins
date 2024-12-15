@@ -209,7 +209,7 @@ public class FileHelper : IFileHelper
 
         Directory.CreateDirectory(destinationPath);
 
-        ZipFile.ExtractToDirectory(zipFilePath, destinationPath, overwriteFiles: true);
+        ZipFile.ExtractToDirectory(zipFilePath, destinationPath, true);
     }
 
     /// <summary>
@@ -226,7 +226,7 @@ public class FileHelper : IFileHelper
         if (string.IsNullOrWhiteSpace(zipFilePath))
             throw new ArgumentException("Invalid zip file path.", nameof(zipFilePath));
 
-        ZipFile.CreateFromDirectory(sourceDirectoryPath, zipFilePath, CompressionLevel.Optimal, includeBaseDirectory: false);
+        ZipFile.CreateFromDirectory(sourceDirectoryPath, zipFilePath, CompressionLevel.Optimal, false);
     }
 
     /// <summary>
@@ -237,11 +237,12 @@ public class FileHelper : IFileHelper
     /// <returns>True if all required directories are present; otherwise, false.</returns>
     public bool ValidateZipStructure(string tempDir, string[] requiredDirectories)
     {
-        return Directory.Exists(tempDir) && requiredDirectories.All(dir => Directory.Exists(Path.Combine(tempDir, dir)));
+        return Directory.Exists(tempDir) &&
+               requiredDirectories.All(dir => Directory.Exists(Path.Combine(tempDir, dir)));
     }
 
     /// <summary>
-    /// Deletes a temporary directory and all its contents.
+    ///     Deletes a temporary directory and all its contents.
     /// </summary>
     /// <param name="tempDir">The path of the temporary directory to delete.</param>
     /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exist.</exception>
@@ -249,13 +250,11 @@ public class FileHelper : IFileHelper
     public void CleanUpTempDirectory(string tempDir)
     {
         if (!Directory.Exists(tempDir))
-        {
             throw new DirectoryNotFoundException($"The directory '{tempDir}' does not exist.");
-        }
 
         try
         {
-            Directory.Delete(tempDir, recursive: true);
+            Directory.Delete(tempDir, true);
         }
         catch (Exception ex)
         {

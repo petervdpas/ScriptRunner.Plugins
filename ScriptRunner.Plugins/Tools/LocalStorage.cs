@@ -14,9 +14,10 @@ namespace ScriptRunner.Plugins.Tools;
 /// </summary>
 public class LocalStorage : ILocalStorage
 {
+    private readonly object _lock = new();
+
     // ExpandoObject to hold temporary data
     private readonly dynamic _tempData = new ExpandoObject();
-    private readonly object _lock = new();
 
     /// <summary>
     ///     Adds or updates a value in the temporary storage dynamically.
@@ -140,7 +141,7 @@ public class LocalStorage : ILocalStorage
             var json = File.ReadAllText(filePath);
             var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
             if (data == null) return;
-            
+
             foreach (var kvp in data)
                 SetData(kvp.Key, kvp.Value);
         }

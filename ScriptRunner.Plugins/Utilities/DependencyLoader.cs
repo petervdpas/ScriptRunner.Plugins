@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.Logging;
@@ -10,7 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace ScriptRunner.Plugins.Utilities;
 
 /// <summary>
-/// Utility to dynamically load dependencies from a specified directory with support for shared and isolated contexts.
+///     Utility to dynamically load dependencies from a specified directory with support for shared and isolated contexts.
 /// </summary>
 public static class DependencyLoader
 {
@@ -19,34 +18,32 @@ public static class DependencyLoader
     private static readonly HashSet<string> SkipLibraryChecks = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Sets libraries to be skipped during dependency validation.
+    ///     Sets libraries to be skipped during dependency validation.
     /// </summary>
     /// <param name="skipLibraryChecks">Array of library names to skip.</param>
     public static void SetSkipLibraries(IEnumerable<string>? skipLibraryChecks)
     {
         if (skipLibraryChecks == null) return;
 
-        foreach (var lib in skipLibraryChecks)
-        {
-            SkipLibraryChecks.Add(lib);
-        }
+        foreach (var lib in skipLibraryChecks) SkipLibraryChecks.Add(lib);
     }
 
     /// <summary>
-    /// Loads all DLLs from the specified directory into an isolated AssemblyLoadContext or a global shared context.
+    ///     Loads all DLLs from the specified directory into an isolated AssemblyLoadContext or a global shared context.
     /// </summary>
     /// <param name="pluginName">The unique name of the plugin.</param>
     /// <param name="dependenciesDirectory">The path to the directory containing dependency DLLs.</param>
     /// <param name="sharedDependencies">The list of DLLs to be loaded into the global shared context.</param>
     /// <param name="logger">The optional logger instance for logging information.</param>
     public static void LoadDependencies(
-        string pluginName, 
-        string dependenciesDirectory, 
-        IEnumerable<string> sharedDependencies, 
+        string pluginName,
+        string dependenciesDirectory,
+        IEnumerable<string> sharedDependencies,
         ILogger? logger = null)
     {
         if (string.IsNullOrWhiteSpace(dependenciesDirectory))
-            throw new ArgumentNullException(nameof(dependenciesDirectory), "Dependencies directory cannot be null or empty.");
+            throw new ArgumentNullException(nameof(dependenciesDirectory),
+                "Dependencies directory cannot be null or empty.");
 
         if (!Directory.Exists(dependenciesDirectory))
             throw new DirectoryNotFoundException($"Dependencies directory not found: {dependenciesDirectory}");
@@ -70,20 +67,16 @@ public static class DependencyLoader
             }
 
             if (sharedDependenciesSet.Contains(libraryName))
-            {
                 // Load into the global shared context
                 LoadSharedDependency(dll, libraryName, logger);
-            }
             else
-            {
                 // Load into the plugin's isolated context
                 LoadIsolatedDependency(dll, loadContext, pluginName, logger);
-            }
         }
     }
 
     /// <summary>
-    /// Loads a shared dependency into the global shared context.
+    ///     Loads a shared dependency into the global shared context.
     /// </summary>
     /// <param name="dependencyPath">The path to the dependency DLL.</param>
     /// <param name="libraryName">The name of the library.</param>
@@ -109,26 +102,32 @@ public static class DependencyLoader
     }
 
     /// <summary>
-    /// Loads a dependency into the specified plugin's isolated AssemblyLoadContext.
+    ///     Loads a dependency into the specified plugin's isolated AssemblyLoadContext.
     /// </summary>
     /// <param name="dependencyPath">The path to the dependency DLL.</param>
     /// <param name="loadContext">The plugin's AssemblyLoadContext.</param>
     /// <param name="pluginName">The name of the plugin.</param>
     /// <param name="logger">The optional logger instance for logging information.</param>
     private static void LoadIsolatedDependency(
-        string dependencyPath, 
-        PluginLoadContext loadContext, 
-        string pluginName, 
+        string dependencyPath,
+        PluginLoadContext loadContext,
+        string pluginName,
         ILogger? logger)
     {
         try
         {
-            loadContext.LoadFromAssemblyPath(dependencyPath);
-            logger?.LogDebug("Successfully loaded dependency: {DependencyPath} into context: {PluginName}", dependencyPath, pluginName);
+            // Ensure the dependency path is absolute
+            var absolutePath = Path.GetFullPath(dependencyPath);
+
+            // Load the assembly from the absolute path
+            loadContext.LoadFromAssemblyPath(absolutePath);
+            logger?.LogDebug("Successfully loaded dependency: {DependencyPath} into context: {PluginName}",
+                absolutePath, pluginName);
         }
         catch (BadImageFormatException ex)
         {
-            logger?.LogWarning("Native library skipped: {DependencyPath}. Error: {Message}", dependencyPath, ex.Message);
+            logger?.LogWarning("Native library skipped: {DependencyPath}. Error: {Message}", dependencyPath,
+                ex.Message);
         }
         catch (Exception ex)
         {
@@ -137,7 +136,7 @@ public static class DependencyLoader
     }
 
     /// <summary>
-    /// Determines if a library should be skipped based on its name or type.
+    ///     Determines if a library should be skipped based on its name or type.
     /// </summary>
     /// <param name="filePath">The path to the library file.</param>
     /// <returns>True if the library should be skipped, false otherwise.</returns>
@@ -148,7 +147,7 @@ public static class DependencyLoader
     }
 
     /// <summary>
-    /// Inspects a file to determine if it is a native library.
+    ///     Inspects a file to determine if it is a native library.
     /// </summary>
     /// <param name="filePath">The path to the file.</param>
     /// <returns>True if the file is a native library, false otherwise.</returns>
@@ -186,11 +185,13 @@ public static class DependencyLoader
     }
 
     /// <summary>
-    /// Custom AssemblyLoadContext for isolating plugin dependencies.
+    ///     Custom AssemblyLoadContext for isolating plugin dependencies.
     /// </summary>
     private class PluginLoadContext : AssemblyLoadContext
     {
-        public PluginLoadContext(string name) : base(name, isCollectible: true) { }
+        public PluginLoadContext(string name) : base(name, true)
+        {
+        }
 
         protected override Assembly? Load(AssemblyName assemblyName)
         {

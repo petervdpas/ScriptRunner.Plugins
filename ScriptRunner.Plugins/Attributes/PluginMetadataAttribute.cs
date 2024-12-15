@@ -3,61 +3,13 @@
 namespace ScriptRunner.Plugins.Attributes;
 
 /// <summary>
-/// Provides metadata for plugins to describe their properties, behavior, and compatibility.
+///     Provides metadata for plugins to describe their properties, behavior, and compatibility.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class)]
 public class PluginMetadataAttribute : Attribute
 {
     /// <summary>
-    /// Gets the name of the plugin.
-    /// </summary>
-    public string Name { get; }
-
-    /// <summary>
-    /// Gets a short description of the plugin.
-    /// </summary>
-    public string Description { get; }
-
-    /// <summary>
-    /// Gets the author of the plugin.
-    /// </summary>
-    public string Author { get; }
-
-    /// <summary>
-    /// Gets the version of the plugin.
-    /// </summary>
-    public string Version { get; }
-
-    /// <summary>
-    /// Gets the version of the plugin system this plugin was built for.
-    /// </summary>
-    public string PluginSystemVersion { get; }
-
-    /// <summary>
-    /// Gets the target framework version for the plugin (optional).
-    /// </summary>
-    public string FrameworkVersion { get; }
-
-    /// <summary>
-    /// Gets the list of services provided by the plugin, if applicable.
-    /// </summary>
-    public string[]? Services { get; }
-
-    /// <summary>
-    /// Gets the list of shared library file names that should be loaded globally.
-    /// </summary>
-    /// <remarks>
-    /// These libraries are shared across plugins to ensure compatibility and avoid duplication.
-    /// </remarks>
-    public string[]? SharedDependencies { get; }
-
-    /// <summary>
-    /// Gets the list of library file names to skip during dependency validation.
-    /// </summary>
-    public string[]? SkipLibraryChecks { get; }
-    
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PluginMetadataAttribute"/> class.
+    ///     Initializes a new instance of the <see cref="PluginMetadataAttribute" /> class.
     /// </summary>
     /// <param name="name">The name of the plugin.</param>
     /// <param name="description">A short description of the plugin.</param>
@@ -89,4 +41,52 @@ public class PluginMetadataAttribute : Attribute
         SharedDependencies = sharedDependencies ?? [];
         SkipLibraryChecks = skipLibraryChecks ?? [];
     }
+
+    /// <summary>
+    ///     Gets the name of the plugin.
+    /// </summary>
+    public string Name { get; }
+
+    /// <summary>
+    ///     Gets a short description of the plugin.
+    /// </summary>
+    public string Description { get; }
+
+    /// <summary>
+    ///     Gets the author of the plugin.
+    /// </summary>
+    public string Author { get; }
+
+    /// <summary>
+    ///     Gets the version of the plugin.
+    /// </summary>
+    public string Version { get; }
+
+    /// <summary>
+    ///     Gets the version of the plugin system this plugin was built for.
+    /// </summary>
+    public string PluginSystemVersion { get; }
+
+    /// <summary>
+    ///     Gets the target framework version for the plugin (optional).
+    /// </summary>
+    public string FrameworkVersion { get; }
+
+    /// <summary>
+    ///     Gets the list of services provided by the plugin, if applicable.
+    /// </summary>
+    public string[]? Services { get; }
+
+    /// <summary>
+    ///     Gets the list of shared library file names that should be loaded globally.
+    /// </summary>
+    /// <remarks>
+    ///     These libraries are shared across plugins to ensure compatibility and avoid duplication.
+    /// </remarks>
+    public string[]? SharedDependencies { get; }
+
+    /// <summary>
+    ///     Gets the list of library file names to skip during dependency validation.
+    /// </summary>
+    public string[]? SkipLibraryChecks { get; }
 }

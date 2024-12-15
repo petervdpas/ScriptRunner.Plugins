@@ -12,22 +12,22 @@ namespace ScriptRunner.Plugins.Template;
 ///     This plugin demonstrates how to ...
 /// </remarks>
 [PluginMetadata(
-    name: "Your Plugin Name",
-    description: "A plugin that provides...",
-    author: "YourName",
-    version: "1.0.0",
-    pluginSystemVersion: PluginSystemConstants.CurrentPluginSystemVersion,
-    frameworkVersion: PluginSystemConstants.CurrentFrameworkVersion,
-    services: [])]
+    "Your Plugin Name",
+    "A plugin that provides...",
+    "YourName",
+    "1.0.0",
+    PluginSystemConstants.CurrentPluginSystemVersion,
+    PluginSystemConstants.CurrentFrameworkVersion,
+    [])]
 public class Plugin : BasePlugin
 {
     /// <summary>
-    /// Gets the name of the plugin.
+    ///     Gets the name of the plugin.
     /// </summary>
     public override string Name => "Your Plugin Name";
 
     /// <summary>
-    /// Initializes the plugin using the provided configuration.
+    ///     Initializes the plugin using the provided configuration.
     /// </summary>
     /// <param name="configuration">A dictionary containing configuration key-value pairs for the plugin.</param>
     public override void Initialize(IDictionary<string, object> configuration)
@@ -36,9 +36,9 @@ public class Plugin : BasePlugin
             ? $"SomeKey value: {someValue}"
             : "SomeKey not found in configuration.");
     }
-    
+
     /// <summary>
-    /// Executes the plugin's main functionality.
+    ///     Executes the plugin's main functionality.
     /// </summary>
     public override void Execute()
     {

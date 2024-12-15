@@ -5,16 +5,16 @@ using System.Text;
 namespace ScriptRunner.Plugins.Extensions;
 
 /// <summary>
-/// Provides extension methods for <see cref="DataTable"/> operations.
+///     Provides extension methods for <see cref="DataTable" /> operations.
 /// </summary>
 public static class DataTableExtensions
 {
     /// <summary>
-    /// Dumps the <see cref="DataTable"/> content to a readable string.
+    ///     Dumps the <see cref="DataTable" /> content to a readable string.
     /// </summary>
-    /// <param name="table">The <see cref="DataTable"/> to dump.</param>
+    /// <param name="table">The <see cref="DataTable" /> to dump.</param>
     /// <param name="label">An optional label to include before the output.</param>
-    /// <returns>A formatted string representation of the <see cref="DataTable"/>.</returns>
+    /// <returns>A formatted string representation of the <see cref="DataTable" />.</returns>
     public static string Dump(this DataTable table, string? label = null)
     {
         var sb = new StringBuilder();
@@ -28,12 +28,12 @@ public static class DataTableExtensions
         sb.AppendLine(FormatDataTable(table));
         return sb.ToString();
     }
-    
+
     /// <summary>
-    /// Formats a <see cref="DataTable"/> into a readable string format.
+    ///     Formats a <see cref="DataTable" /> into a readable string format.
     /// </summary>
-    /// <param name="table">The <see cref="DataTable"/> to format.</param>
-    /// <returns>A formatted string representation of the <see cref="DataTable"/>.</returns>
+    /// <param name="table">The <see cref="DataTable" /> to format.</param>
+    /// <returns>A formatted string representation of the <see cref="DataTable" />.</returns>
     private static string FormatDataTable(DataTable table)
     {
         if (table.Rows.Count == 0) return "No data found.";
@@ -59,9 +59,7 @@ public static class DataTableExtensions
         // Write the column headers
         output.WriteLine(separatorLine);
         for (var i = 0; i < table.Columns.Count; i++)
-        {
             output.Write($"| {table.Columns[i].ColumnName.PadRight(columnWidths[i])} ");
-        }
         output.WriteLine("|");
         output.WriteLine(separatorLine);
 
@@ -69,9 +67,7 @@ public static class DataTableExtensions
         foreach (DataRow row in table.Rows)
         {
             for (var i = 0; i < table.Columns.Count; i++)
-            {
                 output.Write($"| {row[i].ToString()?.PadRight(columnWidths[i])} ");
-            }
             output.WriteLine("|");
         }
 
@@ -81,7 +77,7 @@ public static class DataTableExtensions
     }
 
     /// <summary>
-    /// Creates a horizontal separator line for the <see cref="DataTable"/>.
+    ///     Creates a horizontal separator line for the <see cref="DataTable" />.
     /// </summary>
     /// <param name="columnWidths">The widths of the columns in the table.</param>
     /// <returns>A formatted separator line string.</returns>

@@ -6,16 +6,16 @@ using System.Reflection;
 namespace ScriptRunner.Plugins.Utilities;
 
 /// <summary>
-/// Utility for resolving namespaces used in a plugin assembly.
+///     Utility for resolving namespaces used in a plugin assembly.
 /// </summary>
 public static class NamespaceResolver
 {
     /// <summary>
-    /// Resolves all unique namespaces used by public types in the given assembly.
+    ///     Resolves all unique namespaces used by public types in the given assembly.
     /// </summary>
     /// <param name="assembly">The assembly to inspect.</param>
     /// <returns>A collection of unique namespace strings.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="assembly"/> is null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="assembly" /> is null.</exception>
     public static IEnumerable<string?> ResolveNamespaces(Assembly assembly)
     {
         if (assembly == null)

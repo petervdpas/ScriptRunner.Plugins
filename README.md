@@ -4,7 +4,8 @@
 [![NuGet Downloads](https://img.shields.io/nuget/dt/ScriptRunner.Plugins.svg)](https://www.nuget.org/packages/ScriptRunner.Plugins)
 [![License](https://img.shields.io/github/license/petervdpas/ScriptRunner.Plugins.svg)](https://opensource.org/licenses/MIT)
 
-`ScriptRunner.Plugins` provides interfaces, attributes, utilities, and constants for building plugins compatible with the `ScriptRunner` framework. It ensures seamless plugin development with dynamic loading, validation, and integration.
+`ScriptRunner.Plugins` provides interfaces, attributes, utilities, and constants for building plugins compatible with
+the `ScriptRunner` framework. It ensures seamless plugin development with dynamic loading, validation, and integration.
 
 ---
 
@@ -34,7 +35,8 @@ dotnet add package ScriptRunner.Plugins
 
 ### Scaffold a New Plugin Project
 
-The `ScriptRunner.Plugins` package includes a template to help you quickly set up a plugin project. Use the `dotnet new` command:
+The `ScriptRunner.Plugins` package includes a template to help you quickly set up a plugin project. Use the `dotnet new`
+command:
 
 ```bash
 dotnet new srplugin -n MyNewPlugin

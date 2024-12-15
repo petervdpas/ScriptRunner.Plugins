@@ -6,21 +6,21 @@ using ScriptRunner.Plugins.Interfaces;
 namespace ScriptRunner.Plugins;
 
 /// <summary>
-/// Provides a base implementation for asynchronous game plugins.
+///     Provides a base implementation for asynchronous game plugins.
 /// </summary>
 /// <remarks>
-/// This abstract class simplifies the creation of asynchronous game plugins by providing
-/// default no-op implementations for lifecycle and game loop methods.
+///     This abstract class simplifies the creation of asynchronous game plugins by providing
+///     default no-op implementations for lifecycle and game loop methods.
 /// </remarks>
 public abstract class BaseAsyncGamePlugin : IAsyncGamePlugin
 {
     /// <summary>
-    /// Gets the name of the plugin.
+    ///     Gets the name of the plugin.
     /// </summary>
     public abstract string Name { get; }
 
     /// <summary>
-    /// Asynchronously initializes the plugin using the specified configuration.
+    ///     Asynchronously initializes the plugin using the specified configuration.
     /// </summary>
     public virtual Task InitializeAsync(IDictionary<string, object> configuration)
     {
@@ -28,7 +28,7 @@ public abstract class BaseAsyncGamePlugin : IAsyncGamePlugin
     }
 
     /// <summary>
-    /// Asynchronously executes the plugin's main functionality.
+    ///     Asynchronously executes the plugin's main functionality.
     /// </summary>
     public virtual Task ExecuteAsync()
     {
@@ -36,7 +36,7 @@ public abstract class BaseAsyncGamePlugin : IAsyncGamePlugin
     }
 
     /// <summary>
-    /// Asynchronously starts the plugin's operations.
+    ///     Asynchronously starts the plugin's operations.
     /// </summary>
     public virtual Task OnStartAsync()
     {
@@ -44,7 +44,7 @@ public abstract class BaseAsyncGamePlugin : IAsyncGamePlugin
     }
 
     /// <summary>
-    /// Asynchronously stops the plugin's operations.
+    ///     Asynchronously stops the plugin's operations.
     /// </summary>
     public virtual Task OnStopAsync()
     {
@@ -52,7 +52,7 @@ public abstract class BaseAsyncGamePlugin : IAsyncGamePlugin
     }
 
     /// <summary>
-    /// Asynchronously disposes of the plugin's resources.
+    ///     Asynchronously disposes of the plugin's resources.
     /// </summary>
     public virtual Task OnDisposeAsync()
     {
@@ -60,7 +60,7 @@ public abstract class BaseAsyncGamePlugin : IAsyncGamePlugin
     }
 
     /// <summary>
-    /// Asynchronously updates the game logic during each frame.
+    ///     Asynchronously updates the game logic during each frame.
     /// </summary>
     public virtual Task UpdateAsync()
     {
@@ -68,7 +68,7 @@ public abstract class BaseAsyncGamePlugin : IAsyncGamePlugin
     }
 
     /// <summary>
-    /// Asynchronously renders the game visuals during each frame.
+    ///     Asynchronously renders the game visuals during each frame.
     /// </summary>
     public virtual Task RenderAsync()
     {
@@ -76,12 +76,12 @@ public abstract class BaseAsyncGamePlugin : IAsyncGamePlugin
     }
 
     /// <summary>
-    /// Synchronously initializes the plugin. This is a wrapper for <see cref="InitializeAsync"/>.
+    ///     Synchronously initializes the plugin. This is a wrapper for <see cref="InitializeAsync" />.
     /// </summary>
     /// <param name="configuration">A dictionary containing configuration key-value pairs for the plugin.</param>
     /// <remarks>
-    /// Calls <see cref="InitializeAsync"/> to ensure compatibility with <see cref="IPlugin"/>.
-    /// Includes unwrapping of any <see cref="AggregateException"/> to surface the inner exception.
+    ///     Calls <see cref="InitializeAsync" /> to ensure compatibility with <see cref="IPlugin" />.
+    ///     Includes unwrapping of any <see cref="AggregateException" /> to surface the inner exception.
     /// </remarks>
     public void Initialize(IDictionary<string, object> configuration)
     {
@@ -96,11 +96,11 @@ public abstract class BaseAsyncGamePlugin : IAsyncGamePlugin
     }
 
     /// <summary>
-    /// Synchronously executes the plugin. This is a wrapper for <see cref="ExecuteAsync"/>.
+    ///     Synchronously executes the plugin. This is a wrapper for <see cref="ExecuteAsync" />.
     /// </summary>
     /// <remarks>
-    /// Calls <see cref="ExecuteAsync"/> to ensure compatibility with <see cref="IPlugin"/>.
-    /// Includes unwrapping of any <see cref="AggregateException"/> to surface the inner exception.
+    ///     Calls <see cref="ExecuteAsync" /> to ensure compatibility with <see cref="IPlugin" />.
+    ///     Includes unwrapping of any <see cref="AggregateException" /> to surface the inner exception.
     /// </remarks>
     public void Execute()
     {

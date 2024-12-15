@@ -6,7 +6,7 @@ using System.Linq;
 namespace ScriptRunner.Plugins.Extensions;
 
 /// <summary>
-/// Provides extension methods for working with Markdown files.
+///     Provides extension methods for working with Markdown files.
 /// </summary>
 public static class MarkdownExtensions
 {

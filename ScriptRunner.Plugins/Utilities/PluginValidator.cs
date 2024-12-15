@@ -8,21 +8,22 @@ using ScriptRunner.Plugins.Interfaces;
 namespace ScriptRunner.Plugins.Utilities;
 
 /// <summary>
-/// Default implementation of <see cref="IPluginValidator"/> for validating plugins.
+///     Default implementation of <see cref="IPluginValidator" /> for validating plugins.
 /// </summary>
 /// <remarks>
-/// This class provides methods to validate plugin types to ensure they meet the required standards
-/// for integration with the ScriptRunner framework.
+///     This class provides methods to validate plugin types to ensure they meet the required standards
+///     for integration with the ScriptRunner framework.
 /// </remarks>
 public class PluginValidator : IPluginValidator
 {
     /// <summary>
-    /// Validates a plugin type to ensure it conforms to the required standards.
+    ///     Validates a plugin type to ensure it conforms to the required standards.
     /// </summary>
     /// <param name="pluginType">The type of the plugin to validate.</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="pluginType"/> is null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="pluginType" /> is null.</exception>
     /// <exception cref="PluginInitializationException">
-    /// Thrown if the plugin lacks required metadata, does not implement <see cref="IPlugin"/>, or fails other validation checks.
+    ///     Thrown if the plugin lacks required metadata, does not implement <see cref="IPlugin" />, or fails other validation
+    ///     checks.
     /// </exception>
     public void Validate(Type pluginType)
     {
@@ -31,26 +32,24 @@ public class PluginValidator : IPluginValidator
 
         var metadata = pluginType.GetCustomAttribute<PluginMetadataAttribute>();
         if (metadata == null)
-            throw new PluginInitializationException($"Plugin {pluginType.Name} is missing the required PluginMetadataAttribute.");
+            throw new PluginInitializationException(
+                $"Plugin {pluginType.Name} is missing the required PluginMetadataAttribute.");
 
         ValidateMetadata(metadata, pluginType);
 
         if (!typeof(IPlugin).IsAssignableFrom(pluginType))
             throw new PluginInitializationException($"Plugin {pluginType.Name} must implement the IPlugin interface.");
 
-        if (typeof(IServicePlugin).IsAssignableFrom(pluginType))
-        {
-            ValidateServicePlugin(pluginType, metadata);
-        }
+        if (typeof(IServicePlugin).IsAssignableFrom(pluginType)) ValidateServicePlugin(pluginType, metadata);
     }
 
     /// <summary>
-    /// Validates the metadata attributes of a plugin to ensure required fields are provided.
+    ///     Validates the metadata attributes of a plugin to ensure required fields are provided.
     /// </summary>
     /// <param name="metadata">The metadata associated with the plugin.</param>
     /// <param name="pluginType">The type of the plugin being validated.</param>
     /// <exception cref="PluginInitializationException">
-    /// Thrown if required metadata fields (e.g., Name, Version, or PluginSystemVersion) are missing or invalid.
+    ///     Thrown if required metadata fields (e.g., Name, Version, or PluginSystemVersion) are missing or invalid.
     /// </exception>
     private static void ValidateMetadata(PluginMetadataAttribute metadata, Type pluginType)
     {
@@ -58,10 +57,12 @@ public class PluginValidator : IPluginValidator
         const string currentFrameworkVersion = PluginSystemConstants.CurrentFrameworkVersion;
 
         if (string.IsNullOrWhiteSpace(metadata.Name))
-            throw new PluginInitializationException($"Plugin {pluginType.Name} must have a non-empty Name property in its metadata.");
+            throw new PluginInitializationException(
+                $"Plugin {pluginType.Name} must have a non-empty Name property in its metadata.");
 
         if (string.IsNullOrWhiteSpace(metadata.Version))
-            throw new PluginInitializationException($"Plugin {pluginType.Name} must have a non-empty Version property in its metadata.");
+            throw new PluginInitializationException(
+                $"Plugin {pluginType.Name} must have a non-empty Version property in its metadata.");
 
         if (string.IsNullOrWhiteSpace(metadata.PluginSystemVersion))
             throw new PluginInitializationException($"Plugin {pluginType.Name} must specify the PluginSystemVersion.");
@@ -78,12 +79,12 @@ public class PluginValidator : IPluginValidator
     }
 
     /// <summary>
-    /// Validates the declared services in a plugin's metadata to ensure they are implemented.
+    ///     Validates the declared services in a plugin's metadata to ensure they are implemented.
     /// </summary>
     /// <param name="pluginType">The plugin type being validated.</param>
     /// <param name="metadata">The metadata associated with the plugin.</param>
     /// <exception cref="PluginInitializationException">
-    /// Thrown if declared services in the metadata are not implemented as methods in the plugin class.
+    ///     Thrown if declared services in the metadata are not implemented as methods in the plugin class.
     /// </exception>
     private static void ValidateServicePlugin(Type pluginType, PluginMetadataAttribute metadata)
     {
@@ -95,9 +96,7 @@ public class PluginValidator : IPluginValidator
                 .All(m => m.Name != service)).ToList();
 
         if (missingServices.Count != 0)
-        {
             throw new PluginInitializationException(
                 $"Plugin {pluginType.Name} declares the following services in its metadata but does not implement them: {string.Join(", ", missingServices)}.");
-        }
     }
 }

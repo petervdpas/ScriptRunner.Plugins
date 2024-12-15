@@ -10,51 +10,51 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="ScriptRunner.Plugins" Version="1.4.0" />
+        <PackageReference Include="ScriptRunner.Plugins" Version="1.4.2"/>
     </ItemGroup>
 
     <Target Name="SeparatePluginAndDependencies" AfterTargets="Build">
-        <MakeDir Directories="..\Plugins\Dependencies" />
+        <MakeDir Directories="..\Plugins\Dependencies"/>
 
         <!-- Collect the plugin DLL -->
         <ItemGroup>
-            <PluginAssembly Include="$(TargetDir)$(AssemblyName).dll" />
+            <PluginAssembly Include="$(TargetDir)$(AssemblyName).dll"/>
         </ItemGroup>
 
         <!-- Copy the plugin DLL to the Plugins directory -->
         <Copy SourceFiles="@(PluginAssembly)"
               DestinationFolder="..\Plugins"
-              SkipUnchangedFiles="true" />
+              SkipUnchangedFiles="true"/>
 
         <!-- Collect dependencies explicitly from the build output -->
         <ItemGroup>
             <DependencyAssemblies Include="$(TargetDir)**\*.dll"
-                                  Exclude="$(TargetDir)$(AssemblyName).dll" />
+                                  Exclude="$(TargetDir)$(AssemblyName).dll"/>
         </ItemGroup>
 
         <Copy SourceFiles="@(DependencyAssemblies)"
               DestinationFolder="..\Plugins\Dependencies"
-              SkipUnchangedFiles="true" />
+              SkipUnchangedFiles="true"/>
 
         <ItemGroup>
-            <DemoScripts Include="$(ProjectDir)DemoScripts\**\*" />
-            <CookBookPages Include="$(ProjectDir)CookBookPages\**\*" />
+            <DemoScripts Include="$(ProjectDir)DemoScripts\**\*"/>
+            <CookBookPages Include="$(ProjectDir)CookBookPages\**\*"/>
         </ItemGroup>
 
         <Copy SourceFiles="@(DemoScripts)"
               DestinationFolder="..\Plugins\DemoScripts"
-              SkipUnchangedFiles="true" />
+              SkipUnchangedFiles="true"/>
 
         <Copy SourceFiles="@(CookBookPages)"
               DestinationFolder="..\Plugins\CookBookPages"
-              SkipUnchangedFiles="true" />
+              SkipUnchangedFiles="true"/>
 
         <!-- Check if PowerShell is available -->
         <Exec Command="powershell -File CheckPowerShell.ps1"
               IgnoreExitCode="true"
               StandardOutputImportance="high"
               StandardErrorImportance="high">
-            <Output TaskParameter="ExitCode" PropertyName="PowerShellAvailable" />
+            <Output TaskParameter="ExitCode" PropertyName="PowerShellAvailable"/>
         </Exec>
 
         <!-- Define Compression and Cleanup Commands -->
@@ -71,12 +71,12 @@
         </PropertyGroup>
 
         <!-- Execute Compression and Cleanup if PowerShell is available -->
-        <Exec Command="$(CompressionCommand)" Condition="'$(PowerShellAvailable)' == '0'" />
-        <Exec Command="$(CleanupCommand)" Condition="'$(PowerShellAvailable)' == '0'" />
+        <Exec Command="$(CompressionCommand)" Condition="'$(PowerShellAvailable)' == '0'"/>
+        <Exec Command="$(CleanupCommand)" Condition="'$(PowerShellAvailable)' == '0'"/>
 
         <!-- Notify the user if PowerShell is not available -->
-        <Exec Command="$(NotifyCommand)" Condition="'$(PowerShellAvailable)' != '0'" />
-        
-     </Target>
+        <Exec Command="$(NotifyCommand)" Condition="'$(PowerShellAvailable)' != '0'"/>
+
+    </Target>
 
 </Project>

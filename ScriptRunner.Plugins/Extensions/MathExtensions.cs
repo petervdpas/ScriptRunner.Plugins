@@ -50,7 +50,7 @@ public static class MathExtensions
     }
 
     /// <summary>
-    /// Clamps a number to be within a specified range.
+    ///     Clamps a number to be within a specified range.
     /// </summary>
     /// <typeparam name="T">The type of the numeric values, which must be convertible.</typeparam>
     /// <param name="value">The number to clamp.</param>
@@ -64,7 +64,7 @@ public static class MathExtensions
     }
 
     /// <summary>
-    /// Returns the absolute value of a number.
+    ///     Returns the absolute value of a number.
     /// </summary>
     /// <typeparam name="T">The type of the numeric value, which must be convertible.</typeparam>
     /// <param name="value">The number for which to find the absolute value.</param>
@@ -73,9 +73,9 @@ public static class MathExtensions
     {
         return (T)Convert.ChangeType(Math.Abs(Convert.ToDouble(value)), typeof(T));
     }
-    
+
     /// <summary>
-    /// Calculates the square root of a number.
+    ///     Calculates the square root of a number.
     /// </summary>
     /// <typeparam name="T">The type of the numeric value, which must be convertible.</typeparam>
     /// <param name="value">The number for which to find the square root.</param>
@@ -88,14 +88,14 @@ public static class MathExtensions
             throw new ArgumentException("Square root is not defined for negative numbers.");
         return Math.Sqrt(doubleValue);
     }
-    
+
     /// <summary>
-    /// Calculates the modulus (remainder) of dividing the first number by the second.
+    ///     Calculates the modulus (remainder) of dividing the first number by the second.
     /// </summary>
     /// <typeparam name="T">The type of the numeric values, which must be convertible.</typeparam>
     /// <param name="a">The dividend.</param>
     /// <param name="b">The divisor.</param>
-    /// <returns>The remainder after dividing <paramref name="a"/> by <paramref name="b"/>.</returns>
+    /// <returns>The remainder after dividing <paramref name="a" /> by <paramref name="b" />.</returns>
     /// <exception cref="ArgumentException">Thrown if the divisor is zero.</exception>
     public static T Mod<T>(this T a, T b) where T : IConvertible
     {
@@ -103,7 +103,7 @@ public static class MathExtensions
             throw new ArgumentException("Division by zero is not allowed.");
         return (T)Convert.ChangeType(Convert.ToDouble(a) % Convert.ToDouble(b), typeof(T));
     }
-    
+
     /// <summary>
     ///     Calculates the factorial of an integer.
     /// </summary>
