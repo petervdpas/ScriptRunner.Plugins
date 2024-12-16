@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using ScriptRunner.Plugins.Defaults;
 
 namespace ScriptRunner.Plugins.Attributes;
 
@@ -37,9 +39,18 @@ public class PluginMetadataAttribute : Attribute
         Version = version;
         PluginSystemVersion = pluginSystemVersion;
         FrameworkVersion = frameworkVersion;
+
+        // Merge defaults with provided arrays
         Services = services ?? [];
-        SharedDependencies = sharedDependencies ?? [];
-        SkipLibraryChecks = skipLibraryChecks ?? [];
+        SharedDependencies = PluginSystemDefaults.DefaultSharedDependencies
+            .Union(sharedDependencies ?? [])
+            .Distinct()
+            .ToArray();
+
+        SkipLibraryChecks = PluginSystemDefaults.DefaultSkipLibraryChecks
+            .Union(skipLibraryChecks ?? [])
+            .Distinct()
+            .ToArray();
     }
 
     /// <summary>
