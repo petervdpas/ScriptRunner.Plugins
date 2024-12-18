@@ -109,7 +109,6 @@ public class PluginTracker : IPluginTracker
     /// <summary>
     /// Loads a dependency DLL into an isolated plugin context and tracks it.
     /// </summary>
-    /// <param name="pluginName">The name of the plugin owning the dependency.</param>
     /// <param name="directory">The directory where the DLL is located.</param>
     /// <param name="dllName">The name of the DLL to load.</param>
     public void LoadDependency(string directory, string dllName)
