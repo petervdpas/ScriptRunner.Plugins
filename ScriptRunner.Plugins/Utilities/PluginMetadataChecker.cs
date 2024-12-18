@@ -26,22 +26,20 @@ public static class PluginMetadataChecker
         try
         {
             // Use MetadataLoadContext for safe inspection
-            var resolver = new PathAssemblyResolver(Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll"));
-            using var metadataContext = new MetadataLoadContext(resolver);
+            var resolver = new PathAssemblyResolver(GetAllReferencedAssemblies(fullPathToDll));
+            using var metadataLoadContext = new MetadataLoadContext(resolver);
 
-            var assembly = metadataContext.LoadFromAssemblyPath(fullPathToDll);
+            var assembly = metadataLoadContext.LoadFromAssemblyPath(fullPathToDll);
 
-            // Iterate over all types in the assembly
-            foreach (var type in assembly.GetTypes())
+            // Search for types that have the PluginMetadataAttribute
+            var pluginType = assembly.GetTypes()
+                .FirstOrDefault(t => t.GetCustomAttributes(typeof(PluginMetadataAttribute), false).Length != 0);
+
+            if (pluginType != null)
             {
-                foreach (var attributeData in CustomAttributeData.GetCustomAttributes(type))
-                {
-                    if (attributeData.AttributeType.FullName != typeof(PluginMetadataAttribute).FullName) continue;
-                    
-                    // Retrieve the plugin name from the constructor arguments
-                    var pluginNameArg = attributeData.ConstructorArguments.FirstOrDefault();
-                    return pluginNameArg.Value?.ToString();
-                }
+                // Retrieve the PluginMetadataAttribute from the type
+                var metadata = pluginType.GetCustomAttribute<PluginMetadataAttribute>();
+                return metadata?.Name; // Return the plugin name
             }
         }
         catch (Exception ex)
@@ -50,5 +48,21 @@ public static class PluginMetadataChecker
         }
 
         return null;
+    }
+    
+    /// <summary>
+    /// Retrieves all assemblies referenced by the specified DLL, including the core assembly.
+    /// </summary>
+    /// <param name="fullPathToDll">The path to the DLL.</param>
+    /// <returns>Enumerable of assembly file paths.</returns>
+    private static string[] GetAllReferencedAssemblies(string fullPathToDll)
+    {
+        var assemblyDirectory = Path.GetDirectoryName(fullPathToDll) ?? throw new InvalidOperationException("Invalid DLL path.");
+        var coreAssemblyPath = typeof(object).Assembly.Location; // System.Private.CoreLib
+
+        return Directory.EnumerateFiles(assemblyDirectory, "*.dll")
+            .Append(coreAssemblyPath)
+            .Distinct()
+            .ToArray();
     }
 }
