@@ -2,57 +2,45 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Loader;
 using Microsoft.Extensions.Logging;
-using ScriptRunner.Plugins.Defaults;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
 
 namespace ScriptRunner.Plugins.Utilities;
 
 /// <summary>
-/// Service for tracking plugins and their dependencies.
+/// Service for discovering plugins and tracking their dependencies.
 /// </summary>
 public class PluginTracker : IPluginTracker
 {
     private readonly List<DependencyModel> _allDependencies = [];
-    private static readonly HashSet<string> SkipLibraryChecks = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly PluginLoadContext GlobalLoadContext = new("GlobalDependencies");
 
     private readonly string _pluginRootDirectory;
     private readonly string _dependenciesDirectory;
-    
+
     private readonly ILogger<PluginTracker> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PluginTracker"/> class.
     /// </summary>
-    /// <param name="logger">The logger for tracking operations.</param>
+    /// <param name="logger">The logger for tracking operations and errors.</param>
     /// <param name="pluginRootDirectory">The root directory containing plugin subdirectories.</param>
-    /// <param name="dependenciesDirectory">The name of the directory where dependencies are stored.</param>
+    /// <param name="dependenciesDirectory">The directory name where dependencies are stored.</param>
+    /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
     public PluginTracker(ILogger<PluginTracker> logger, string pluginRootDirectory, string dependenciesDirectory)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _pluginRootDirectory = pluginRootDirectory;
-        _dependenciesDirectory = dependenciesDirectory;
+        _pluginRootDirectory = pluginRootDirectory ?? throw new ArgumentNullException(nameof(pluginRootDirectory));
+        _dependenciesDirectory = dependenciesDirectory ?? throw new ArgumentNullException(nameof(dependenciesDirectory));
     }
 
-    /// <summary>
-    ///     Sets libraries to be skipped during dependency validation.
-    /// </summary>
-    /// <param name="skipLibraryChecks">Array of library names to skip.</param>
-    public void SetSkipLibraries(IEnumerable<string>? skipLibraryChecks)
-    {
-        if (skipLibraryChecks == null) return;
-
-        foreach (var lib in skipLibraryChecks) SkipLibraryChecks.Add(lib);
-    }
-    
     /// <summary>
     /// Discovers plugins in the specified root directory, extracts their metadata,
     /// and tracks their related dependencies.
     /// </summary>
+    /// <exception cref="DirectoryNotFoundException">
+    /// Thrown if the plugin root directory does not exist.
+    /// </exception>
     public void DiscoverAndTrackPlugins()
     {
         if (!Directory.Exists(_pluginRootDirectory))
@@ -66,98 +54,56 @@ public class PluginTracker : IPluginTracker
 
             try
             {
-
                 var dllName = Path.GetFileName(pluginDll);
                 _allDependencies.Add(new DependencyModel(dllName, pluginDll, true));
                 TrackDependencies(pluginDir, _dependenciesDirectory);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to process plugin directory '{pluginDir}': {ex.Message}");
+                _logger.LogError(ex, "Failed to process plugin directory '{PluginDir}'", pluginDir);
             }
         }
     }
 
-    /// <inheritdoc/>
     /// <summary>
-    /// Returns all tracked main plugin DLLs.
+    /// Gets all tracked dependencies, including plugins and non-plugin libraries.
+    /// </summary>
+    /// <returns>A list of all tracked <see cref="DependencyModel"/> objects.</returns>
+    public List<DependencyModel> GetAllDependencies() => _allDependencies;
+
+    /// <summary>
+    /// Gets all tracked plugin DLLs.
     /// </summary>
     /// <returns>A list of <see cref="DependencyModel"/> representing main plugin DLLs.</returns>
     public List<DependencyModel> GetTrackedPlugins()
     {
         var seenDllNames = new HashSet<string>();
-        
+
         return _allDependencies
             .Where(d => d.IsPlugin())
             .Where(d => seenDllNames.Add(d.GetTuple().DllName))
             .ToList();
     }
-    
+
     /// <summary>
-    /// Returns all tracked dependency DLLs (excluding main plugins).
+    /// Gets all tracked dependencies that are not main plugin DLLs.
     /// </summary>
     /// <returns>A list of <see cref="DependencyModel"/> representing dependency DLLs.</returns>
     public List<DependencyModel> GetTrackedDependencies()
     {
         var seenDllNames = new HashSet<string>();
-    
+
         return _allDependencies
             .Where(d => !d.IsPlugin())
             .Where(d => seenDllNames.Add(d.GetTuple().DllName))
             .ToList();
-    }
-    
-    /// <summary>
-    /// Loads a dependency DLL into an isolated plugin context and tracks it.
-    /// </summary>
-    /// <param name="directory">The directory where the DLL is located.</param>
-    /// <param name="dllName">The name of the DLL to load.</param>
-    public void LoadDependency(string directory, string dllName)
-    {
-        if (!Directory.Exists(directory))
-            throw new DirectoryNotFoundException($"Directory not found: {directory}");
-
-        var fullPath = Path.Combine(directory, dllName);
-        if (!File.Exists(fullPath))
-        {
-            _logger.LogError("> DLL not found: {DllName}", dllName);
-            return;
-        }
-
-        // Skip libraries flagged for skipping
-        if (ShouldSkipLibrary(dllName))
-        {
-            _logger.LogDebug("Skipping library: {DllName}", dllName);
-            return;
-        }
-
-        // Skip loading if the DLL is in the DefaultSharedDependencies list
-        if (PluginSystemDefaults.DefaultSharedDependencies.Contains(dllName, StringComparer.OrdinalIgnoreCase))
-        {
-            _logger.LogDebug("Skipping globally shared dependency: {DllName}", dllName);
-            return;
-        }
-        
-        try
-        {
-            // Load the assembly into the global context
-            GlobalLoadContext.LoadFromAssemblyPath(fullPath);
-
-            // Track the loaded dependency
-            _allDependencies.Add(new DependencyModel(dllName, fullPath, false));
-            _logger.LogInformation("Successfully loaded DLL: {DllName} into global context.", dllName);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to load DLL: {DllPath}", fullPath);
-        }
     }
 
     /// <summary>
     /// Tracks all DLLs in a plugin directory and its host-defined dependencies directory.
     /// </summary>
     /// <param name="pluginDirectory">The root directory of the plugin.</param>
-    /// <param name="dependenciesDirectory">The name of the dependency directory.</param>
+    /// <param name="dependenciesDirectory">The name of the directory containing plugin dependencies.</param>
     private void TrackDependencies(string pluginDirectory, string dependenciesDirectory)
     {
         var fullDependenciesDir = Path.Combine(pluginDirectory, dependenciesDirectory);
@@ -167,7 +113,7 @@ public class PluginTracker : IPluginTracker
         }
         else
         {
-            _logger.LogWarning($"Dependencies directory not found: {fullDependenciesDir}");
+            _logger.LogWarning("Dependencies directory not found: {DependenciesDir}", fullDependenciesDir);
         }
     }
 
@@ -184,23 +130,13 @@ public class PluginTracker : IPluginTracker
             _allDependencies.Add(new DependencyModel(dllName, dllPath, isPlugin));
         }
     }
-    
-    /// <summary>
-    /// Determines if a library should be skipped based on its name or type.
-    /// </summary>
-    /// <param name="fileName">The name of the library file.</param>
-    /// <returns>True if the library should be skipped; otherwise, false.</returns>
-    private bool ShouldSkipLibrary(string fileName)
-    {
-        return SkipLibraryChecks.Contains(fileName) || IsNativeLibrary(fileName);
-    }
 
     /// <summary>
-    /// Inspects a file to determine if it is a native library.
+    /// Determines if a file is a native library.
     /// </summary>
     /// <param name="filePath">The path to the file.</param>
     /// <returns>True if the file is a native library; otherwise, false.</returns>
-    private static bool IsNativeLibrary(string filePath)
+    public bool IsNativeLibrary(string filePath)
     {
         if (!File.Exists(filePath)) return false;
 
@@ -222,17 +158,6 @@ public class PluginTracker : IPluginTracker
         catch
         {
             return false;
-        }
-    }
-
-    /// <summary>
-    /// Custom AssemblyLoadContext for isolating plugin dependencies.
-    /// </summary>
-    private class PluginLoadContext(string name) : AssemblyLoadContext(name, true)
-    {
-        protected override Assembly? Load(AssemblyName assemblyName)
-        {
-            return null; // Defer to default AssemblyLoadContext
         }
     }
 }
