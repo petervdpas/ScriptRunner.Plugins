@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -110,5 +111,29 @@ public static class AssemblyHelper
         if (File.Exists(netstandardPath)) return MetadataReference.CreateFromFile(netstandardPath);
 
         throw new FileNotFoundException("Could not find netstandard.dll in the runtime directory.");
+    }
+    
+    /// <summary>
+    /// Checks if an assembly with the specified name is already loaded in the host context.
+    /// </summary>
+    /// <param name="assemblyName">The name of the assembly to check.</param>
+    /// <returns>True if the assembly is already loaded, otherwise false.</returns>
+    public static bool IsAssemblyLoaded(string assemblyName)
+    {
+        var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+        return loadedAssemblies.Any(a => string.Equals(a.GetName().Name, assemblyName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Attempts to get the location of an already loaded assembly.
+    /// </summary>
+    /// <param name="assemblyName">The name of the assembly to locate.</param>
+    /// <returns>The file path of the assembly if loaded, otherwise null.</returns>
+    public static string? GetLoadedAssemblyLocation(string assemblyName)
+    {
+        var assembly = AppDomain.CurrentDomain.GetAssemblies()
+            .FirstOrDefault(a => string.Equals(a.GetName().Name, assemblyName, StringComparison.OrdinalIgnoreCase));
+
+        return assembly?.Location;
     }
 }
