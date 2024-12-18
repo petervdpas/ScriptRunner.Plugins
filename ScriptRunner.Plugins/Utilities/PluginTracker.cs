@@ -84,8 +84,11 @@ public class PluginTracker : IPluginTracker
     /// <returns>A list of <see cref="DependencyModel"/> representing main plugin DLLs.</returns>
     public List<DependencyModel> GetTrackedPlugins()
     {
+        var seenDllNames = new HashSet<string>();
+        
         return _allDependencies
             .Where(d => d.IsPlugin())
+            .Where(d => seenDllNames.Add(d.GetTuple().DllName))
             .ToList();
     }
     
