@@ -9,7 +9,7 @@
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>ScriptRunner.Plugins</PackageId>
-        <Version>1.6.2</Version>
+        <Version>1.6.4</Version>
         <Authors>Peter van de Pas</Authors>
         <Description>A plugin framework for ScriptRunner</Description>
         <PackageTags>ScriptRunner;Plugins;DependencyInjection</PackageTags>
@@ -44,6 +44,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="System.Reflection.MetadataLoadContext" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>

@@ -39,7 +39,8 @@ public static class PluginSystemDefaults
         "System.Collections.Immutable.dll",
         "System.Diagnostics.DiagnosticSource.dll",
         "System.Memory.dll",
-        "System.Reflection.Metadata.dll"
+        "System.Reflection.Metadata.dll",
+        "System.Reflection.MetadataLoadContext.dll"
     ];
 
     /// <summary>

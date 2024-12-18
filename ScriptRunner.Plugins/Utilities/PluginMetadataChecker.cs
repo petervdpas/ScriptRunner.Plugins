@@ -18,13 +18,6 @@ public static class PluginMetadataChecker
     /// <returns>
     /// The plugin name as specified in the <see cref="PluginMetadataAttribute"/> if found; otherwise, <c>null</c>.
     /// </returns>
-    /// <exception cref="FileNotFoundException">
-    /// Thrown when the specified DLL file does not exist.
-    /// </exception>
-    /// <remarks>
-    /// This method dynamically loads the assembly and searches for types that are annotated with the
-    /// <see cref="PluginMetadataAttribute"/>. If such a type is found, the plugin name is extracted from the attribute.
-    /// </remarks>
     public static string? GetPluginNameIfExists(string fullPathToDll)
     {
         if (!File.Exists(fullPathToDll))
@@ -32,30 +25,41 @@ public static class PluginMetadataChecker
 
         try
         {
-            // Load the assembly from the specified path
-            var assembly = Assembly.LoadFrom(fullPathToDll);
+            // Use MetadataLoadContext to safely inspect assembly metadata
+            var resolver = new PathAssemblyResolver(GetAssemblyPaths(fullPathToDll));
+            using var metadataContext = new MetadataLoadContext(resolver);
+
+            var assembly = metadataContext.LoadFromAssemblyPath(fullPathToDll);
 
             // Search for types that have the PluginMetadataAttribute
             var pluginType = assembly.GetTypes()
-                .FirstOrDefault(t => t.GetCustomAttributes(typeof(PluginMetadataAttribute), false).Length != 0);
+                .FirstOrDefault(t => t.GetCustomAttributes(typeof(PluginMetadataAttribute), false).Any());
 
             if (pluginType != null)
             {
                 // Retrieve the PluginMetadataAttribute from the type
                 var metadata = pluginType.GetCustomAttribute<PluginMetadataAttribute>();
-                return metadata?.Name; // Return the plugin name
+                return metadata?.Name;
             }
-        }
-        catch (ReflectionTypeLoadException ex)
-        {
-            Console.WriteLine($"[ERROR] Could not load types from: {fullPathToDll}. {ex.Message}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[ERROR] Failed to check metadata in: {fullPathToDll}. {ex.Message}");
+            Console.WriteLine($"[ERROR] Failed to inspect metadata in: {fullPathToDll}. {ex.Message}");
         }
 
-        // Return null if no metadata is found
         return null;
+    }
+    
+    /// <summary>
+    /// Retrieves all assembly paths needed for the MetadataLoadContext.
+    /// </summary>
+    private static string[] GetAssemblyPaths(string mainAssemblyPath)
+    {
+        var runtimePath = Path.GetDirectoryName(typeof(object).Assembly.Location) ?? string.Empty;
+        var assemblyDirectory = Path.GetDirectoryName(mainAssemblyPath) ?? string.Empty;
+
+        return Directory.GetFiles(runtimePath, "*.dll")
+            .Concat(Directory.GetFiles(assemblyDirectory, "*.dll"))
+            .ToArray();
     }
 }
