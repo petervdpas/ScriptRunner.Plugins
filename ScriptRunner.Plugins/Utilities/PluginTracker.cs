@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,8 +16,8 @@ namespace ScriptRunner.Plugins.Utilities;
 public class PluginTracker : IPluginTracker
 {
     private readonly List<DependencyModel> _allDependencies = [];
-    private static readonly ConcurrentDictionary<string, PluginLoadContext> PluginContexts = new();
     private static readonly HashSet<string> SkipLibraryChecks = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly PluginLoadContext GlobalLoadContext = new("GlobalDependencies");
 
     private readonly string _pluginRootDirectory;
     private readonly string _dependenciesDirectory;
@@ -66,17 +65,10 @@ public class PluginTracker : IPluginTracker
 
             try
             {
-                var pluginName = PluginMetadataChecker.GetPluginNameIfExists(pluginDll);
-                if (!string.IsNullOrEmpty(pluginName))
-                {
-                    var dllName = Path.GetFileName(pluginDll);
-                    _allDependencies.Add(new DependencyModel(dllName, pluginDll, true, pluginName));
-                    TrackDependencies(pluginDir, _dependenciesDirectory, pluginName);
-                }
-                else
-                {
-                    _logger.LogWarning($"No plugin metadata found in DLL: {pluginDll}");
-                }
+
+                var dllName = Path.GetFileName(pluginDll);
+                _allDependencies.Add(new DependencyModel(dllName, pluginDll, true));
+                TrackDependencies(pluginDir, _dependenciesDirectory);
             }
             catch (Exception ex)
             {
@@ -117,7 +109,7 @@ public class PluginTracker : IPluginTracker
     /// <param name="pluginName">The name of the plugin owning the dependency.</param>
     /// <param name="directory">The directory where the DLL is located.</param>
     /// <param name="dllName">The name of the DLL to load.</param>
-    public void LoadDependency(string pluginName, string directory, string dllName)
+    public void LoadDependency(string directory, string dllName)
     {
         if (!Directory.Exists(directory))
             throw new DirectoryNotFoundException($"Directory not found: {directory}");
@@ -138,15 +130,12 @@ public class PluginTracker : IPluginTracker
 
         try
         {
-            // Use or create a new PluginLoadContext for the plugin
-            var loadContext = PluginContexts.GetOrAdd(pluginName, name => new PluginLoadContext(name));
-
-            // Load the assembly into the isolated context
-            loadContext.LoadFromAssemblyPath(fullPath);
+            // Load the assembly into the global context
+            GlobalLoadContext.LoadFromAssemblyPath(fullPath);
 
             // Track the loaded dependency
-            _allDependencies.Add(new DependencyModel(dllName, fullPath, false, pluginName));
-            _logger.LogInformation("Successfully loaded DLL: {DllName} into context: {PluginName}", dllName, pluginName);
+            _allDependencies.Add(new DependencyModel(dllName, fullPath, false));
+            _logger.LogInformation("Successfully loaded DLL: {DllName} into global context.", dllName);
         }
         catch (Exception ex)
         {
@@ -159,13 +148,12 @@ public class PluginTracker : IPluginTracker
     /// </summary>
     /// <param name="pluginDirectory">The root directory of the plugin.</param>
     /// <param name="dependenciesDirectory">The name of the dependency directory.</param>
-    /// <param name="pluginName">The name of the plugin.</param>
-    private void TrackDependencies(string pluginDirectory, string dependenciesDirectory, string pluginName)
+    private void TrackDependencies(string pluginDirectory, string dependenciesDirectory)
     {
         var fullDependenciesDir = Path.Combine(pluginDirectory, dependenciesDirectory);
         if (Directory.Exists(fullDependenciesDir))
         {
-            TrackDllsInDirectory(fullDependenciesDir, pluginName, false);
+            TrackDllsInDirectory(fullDependenciesDir, false);
         }
         else
         {
@@ -177,14 +165,13 @@ public class PluginTracker : IPluginTracker
     /// Tracks DLLs in the specified directory and adds them to the dependency list.
     /// </summary>
     /// <param name="directory">The directory to scan for DLLs.</param>
-    /// <param name="pluginName">The name of the plugin.</param>
     /// <param name="isPlugin">Indicates if the DLL is a plugin or dependency.</param>
-    private void TrackDllsInDirectory(string directory, string pluginName, bool isPlugin)
+    private void TrackDllsInDirectory(string directory, bool isPlugin)
     {
         foreach (var dllPath in Directory.GetFiles(directory, "*.dll"))
         {
             var dllName = Path.GetFileName(dllPath);
-            _allDependencies.Add(new DependencyModel(dllName, dllPath, isPlugin, pluginName));
+            _allDependencies.Add(new DependencyModel(dllName, dllPath, isPlugin));
         }
     }
     

@@ -21,23 +21,16 @@ public class DependencyModel
     private readonly bool _isPlugin;
 
     /// <summary>
-    /// The name of the plugin the DLL belongs to.
-    /// </summary>
-    private readonly string _pluginName;
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="DependencyModel"/> class.
     /// </summary>
     /// <param name="dllName">The name of the DLL.</param>
     /// <param name="fullPath">The full file path of the DLL.</param>
     /// <param name="isPlugin">Whether the DLL is the main plugin.</param>
-    /// <param name="pluginName">The plugin name associated with this DLL.</param>
-    public DependencyModel(string dllName, string fullPath, bool isPlugin, string pluginName)
+    public DependencyModel(string dllName, string fullPath, bool isPlugin)
     {
         _dllName = dllName;
         _fullPath = fullPath;
         _isPlugin = isPlugin;
-        _pluginName = pluginName;
     }
     
     /// <summary>
@@ -53,9 +46,9 @@ public class DependencyModel
     /// Retrieves the metadata of the dependency as a tuple.
     /// </summary>
     /// <returns>A tuple containing dll name, full path, isPlugin flag, and plugin name.</returns>
-    public (string DllName, string FullPath, bool IsPlugin, string PluginName) GetTuple()
+    public (string DllName, string FullPath, bool IsPlugin) GetTuple()
     {
-        return (_dllName, _fullPath, _isPlugin, _pluginName);
+        return (_dllName, _fullPath, _isPlugin);
     }
     
     /// <summary>
@@ -64,6 +57,6 @@ public class DependencyModel
     /// <returns>A formatted string containing the dependency details.</returns>
     public override string ToString()
     {
-        return $"[Dependency] Name: {_dllName}, Path: {_fullPath}, IsPlugin: {_isPlugin}, PluginName: {_pluginName}";
+        return $"[Dependency] Name: {_dllName}, Path: {_fullPath}, IsPlugin: {_isPlugin}";
     }
 }
