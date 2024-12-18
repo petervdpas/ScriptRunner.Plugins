@@ -25,21 +25,23 @@ public static class PluginMetadataChecker
 
         try
         {
-            // Use MetadataLoadContext to safely inspect assembly metadata
-            var resolver = new PathAssemblyResolver(GetAssemblyPaths(fullPathToDll));
+            // Use MetadataLoadContext for safe inspection
+            var resolver = new PathAssemblyResolver(Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll"));
             using var metadataContext = new MetadataLoadContext(resolver);
 
             var assembly = metadataContext.LoadFromAssemblyPath(fullPathToDll);
 
-            // Search for types that have the PluginMetadataAttribute
-            var pluginType = assembly.GetTypes()
-                .FirstOrDefault(t => t.GetCustomAttributes(typeof(PluginMetadataAttribute), false).Any());
-
-            if (pluginType != null)
+            // Iterate over all types in the assembly
+            foreach (var type in assembly.GetTypes())
             {
-                // Retrieve the PluginMetadataAttribute from the type
-                var metadata = pluginType.GetCustomAttribute<PluginMetadataAttribute>();
-                return metadata?.Name;
+                foreach (var attributeData in CustomAttributeData.GetCustomAttributes(type))
+                {
+                    if (attributeData.AttributeType.FullName != typeof(PluginMetadataAttribute).FullName) continue;
+                    
+                    // Retrieve the plugin name from the constructor arguments
+                    var pluginNameArg = attributeData.ConstructorArguments.FirstOrDefault();
+                    return pluginNameArg.Value?.ToString();
+                }
             }
         }
         catch (Exception ex)
@@ -48,18 +50,5 @@ public static class PluginMetadataChecker
         }
 
         return null;
-    }
-    
-    /// <summary>
-    /// Retrieves all assembly paths needed for the MetadataLoadContext.
-    /// </summary>
-    private static string[] GetAssemblyPaths(string mainAssemblyPath)
-    {
-        var runtimePath = Path.GetDirectoryName(typeof(object).Assembly.Location) ?? string.Empty;
-        var assemblyDirectory = Path.GetDirectoryName(mainAssemblyPath) ?? string.Empty;
-
-        return Directory.GetFiles(runtimePath, "*.dll")
-            .Concat(Directory.GetFiles(assemblyDirectory, "*.dll"))
-            .ToArray();
     }
 }
