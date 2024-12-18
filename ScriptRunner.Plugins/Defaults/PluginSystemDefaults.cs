@@ -40,7 +40,8 @@ public static class PluginSystemDefaults
         "System.Diagnostics.DiagnosticSource.dll",
         "System.Memory.dll",
         "System.Reflection.Metadata.dll",
-        "System.Reflection.MetadataLoadContext.dll"
+        "System.Reflection.MetadataLoadContext.dll",
+        "ScriptRunner.Plugins.dll"
     ];
 
     /// <summary>

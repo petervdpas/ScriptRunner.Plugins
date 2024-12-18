@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.Logging;
+using ScriptRunner.Plugins.Defaults;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
 
@@ -130,6 +131,13 @@ public class PluginTracker : IPluginTracker
             return;
         }
 
+        // Skip loading if the DLL is in the DefaultSharedDependencies list
+        if (PluginSystemDefaults.DefaultSharedDependencies.Contains(dllName, StringComparer.OrdinalIgnoreCase))
+        {
+            _logger.LogDebug("Skipping globally shared dependency: {DllName}", dllName);
+            return;
+        }
+        
         try
         {
             // Load the assembly into the global context
