@@ -8,7 +8,7 @@ public static class PluginSystemConstants
     /// <summary>
     ///     The current version of the plugin system.
     /// </summary>
-    public const string CurrentPluginSystemVersion = "1.6.0";
+    public const string CurrentPluginSystemVersion = "1.6.2";
 
     /// <summary>
     ///     The framework version for the plugin system.

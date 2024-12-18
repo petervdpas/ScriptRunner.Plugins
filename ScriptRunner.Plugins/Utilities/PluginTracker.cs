@@ -20,15 +20,22 @@ public class PluginTracker : IPluginTracker
     private static readonly ConcurrentDictionary<string, PluginLoadContext> PluginContexts = new();
     private static readonly HashSet<string> SkipLibraryChecks = new(StringComparer.OrdinalIgnoreCase);
 
+    private readonly string _pluginRootDirectory;
+    private readonly string _dependenciesDirectory;
+    
     private readonly ILogger<PluginTracker> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PluginTracker"/> class.
     /// </summary>
     /// <param name="logger">The logger for tracking operations.</param>
-    public PluginTracker(ILogger<PluginTracker> logger)
+    /// <param name="pluginRootDirectory">The root directory containing plugin subdirectories.</param>
+    /// <param name="dependenciesDirectory">The name of the directory where dependencies are stored.</param>
+    public PluginTracker(ILogger<PluginTracker> logger, string pluginRootDirectory, string dependenciesDirectory)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _pluginRootDirectory = pluginRootDirectory;
+        _dependenciesDirectory = dependenciesDirectory;
     }
 
     /// <summary>
@@ -46,14 +53,12 @@ public class PluginTracker : IPluginTracker
     /// Discovers plugins in the specified root directory, extracts their metadata,
     /// and tracks their related dependencies.
     /// </summary>
-    /// <param name="pluginRootDirectory">The root directory containing plugin subdirectories.</param>
-    /// <param name="dependenciesDirectory">The name of the directory where dependencies are stored.</param>
-    public void DiscoverAndTrackPlugins(string pluginRootDirectory, string dependenciesDirectory)
+    public void DiscoverAndTrackPlugins()
     {
-        if (!Directory.Exists(pluginRootDirectory))
-            throw new DirectoryNotFoundException($"Plugin root directory not found: {pluginRootDirectory}");
+        if (!Directory.Exists(_pluginRootDirectory))
+            throw new DirectoryNotFoundException($"Plugin root directory not found: {_pluginRootDirectory}");
 
-        foreach (var pluginDir in Directory.GetDirectories(pluginRootDirectory))
+        foreach (var pluginDir in Directory.GetDirectories(_pluginRootDirectory))
         {
             var pluginDll = Directory.GetFiles(pluginDir, "*.dll").FirstOrDefault();
             if (pluginDll == null)
@@ -66,7 +71,7 @@ public class PluginTracker : IPluginTracker
                 {
                     var dllName = Path.GetFileName(pluginDll);
                     _allDependencies.Add(new DependencyModel(dllName, pluginDll, true, pluginName));
-                    TrackDependencies(pluginDir, dependenciesDirectory, pluginName);
+                    TrackDependencies(pluginDir, _dependenciesDirectory, pluginName);
                 }
                 else
                 {

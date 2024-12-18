@@ -14,14 +14,12 @@ public interface IPluginTracker
     /// </summary>
     /// <param name="skipLibraryChecks">Array of library names to skip.</param>
     void SetSkipLibraries(IEnumerable<string>? skipLibraryChecks);
-    
+
     /// <summary>
     /// Discovers plugins in the specified root directory, extracts their metadata,
     /// and tracks their related dependencies.
     /// </summary>
-    /// <param name="pluginRootDirectory">The root directory containing plugin subdirectories.</param>
-    /// <param name="dependenciesDirectory">The name of the directory where dependencies are stored.</param>
-    void DiscoverAndTrackPlugins(string pluginRootDirectory, string dependenciesDirectory);
+    void DiscoverAndTrackPlugins();
 
     /// <summary>
     /// Returns all tracked main plugin DLLs.
@@ -41,6 +39,5 @@ public interface IPluginTracker
     /// <param name="pluginName">The name of the plugin owning the dependency.</param>
     /// <param name="directory">The directory where the DLL is located.</param>
     /// <param name="dllName">The name of the DLL to load.</param>
-    /// <param name="logger">Optional logger for tracking operations.</param>
     void LoadDependency(string pluginName, string directory, string dllName);
 }
