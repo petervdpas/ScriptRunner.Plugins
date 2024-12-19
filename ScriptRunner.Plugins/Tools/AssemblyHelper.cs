@@ -112,18 +112,52 @@ public static class AssemblyHelper
 
         throw new FileNotFoundException("Could not find netstandard.dll in the runtime directory.");
     }
-    
-    /// <summary>
-    /// Checks if an assembly with the specified name is already loaded in the host context.
-    /// </summary>
-    /// <param name="assemblyName">The name of the assembly to check.</param>
-    /// <returns>True if the assembly is already loaded, otherwise false.</returns>
-    public static bool IsAssemblyLoaded(string assemblyName)
-    {
-        var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-        return loadedAssemblies.Any(a => string.Equals(a.GetName().Name, assemblyName, StringComparison.OrdinalIgnoreCase));
-    }
 
+    /// <summary>
+    /// Determines whether an assembly with the specified name, version,
+    /// and public key token is already loaded in the application's host context.
+    /// </summary>
+    /// <param name="assemblyName">The simple name of the assembly to check (e.g., "System.Text.Json").</param>
+    /// <param name="version">
+    /// Optional. The version of the assembly to check.
+    /// If specified, the method will match the assembly only if its version matches.
+    /// If not specified, the method will ignore the version during the check.
+    /// </param>
+    /// <param name="publicKeyToken">
+    /// Optional. The public key token of the assembly to check.
+    /// If specified, the method will match the assembly only if its public key token matches.
+    /// If not specified, the method will ignore the public key token during the check.
+    /// </param>
+    /// <returns>
+    /// <c>true</c> if an assembly matching the specified name
+    /// (and optional version and public key token) is already loaded in the host context; 
+    /// otherwise, <c>false</c>.
+    /// </returns>
+    /// <remarks>
+    /// This method checks all assemblies currently loaded in the application's <see cref="AppDomain.CurrentDomain"/>.
+    /// It compares the assembly's name, version, and public key token (if provided) to determine a match.
+    /// 
+    /// The public key token comparison converts the token to a hexadecimal string for comparison.
+    /// </remarks>
+    public static bool IsAssemblyLoaded(string? assemblyName, Version? version = null, string? publicKeyToken = null)
+    {
+        return AppDomain.CurrentDomain.GetAssemblies().Any(loadedAssembly =>
+        {
+            var loadedName = loadedAssembly.GetName();
+            if (!string.Equals(loadedName.Name, assemblyName, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            if (version != null && loadedName.Version != version)
+                return false;
+
+            return publicKeyToken == null ||
+                   (loadedName.GetPublicKeyToken()?
+                       .Select(b => b.ToString("x2"))
+                       .Aggregate((a, b) => a + b)!)
+                   .Equals(publicKeyToken, StringComparison.InvariantCultureIgnoreCase);
+        });
+    }
+    
     /// <summary>
     /// Attempts to get the location of an already loaded assembly.
     /// </summary>
