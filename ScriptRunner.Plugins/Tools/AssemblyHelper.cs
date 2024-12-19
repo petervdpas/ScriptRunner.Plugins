@@ -141,20 +141,25 @@ public static class AssemblyHelper
     /// </remarks>
     public static bool IsAssemblyLoaded(string? assemblyName, Version? version = null, string? publicKeyToken = null)
     {
-        return AppDomain.CurrentDomain.GetAssemblies().Any(loadedAssembly =>
+        var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+        return loadedAssemblies.Any(loadedAssembly =>
         {
             var loadedName = loadedAssembly.GetName();
             if (!string.Equals(loadedName.Name, assemblyName, StringComparison.OrdinalIgnoreCase))
                 return false;
 
+            // If a version or publicKeyToken are provided, compare them
             if (version != null && loadedName.Version != version)
                 return false;
 
-            return publicKeyToken == null ||
-                   (loadedName.GetPublicKeyToken()?
-                       .Select(b => b.ToString("x2"))
-                       .Aggregate((a, b) => a + b)!)
-                   .Equals(publicKeyToken, StringComparison.InvariantCultureIgnoreCase);
+            if (string.IsNullOrEmpty(publicKeyToken)) return true;
+            
+            var tokenBytes = loadedName.GetPublicKeyToken();
+            var loadedToken = tokenBytes != null
+                ? BitConverter.ToString(tokenBytes).Replace("-", "").ToLowerInvariant()
+                : null;
+
+            return string.Equals(loadedToken, publicKeyToken, StringComparison.OrdinalIgnoreCase);
         });
     }
     
