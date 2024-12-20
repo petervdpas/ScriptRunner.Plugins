@@ -95,7 +95,7 @@ public static class PluginNamespaceHelper
                     var dependencyAssembly = Assembly.Load(dependencyName);
                     AddNamespacesFromAssembly(dependencyAssembly, imports, logger, excludedPrefixes, false);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     logger?.LogWarning("Failed to load dependency: {DependencyName}", dependencyName.FullName);
                 }
