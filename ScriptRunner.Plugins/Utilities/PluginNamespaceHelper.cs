@@ -34,7 +34,6 @@ public static class PluginNamespaceHelper
     {
         excludedPrefixes ??= ["FxResources", "System.Private", "Internal"];
         var activePluginSet = new HashSet<string>(activePluginNames, StringComparer.OrdinalIgnoreCase);
-        var exceptions = new List<Exception>();
 
         foreach (var (dllPath, metadata) in discoveredPlugins)
         {
@@ -45,22 +44,18 @@ public static class PluginNamespaceHelper
             {
                 var assembly = Assembly.LoadFrom(dllPath);
 
-                // Add reference
+                // Add metadata reference
                 additionalReferences.Add(MetadataReference.CreateFromFile(assembly.Location));
                 logger?.LogDebug("Added assembly reference for plugin: {PluginName}", metadata.Name);
 
                 // Extract namespaces
-                AddNamespacesFromAssembly(assembly, imports, logger, excludedPrefixes, false);
+                AddNamespacesFromAssembly(assembly, imports, logger, excludedPrefixes);
             }
             catch (Exception ex)
             {
                 logger?.LogError(ex, "Failed to process active plugin: {PluginName}", metadata.Name);
-                exceptions.Add(new Exception($"Error processing plugin {metadata.Name}: {ex.Message}", ex));
             }
         }
-
-        if (exceptions.Count > 0)
-            throw new AggregateException("One or more plugins failed to process.", exceptions);
     }
 
     /// <summary>
@@ -76,45 +71,44 @@ public static class PluginNamespaceHelper
         HashSet<string?> imports,
         ILogger? logger,
         string[] excludedPrefixes,
-        bool includeDependencies = true)
+        bool includeDependencies = false)
     {
-        var exceptions = new List<Exception>();
-
         try
         {
             // Extract namespaces from the main assembly
-            var namespaces = assembly.GetTypes()
-                .Select(t => t.Namespace)
-                .Where(ns => !string.IsNullOrWhiteSpace(ns) && IsRelevantNamespace(ns, excludedPrefixes))
-                .Distinct();
-
-            foreach (var ns in namespaces)
-                if (ns != null && imports.Add(ns))
+            foreach (var ns in assembly.GetTypes()
+                         .Select(t => t.Namespace)
+                         .Where(ns => !string.IsNullOrWhiteSpace(ns) && IsRelevantNamespace(ns, excludedPrefixes))
+                         .Distinct())
+            {
+                if (imports.Add(ns))
                     logger?.LogDebug("Added namespace: {Namespace}", ns);
+            }
 
-            // Process dependencies if required
-            if (includeDependencies)
-                foreach (var dependencyName in assembly.GetReferencedAssemblies())
-                    try
-                    {
-                        var dependencyAssembly = Assembly.Load(dependencyName);
-                        AddNamespacesFromAssembly(dependencyAssembly, imports, logger, excludedPrefixes, false);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger?.LogWarning("Failed to load dependency: {DependencyName}", dependencyName.FullName);
-                        exceptions.Add(
-                            new Exception($"Error loading dependency {dependencyName.FullName}: {ex.Message}", ex));
-                    }
+            // Optionally include dependencies
+            if (!includeDependencies) return;
+
+            foreach (var dependencyName in assembly.GetReferencedAssemblies())
+            {
+                try
+                {
+                    var dependencyAssembly = Assembly.Load(dependencyName);
+                    AddNamespacesFromAssembly(dependencyAssembly, imports, logger, excludedPrefixes, false);
+                }
+                catch (Exception ex)
+                {
+                    logger?.LogWarning("Failed to load dependency: {DependencyName}", dependencyName.FullName);
+                }
+            }
+        }
+        catch (ReflectionTypeLoadException ex)
+        {
+            logger?.LogError(ex, "Failed to load some types from assembly: {AssemblyName}", assembly.FullName);
         }
         catch (Exception ex)
         {
             logger?.LogError(ex, "Failed to process assembly: {AssemblyName}", assembly.FullName);
-            exceptions.Add(new Exception($"Error processing assembly {assembly.FullName}: {ex.Message}", ex));
         }
-
-        if (exceptions.Count > 0)
-            throw new AggregateException("One or more assemblies failed to process namespaces.", exceptions);
     }
 
     /// <summary>
@@ -125,9 +119,6 @@ public static class PluginNamespaceHelper
     /// <returns>True if the namespace is relevant; otherwise, false.</returns>
     private static bool IsRelevantNamespace(string? @namespace, string[] excludedPrefixes)
     {
-        if (string.IsNullOrWhiteSpace(@namespace))
-            return false;
-
-        return !excludedPrefixes.Any(@namespace.StartsWith);
+        return !string.IsNullOrWhiteSpace(@namespace) && !excludedPrefixes.Any(@namespace.StartsWith);
     }
 }

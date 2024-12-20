@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using ScriptRunner.Plugins.Defaults;
 
 namespace ScriptRunner.Plugins.Attributes;
 
@@ -20,7 +18,6 @@ public class PluginMetadataAttribute : Attribute
     /// <param name="pluginSystemVersion">The version of the plugin system this plugin was built for.</param>
     /// <param name="frameworkVersion">The target framework version (optional).</param>
     /// <param name="services">An array of service names provided by the plugin (optional).</param>
-    /// <param name="skipLibraryChecks">An array of library names to skip validation (optional).</param>
     public PluginMetadataAttribute(
         string name,
         string description,
@@ -28,8 +25,7 @@ public class PluginMetadataAttribute : Attribute
         string version,
         string pluginSystemVersion,
         string frameworkVersion = "",
-        string[]? services = null,
-        string[]? skipLibraryChecks = null)
+        string[]? services = null)
     {
         Name = name;
         Description = description;
@@ -37,14 +33,7 @@ public class PluginMetadataAttribute : Attribute
         Version = version;
         PluginSystemVersion = pluginSystemVersion;
         FrameworkVersion = frameworkVersion;
-
-        // Merge defaults with provided arrays
         Services = services ?? [];
-
-        SkipLibraryChecks = PluginSystemDefaults.DefaultSkipLibraryChecks
-            .Union(skipLibraryChecks ?? [])
-            .Distinct()
-            .ToArray();
     }
 
     /// <summary>
@@ -81,9 +70,4 @@ public class PluginMetadataAttribute : Attribute
     ///     Gets the list of services provided by the plugin, if applicable.
     /// </summary>
     public string[]? Services { get; }
-
-    /// <summary>
-    ///     Gets the list of library file names to skip during dependency validation.
-    /// </summary>
-    public string[]? SkipLibraryChecks { get; }
 }

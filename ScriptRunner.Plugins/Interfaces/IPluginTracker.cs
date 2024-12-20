@@ -5,13 +5,12 @@ using ScriptRunner.Plugins.Models;
 namespace ScriptRunner.Plugins.Interfaces;
 
 /// <summary>
-/// Interface defining methods for tracking plugins and their dependencies.
+/// Interface defining methods for tracking plugins.
 /// </summary>
 public interface IPluginTracker
 {
     /// <summary>
     /// Discovers plugins in the specified root directory, extracts their metadata,
-    /// and tracks their related dependencies.
     /// </summary>
     void DiscoverAndTrackPlugins();
 
