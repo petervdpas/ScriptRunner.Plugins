@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
@@ -9,16 +10,16 @@ using ScriptRunner.Plugins.Models;
 namespace ScriptRunner.Plugins.Utilities;
 
 /// <summary>
-/// Service for discovering plugins and tracking their dependencies.
+///     Service for discovering plugins and tracking their dependencies.
 /// </summary>
 public class PluginTracker : IPluginTracker
 {
     private readonly List<DependencyModel> _allPlugins = [];
-    private readonly string _pluginRootDirectory;
     private readonly ILogger<PluginTracker> _logger;
+    private readonly string _pluginRootDirectory;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="PluginTracker"/> class.
+    ///     Initializes a new instance of the <see cref="PluginTracker" /> class.
     /// </summary>
     /// <param name="logger">The logger for tracking operations and errors.</param>
     /// <param name="pluginRootDirectory">The root directory containing plugin subdirectories.</param>
@@ -29,10 +30,10 @@ public class PluginTracker : IPluginTracker
     }
 
     /// <summary>
-    /// Discovers plugins in the specified root directory by finding their .deps.json files.
+    ///     Discovers plugins in the specified root directory by finding their .deps.json files.
     /// </summary>
     /// <exception cref="DirectoryNotFoundException">
-    /// Thrown if the plugin root directory does not exist.
+    ///     Thrown if the plugin root directory does not exist.
     /// </exception>
     public void DiscoverAndTrackPlugins()
     {
@@ -40,7 +41,6 @@ public class PluginTracker : IPluginTracker
             throw new DirectoryNotFoundException($"Plugin root directory not found: {_pluginRootDirectory}");
 
         foreach (var pluginDir in Directory.GetDirectories(_pluginRootDirectory))
-        {
             try
             {
                 var depsJsonFile = Directory.GetFiles(pluginDir, "*.deps.json").FirstOrDefault();
@@ -63,17 +63,19 @@ public class PluginTracker : IPluginTracker
             {
                 _logger.LogError(ex, "Failed to process plugin directory '{PluginDir}'", pluginDir);
             }
-        }
     }
 
     /// <summary>
-    /// Gets all tracked plugin DLLs.
+    ///     Gets all tracked plugin DLLs.
     /// </summary>
-    /// <returns>A list of <see cref="DependencyModel"/> representing main plugin DLLs.</returns>
-    public List<DependencyModel> GetTrackedPlugins() => _allPlugins;
+    /// <returns>A list of <see cref="DependencyModel" /> representing main plugin DLLs.</returns>
+    public List<DependencyModel> GetTrackedPlugins()
+    {
+        return _allPlugins;
+    }
 
     /// <summary>
-    /// Extracts the main DLL from the .deps.json file.
+    ///     Extracts the main DLL from the .deps.json file.
     /// </summary>
     /// <param name="depsJsonFile">The path to the .deps.json file.</param>
     /// <returns>The path to the main plugin DLL if found; otherwise, null.</returns>
@@ -82,19 +84,23 @@ public class PluginTracker : IPluginTracker
         try
         {
             var depsContent = File.ReadAllText(depsJsonFile);
-            var depsData = System.Text.Json.JsonDocument.Parse(depsContent);
-            var runtimeTargets = depsData.RootElement.GetProperty("runtimeTarget").GetProperty("name").GetString();
+            var depsDocument = JsonDocument.Parse(depsContent);
 
-            if (!string.IsNullOrEmpty(runtimeTargets))
-            {
-                var pluginDllName = Path.GetFileNameWithoutExtension(depsJsonFile) + ".dll";
-                var pluginDir = Path.GetDirectoryName(depsJsonFile);
+            if (depsDocument.RootElement.TryGetProperty("targets", out var targetsElement))
+                foreach (var target in targetsElement.EnumerateObject())
+                foreach (var package in target.Value.EnumerateObject())
+                    if (package.Value.TryGetProperty("runtime", out var runtimeElement))
+                        foreach (var runtimeFile in runtimeElement.EnumerateObject())
+                            if (runtimeFile.Name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var pluginDllName = runtimeFile.Name;
+                                var pluginDir = Path.GetDirectoryName(depsJsonFile);
 
-                if (pluginDir == null) return null;
-                var pluginDllPath = Path.Combine(pluginDir, pluginDllName);
+                                if (pluginDir == null) return null;
+                                var pluginDllPath = Path.Combine(pluginDir, pluginDllName);
 
-                if (File.Exists(pluginDllPath)) return pluginDllPath;
-            }
+                                if (File.Exists(pluginDllPath)) return pluginDllPath;
+                            }
         }
         catch (Exception ex)
         {

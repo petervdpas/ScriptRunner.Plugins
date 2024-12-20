@@ -80,26 +80,22 @@ public static class PluginNamespaceHelper
                          .Select(t => t.Namespace)
                          .Where(ns => !string.IsNullOrWhiteSpace(ns) && IsRelevantNamespace(ns, excludedPrefixes))
                          .Distinct())
-            {
                 if (imports.Add(ns))
                     logger?.LogDebug("Added namespace: {Namespace}", ns);
-            }
 
             // Optionally include dependencies
             if (!includeDependencies) return;
 
             foreach (var dependencyName in assembly.GetReferencedAssemblies())
-            {
                 try
                 {
                     var dependencyAssembly = Assembly.Load(dependencyName);
-                    AddNamespacesFromAssembly(dependencyAssembly, imports, logger, excludedPrefixes, false);
+                    AddNamespacesFromAssembly(dependencyAssembly, imports, logger, excludedPrefixes);
                 }
                 catch (Exception)
                 {
                     logger?.LogWarning("Failed to load dependency: {DependencyName}", dependencyName.FullName);
                 }
-            }
         }
         catch (ReflectionTypeLoadException ex)
         {

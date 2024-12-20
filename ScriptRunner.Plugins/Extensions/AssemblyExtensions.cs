@@ -4,14 +4,14 @@ using System.Reflection;
 namespace ScriptRunner.Plugins.Extensions;
 
 /// <summary>
-/// Provides extension methods for working with assemblies and their metadata.
+///     Provides extension methods for working with assemblies and their metadata.
 /// </summary>
 public static class AssemblyExtensions
 {
     /// <summary>
-    /// Retrieves the public key token of an <see cref="AssemblyName"/> as a hexadecimal string.
+    ///     Retrieves the public key token of an <see cref="AssemblyName" /> as a hexadecimal string.
     /// </summary>
-    /// <param name="assemblyName">The <see cref="AssemblyName"/> to retrieve the token from.</param>
+    /// <param name="assemblyName">The <see cref="AssemblyName" /> to retrieve the token from.</param>
     /// <returns>The public key token as a hexadecimal string, or <c>null</c> if no token is present.</returns>
     public static string? GetPublicKeyTokenString(this AssemblyName assemblyName)
     {
