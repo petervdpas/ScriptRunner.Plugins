@@ -10,31 +10,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ScriptRunner.Plugins" Version="1.6.24"/>
+        <PackageReference Include="ScriptRunner.Plugins" Version="1.6.26"/>
     </ItemGroup>
 
     <Target Name="SeparatePluginAndDependencies" AfterTargets="Build">
-        <MakeDir Directories="..\Plugins\Dependencies"/>
+        
+        <!-- Ensure Dependencies subdirectory exists -->
+        <MakeDir Directories="..\Plugins"/>
 
-        <!-- Collect the plugin DLL -->
+        <!-- Recursively Copy EVERYTHING from $(TargetDir), including subdirectories -->
         <ItemGroup>
-            <PluginAssembly Include="$(TargetDir)$(AssemblyName).dll"/>
+            <AllFiles Include="$(TargetDir)**\*" />
         </ItemGroup>
 
-        <!-- Copy the plugin DLL to the Plugins directory -->
-        <Copy SourceFiles="@(PluginAssembly)"
-              DestinationFolder="..\Plugins"
-              SkipUnchangedFiles="true"/>
-
-        <!-- Collect dependencies explicitly from the build output -->
-        <ItemGroup>
-            <DependencyAssemblies Include="$(TargetDir)**\*.dll"
-                                  Exclude="$(TargetDir)$(AssemblyName).dll"/>
-        </ItemGroup>
-
-        <Copy SourceFiles="@(DependencyAssemblies)"
-              DestinationFolder="..\Plugins\Dependencies"
-              SkipUnchangedFiles="true"/>
+        <!-- Recursively Copy Files While Preserving Directory Structure -->
+        <Copy SourceFiles="@(AllFiles)"
+              DestinationFiles="..\Plugins\%(RecursiveDir)%(Filename)%(Extension)"
+              SkipUnchangedFiles="false" />
 
         <ItemGroup>
             <DemoScripts Include="$(ProjectDir)DemoScripts\**\*"/>
@@ -43,11 +35,11 @@
 
         <Copy SourceFiles="@(DemoScripts)"
               DestinationFolder="..\Plugins\DemoScripts"
-              SkipUnchangedFiles="true"/>
+              SkipUnchangedFiles="false"/>
 
         <Copy SourceFiles="@(CookBookPages)"
               DestinationFolder="..\Plugins\CookBookPages"
-              SkipUnchangedFiles="true"/>
+              SkipUnchangedFiles="false"/>
 
         <!-- Check if PowerShell is available -->
         <Exec Command="powershell -File CheckPowerShell.ps1"

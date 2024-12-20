@@ -13,11 +13,8 @@ namespace ScriptRunner.Plugins.Utilities;
 /// </summary>
 public class PluginTracker : IPluginTracker
 {
-    private readonly List<DependencyModel> _allDependencies = [];
-
+    private readonly List<DependencyModel> _allPlugins = [];
     private readonly string _pluginRootDirectory;
-    private readonly string _dependenciesDirectory;
-
     private readonly ILogger<PluginTracker> _logger;
 
     /// <summary>
@@ -25,18 +22,14 @@ public class PluginTracker : IPluginTracker
     /// </summary>
     /// <param name="logger">The logger for tracking operations and errors.</param>
     /// <param name="pluginRootDirectory">The root directory containing plugin subdirectories.</param>
-    /// <param name="dependenciesDirectory">The directory name where dependencies are stored.</param>
-    /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
-    public PluginTracker(ILogger<PluginTracker> logger, string pluginRootDirectory, string dependenciesDirectory)
+    public PluginTracker(ILogger<PluginTracker> logger, string pluginRootDirectory)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _pluginRootDirectory = pluginRootDirectory ?? throw new ArgumentNullException(nameof(pluginRootDirectory));
-        _dependenciesDirectory = dependenciesDirectory ?? throw new ArgumentNullException(nameof(dependenciesDirectory));
     }
 
     /// <summary>
-    /// Discovers plugins in the specified root directory, extracts their metadata,
-    /// and tracks their related dependencies.
+    /// Discovers plugins in the specified root directory by finding their .deps.json files.
     /// </summary>
     /// <exception cref="DirectoryNotFoundException">
     /// Thrown if the plugin root directory does not exist.
@@ -48,15 +41,23 @@ public class PluginTracker : IPluginTracker
 
         foreach (var pluginDir in Directory.GetDirectories(_pluginRootDirectory))
         {
-            var pluginDll = Directory.GetFiles(pluginDir, "*.dll").FirstOrDefault();
-            if (pluginDll == null)
-                continue;
-
             try
             {
-                var dllName = Path.GetFileName(pluginDll);
-                _allDependencies.Add(new DependencyModel(dllName, pluginDll, true));
-                TrackDependencies(pluginDir, _dependenciesDirectory);
+                var depsJsonFile = Directory.GetFiles(pluginDir, "*.deps.json").FirstOrDefault();
+                if (depsJsonFile == null)
+                {
+                    _logger.LogWarning("No .deps.json file found in plugin directory: {PluginDir}", pluginDir);
+                    continue;
+                }
+
+                var mainPluginDll = GetPluginDllFromDepsJson(depsJsonFile);
+                if (mainPluginDll == null)
+                {
+                    _logger.LogWarning("No main DLL specified in .deps.json file: {DepsJson}", depsJsonFile);
+                    continue;
+                }
+
+                _allPlugins.Add(new DependencyModel(Path.GetFileName(mainPluginDll), mainPluginDll));
             }
             catch (Exception ex)
             {
@@ -66,98 +67,40 @@ public class PluginTracker : IPluginTracker
     }
 
     /// <summary>
-    /// Gets all tracked dependencies, including plugins and non-plugin libraries.
-    /// </summary>
-    /// <returns>A list of all tracked <see cref="DependencyModel"/> objects.</returns>
-    public List<DependencyModel> GetAllDependencies() => _allDependencies;
-
-    /// <summary>
     /// Gets all tracked plugin DLLs.
     /// </summary>
     /// <returns>A list of <see cref="DependencyModel"/> representing main plugin DLLs.</returns>
-    public List<DependencyModel> GetTrackedPlugins()
-    {
-        var seenDllNames = new HashSet<string>();
-
-        return _allDependencies
-            .Where(d => d.IsPlugin())
-            .Where(d => seenDllNames.Add(d.GetTuple().DllName))
-            .ToList();
-    }
+    public List<DependencyModel> GetTrackedPlugins() => _allPlugins;
 
     /// <summary>
-    /// Gets all tracked dependencies that are not main plugin DLLs.
+    /// Extracts the main DLL from the .deps.json file.
     /// </summary>
-    /// <returns>A list of <see cref="DependencyModel"/> representing dependency DLLs.</returns>
-    public List<DependencyModel> GetTrackedDependencies()
+    /// <param name="depsJsonFile">The path to the .deps.json file.</param>
+    /// <returns>The path to the main plugin DLL if found; otherwise, null.</returns>
+    private string? GetPluginDllFromDepsJson(string depsJsonFile)
     {
-        var seenDllNames = new HashSet<string>();
-
-        return _allDependencies
-            .Where(d => !d.IsPlugin())
-            .Where(d => seenDllNames.Add(d.GetTuple().DllName))
-            .ToList();
-    }
-
-    /// <summary>
-    /// Tracks all DLLs in a plugin directory and its host-defined dependencies directory.
-    /// </summary>
-    /// <param name="pluginDirectory">The root directory of the plugin.</param>
-    /// <param name="dependenciesDirectory">The name of the directory containing plugin dependencies.</param>
-    private void TrackDependencies(string pluginDirectory, string dependenciesDirectory)
-    {
-        var fullDependenciesDir = Path.Combine(pluginDirectory, dependenciesDirectory);
-        if (Directory.Exists(fullDependenciesDir))
-        {
-            TrackDllsInDirectory(fullDependenciesDir, false);
-        }
-        else
-        {
-            _logger.LogWarning("Dependencies directory not found: {DependenciesDir}", fullDependenciesDir);
-        }
-    }
-
-    /// <summary>
-    /// Tracks DLLs in the specified directory and adds them to the dependency list.
-    /// </summary>
-    /// <param name="directory">The directory to scan for DLLs.</param>
-    /// <param name="isPlugin">Indicates if the DLL is a plugin or dependency.</param>
-    private void TrackDllsInDirectory(string directory, bool isPlugin)
-    {
-        foreach (var dllPath in Directory.GetFiles(directory, "*.dll"))
-        {
-            var dllName = Path.GetFileName(dllPath);
-            _allDependencies.Add(new DependencyModel(dllName, dllPath, isPlugin));
-        }
-    }
-
-    /// <summary>
-    /// Determines if a file is a native library.
-    /// </summary>
-    /// <param name="filePath">The path to the file.</param>
-    /// <returns>True if the file is a native library; otherwise, false.</returns>
-    public bool IsNativeLibrary(string filePath)
-    {
-        if (!File.Exists(filePath)) return false;
-
         try
         {
-            using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-            using var reader = new BinaryReader(fs);
+            var depsContent = File.ReadAllText(depsJsonFile);
+            var depsData = System.Text.Json.JsonDocument.Parse(depsContent);
+            var runtimeTargets = depsData.RootElement.GetProperty("runtimeTarget").GetProperty("name").GetString();
 
-            if (reader.ReadUInt16() != 0x5A4D) return false; // 'MZ' header check
-            fs.Seek(0x3C, SeekOrigin.Begin);
-            var peHeaderOffset = reader.ReadInt32();
-            fs.Seek(peHeaderOffset, SeekOrigin.Begin);
+            if (!string.IsNullOrEmpty(runtimeTargets))
+            {
+                var pluginDllName = Path.GetFileNameWithoutExtension(depsJsonFile) + ".dll";
+                var pluginDir = Path.GetDirectoryName(depsJsonFile);
 
-            if (reader.ReadUInt32() != 0x4550) return false; // 'PE\0\0' header check
+                if (pluginDir == null) return null;
+                var pluginDllPath = Path.Combine(pluginDir, pluginDllName);
 
-            var machine = reader.ReadUInt16();
-            return machine != 0x14C && machine != 0x8664; // Not x86 or x64
+                if (File.Exists(pluginDllPath)) return pluginDllPath;
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            return false;
+            _logger.LogError(ex, "Error parsing .deps.json file: {DepsJsonFile}", depsJsonFile);
         }
+
+        return null;
     }
 }

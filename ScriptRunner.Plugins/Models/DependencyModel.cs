@@ -1,7 +1,7 @@
 ﻿namespace ScriptRunner.Plugins.Models;
 
 /// <summary>
-/// Represents a tracked DLL with its metadata.
+/// Represents a tracked plugin DLL.
 /// </summary>
 public class DependencyModel
 {
@@ -16,39 +16,23 @@ public class DependencyModel
     private readonly string _fullPath;
 
     /// <summary>
-    /// Indicates whether the DLL is the main plugin or a dependency.
-    /// </summary>
-    private readonly bool _isPlugin;
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="DependencyModel"/> class.
     /// </summary>
     /// <param name="dllName">The name of the DLL.</param>
     /// <param name="fullPath">The full file path of the DLL.</param>
-    /// <param name="isPlugin">Whether the DLL is the main plugin.</param>
-    public DependencyModel(string dllName, string fullPath, bool isPlugin)
+    public DependencyModel(string dllName, string fullPath)
     {
         _dllName = dllName;
         _fullPath = fullPath;
-        _isPlugin = isPlugin;
-    }
-    
-    /// <summary>
-    /// Checks whether this dependency is the main plugin DLL.
-    /// </summary>
-    /// <returns>True if the dependency is a main plugin, otherwise false.</returns>
-    public bool IsPlugin()
-    {
-        return _isPlugin;
     }
 
     /// <summary>
     /// Retrieves the metadata of the dependency as a tuple.
     /// </summary>
-    /// <returns>A tuple containing dll name, full path, isPlugin flag, and plugin name.</returns>
-    public (string DllName, string FullPath, bool IsPlugin) GetTuple()
+    /// <returns>A tuple containing dll name and full path.</returns>
+    public (string DllName, string FullPath) GetTuple()
     {
-        return (_dllName, _fullPath, _isPlugin);
+        return (_dllName, _fullPath);
     }
     
     /// <summary>
@@ -57,6 +41,6 @@ public class DependencyModel
     /// <returns>A formatted string containing the dependency details.</returns>
     public override string ToString()
     {
-        return $"[Dependency] Name: {_dllName}, Path: {_fullPath}, IsPlugin: {_isPlugin}";
+        return $"[Plugin] Name: {_dllName}, Path: {_fullPath}";
     }
 }
