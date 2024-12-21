@@ -74,61 +74,6 @@ public class PluginManager : IPluginManager
     /// </summary>
     /// <returns>A read-only list of <see cref="PluginPathModel"/> representing the discovered plugins.</returns>
     public IReadOnlyList<PluginPathModel> GetDiscoveredPlugins() => _allPlugins.AsReadOnly();
-    
-    /// <summary>
-    ///     Adds namespaces and references for discovered plugins to the specified collections.
-    /// </summary>
-    /// <param name="activePluginNames">
-    ///     A collection of active plugin names to filter the plugins to be processed.
-    /// </param>
-    /// <param name="additionalReferences">
-    ///     A list to store metadata references for the discovered plugins.
-    /// </param>
-    /// <param name="imports">
-    ///     A set to store namespaces from the discovered plugins.
-    /// </param>
-    /// <param name="excludedPrefixes">
-    ///     An optional array of namespace prefixes to exclude.
-    /// </param>
-    public void AddNamespacesAndReferencesForPlugins(
-        IEnumerable<string> activePluginNames,
-        List<MetadataReference> additionalReferences,
-        HashSet<string?> imports,
-        string[]? excludedPrefixes = null)
-    {
-        excludedPrefixes ??= ["FxResources", "System.Private", "Internal", "Microsoft.Internal"];
-        var activePluginSet = new HashSet<string>(activePluginNames, StringComparer.OrdinalIgnoreCase);
-
-        foreach (var plugin in _allPlugins
-                     .Select(pluginPath => pluginPath.GetTuple())
-                     .Where(plugin => activePluginSet.Contains(plugin.DllName)))
-        {
-            if (_processedReferences.ContainsKey(plugin.FullPath))
-            {
-                _logger.LogDebug("Plugin already processed: {PluginPath}. Skipping.", plugin.FullPath);
-                continue;
-            }
-
-            try
-            {
-                var assembly = Assembly.LoadFrom(plugin.FullPath);
-
-                if (additionalReferences.All(r => r.Display != assembly.Location))
-                {
-                    additionalReferences.Add(MetadataReference.CreateFromFile(assembly.Location));
-                    _logger.LogDebug("Added assembly reference for plugin: {PluginName}", plugin.DllName);
-                }
-
-                AddNamespacesFromAssembly(assembly, imports, excludedPrefixes);
-
-                _processedReferences[plugin.FullPath] = true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to process plugin: {PluginName}", plugin.DllName);
-            }
-        }
-    }
 
     /// <summary>
     ///     Extracts the main DLL file path from a .deps.json file.
@@ -166,57 +111,5 @@ public class PluginManager : IPluginManager
         }
 
         return null;
-    }
-
-    /// <summary>
-    ///     Adds namespaces from an assembly to the specified imports collection.
-    /// </summary>
-    /// <param name="assembly">The assembly to process.</param>
-    /// <param name="imports">The collection to store extracted namespaces.</param>
-    /// <param name="excludedPrefixes">
-    ///     An array of namespace prefixes to exclude from the imports collection.
-    /// </param>
-    private void AddNamespacesFromAssembly(
-        Assembly assembly,
-        HashSet<string?> imports,
-        string[] excludedPrefixes)
-    {
-        try
-        {
-            var types = assembly.GetTypes();
-            _logger.LogDebug("Loaded {TypeCount} types from assembly: {AssemblyName}", types.Length, assembly.FullName);
-
-            foreach (var ns in types
-                         .Select(t => t.Namespace)
-                         .Where(ns => !string.IsNullOrWhiteSpace(ns) && IsRelevantNamespace(ns, excludedPrefixes))
-                         .Distinct())
-            {
-                if (imports.Add(ns))
-                {
-                    _logger.LogDebug("Added namespace: {Namespace}", ns);
-                }
-            }
-        }
-        catch (ReflectionTypeLoadException ex)
-        {
-            _logger.LogError(ex, "Failed to load some types from assembly: {AssemblyName}", assembly.FullName);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error processing assembly: {AssemblyName}", assembly.FullName);
-        }
-    }
-
-    /// <summary>
-    ///     Determines whether a namespace is relevant for inclusion based on the exclusion rules.
-    /// </summary>
-    /// <param name="namespace">The namespace to evaluate.</param>
-    /// <param name="excludedPrefixes">An array of namespace prefixes to exclude.</param>
-    /// <returns>
-    ///     <c>true</c> if the namespace is relevant; otherwise, <c>false</c>.
-    /// </returns>
-    private static bool IsRelevantNamespace(string? @namespace, string[] excludedPrefixes)
-    {
-        return !string.IsNullOrWhiteSpace(@namespace) && !excludedPrefixes.Any(@namespace.StartsWith);
     }
 }
