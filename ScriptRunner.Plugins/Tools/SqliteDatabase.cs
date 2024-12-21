@@ -17,6 +17,7 @@ public class SqliteDatabase : ISqliteDatabase
 {
     private SqliteConnection? _connection;
     private string? _connectionString;
+    private bool _enableForeignKeys = true;
 
     /// <summary>
     ///     Sets up the database by providing the necessary connection string.
@@ -36,12 +37,20 @@ public class SqliteDatabase : ISqliteDatabase
     }
 
     /// <summary>
+    /// Sets foreign key constraints in the SQLite database.
+    /// </summary>
+    public void SetForeignKeysEnabled(bool enableForeignKeys = true)
+    {
+        _enableForeignKeys = enableForeignKeys;
+    }
+    
+    /// <summary>
     ///     Opens the database connection, with an option to enable foreign key constraints.
     /// </summary>
     /// <param name="enableForeignKeys">
     ///     A boolean indicating whether to enable foreign key constraints (default is true).
     /// </param>
-    public void OpenConnection(bool enableForeignKeys = true)
+    public void OpenConnection()
     {
         SafeGuard();
 
@@ -50,7 +59,7 @@ public class SqliteDatabase : ISqliteDatabase
         _connection = new SqliteConnection(_connectionString);
         _connection.Open();
 
-        if (!enableForeignKeys) return;
+        if (!_enableForeignKeys) return;
 
         // Enable foreign key constraints
         using var command = _connection.CreateCommand();
