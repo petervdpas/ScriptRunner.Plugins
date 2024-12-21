@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
+using ScriptRunner.Plugins.Models;
 
 namespace ScriptRunner.Plugins.Interfaces;
 
@@ -13,6 +14,12 @@ public interface IPluginManager
     /// </summary>
     void DiscoverPlugins();
 
+    /// <summary>
+    /// Gets the discovered plugins.
+    /// </summary>
+    /// <returns>A read-only list of plugin paths.</returns>
+    IReadOnlyList<PluginPathModel> GetDiscoveredPlugins();
+    
     /// <summary>
     /// Adds namespaces and references for active plugins.
     /// </summary>

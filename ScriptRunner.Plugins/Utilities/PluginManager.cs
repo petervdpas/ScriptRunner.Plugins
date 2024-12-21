@@ -67,6 +67,12 @@ public class PluginManager : IPluginManager
     }
 
     /// <summary>
+    /// Gets the discovered plugins.
+    /// </summary>
+    /// <returns>A read-only list of plugin paths.</returns>
+    public IReadOnlyList<PluginPathModel> GetDiscoveredPlugins() => _allPlugins.AsReadOnly();
+    
+    /// <summary>
     ///     Adds namespaces and references for discovered plugins.
     /// </summary>
     public void AddNamespacesAndReferences(
