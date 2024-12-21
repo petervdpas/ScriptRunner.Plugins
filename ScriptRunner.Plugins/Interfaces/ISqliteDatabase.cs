@@ -7,7 +7,7 @@ namespace ScriptRunner.Plugins.Interfaces;
 /// <summary>
 ///     Represents a generic database interface for executing commands, queries, and managing connections.
 /// </summary>
-public interface IDatabase
+public interface ISqliteDatabase
 {
     /// <summary>
     ///     Sets up the database with a connection string.
@@ -53,20 +53,12 @@ public interface IDatabase
     /// <summary>
     ///     Loads entities from the database.
     /// </summary>
-    /// <param name="schema">Optional schema for filtering results.</param>
-    /// <param name="queryOverwrite">Optional custom query to override the default.</param>
-    /// <param name="cleaningToken">Optional token for cleaning or filtering results.</param>
     /// <returns>A collection of entities.</returns>
-    IEnumerable<Entity?> LoadEntities(string? schema = null, string? queryOverwrite = null,
-        string? cleaningToken = null);
+    IEnumerable<Entity?> LoadEntities();
 
     /// <summary>
     ///     Loads relationships from the database.
     /// </summary>
-    /// <param name="schema">Optional schema for filtering results.</param>
-    /// <param name="queryOverwrite">Optional custom query to override the default.</param>
-    /// <param name="cleaningToken">Optional token for cleaning or filtering results.</param>
     /// <returns>A collection of relationships.</returns>
-    IEnumerable<Relationship> LoadRelationships(string? schema = null, string? queryOverwrite = null,
-        string? cleaningToken = null);
+    IEnumerable<Relationship> LoadRelationships();
 }

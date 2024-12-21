@@ -11,9 +11,9 @@ namespace ScriptRunner.Plugins.Tools;
 
 /// <summary>
 ///     Provides methods for managing the database connection and executing queries.
-///     Implements <see cref="IDatabase" />.
+///     Implements <see cref="ISqliteDatabase" />.
 /// </summary>
-public class SqLiteDatabase : IDatabase
+public class SqliteDatabase : ISqliteDatabase
 {
     private SqliteConnection? _connection;
     private string? _connectionString;
@@ -139,8 +139,7 @@ public class SqLiteDatabase : IDatabase
     /// <returns>
     ///     A collection of <see cref="Entity" /> objects, each representing a table and its columns in the database.
     /// </returns>
-    public IEnumerable<Entity?> LoadEntities(string? schema = null, string? queryOverwrite = null,
-        string? cleaningToken = null)
+    public IEnumerable<Entity?> LoadEntities()
     {
         SafeGuard();
 
@@ -169,8 +168,7 @@ public class SqLiteDatabase : IDatabase
     /// <returns>
     ///     A collection of <see cref="Relationship" /> objects, each representing a foreign key relationship between tables.
     /// </returns>
-    public IEnumerable<Relationship> LoadRelationships(string? schema = null, string? queryOverwrite = null,
-        string? cleaningToken = null)
+    public IEnumerable<Relationship> LoadRelationships()
     {
         SafeGuard();
 
