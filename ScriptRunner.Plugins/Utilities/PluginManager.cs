@@ -161,12 +161,32 @@ public class PluginManager : IPluginManager
         ILogger? logger,
         string[] excludedPrefixes)
     {
-        foreach (var ns in assembly.GetTypes()
-                     .Select(t => t.Namespace)
-                     .Where(ns => !string.IsNullOrWhiteSpace(ns) && IsRelevantNamespace(ns, excludedPrefixes))
-                     .Distinct())
-            if (imports.Add(ns))
-                logger?.LogDebug("Added namespace: {Namespace}", ns);
+        try
+        {
+            var types = assembly.GetTypes();
+            logger?.LogDebug("Loaded {TypeCount} types from assembly: {AssemblyName}", types.Length, assembly.FullName);
+
+            var validNamespaces = types
+                .Select(t => t.Namespace)
+                .Where(ns => !string.IsNullOrWhiteSpace(ns) && IsRelevantNamespace(ns, excludedPrefixes))
+                .Distinct();
+
+            foreach (var ns in validNamespaces)
+            {
+                if (imports.Add(ns))
+                {
+                    logger?.LogDebug("Added namespace: {Namespace}", ns);
+                }
+            }
+        }
+        catch (ReflectionTypeLoadException ex)
+        {
+            logger?.LogError(ex, "Failed to load some types from assembly: {AssemblyName}", assembly.FullName);
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(ex, "Unexpected error processing assembly: {AssemblyName}", assembly.FullName);
+        }
     }
 
     private static bool IsRelevantNamespace(string? @namespace, string[] excludedPrefixes)
