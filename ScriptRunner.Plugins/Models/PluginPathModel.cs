@@ -3,7 +3,7 @@
 /// <summary>
 ///     Represents a tracked plugin DLL.
 /// </summary>
-public class DependencyModel
+public class PluginPathModel
 {
     /// <summary>
     ///     The name of the DLL.
@@ -16,11 +16,11 @@ public class DependencyModel
     private readonly string _fullPath;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="DependencyModel" /> class.
+    ///     Initializes a new instance of the <see cref="PluginPathModel" /> class.
     /// </summary>
     /// <param name="dllName">The name of the DLL.</param>
     /// <param name="fullPath">The full file path of the DLL.</param>
-    public DependencyModel(string dllName, string fullPath)
+    public PluginPathModel(string dllName, string fullPath)
     {
         _dllName = dllName;
         _fullPath = fullPath;
