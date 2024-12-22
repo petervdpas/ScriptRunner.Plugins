@@ -9,7 +9,7 @@
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>ScriptRunner.Plugins</PackageId>
-        <Version>1.6.42</Version>
+        <Version>1.6.44</Version>
         <Authors>Peter van de Pas</Authors>
         <Description>A plugin framework for ScriptRunner</Description>
         <PackageTags>ScriptRunner;Plugins;DependencyInjection</PackageTags>
@@ -28,12 +28,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="assets/icon.png" Pack="true" PackagePath="assets/"/>
-        <None Include="assets/LICENSE.txt" Pack="true" PackagePath="assets/"/>
-        <None Include="../README.md" Pack="true" PackagePath=""/>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0"/>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0"/>
         <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0"/>
@@ -48,6 +42,24 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Include="assets/icon.png" Pack="true" PackagePath="assets/"/>
+        <None Include="assets/LICENSE.txt" Pack="true" PackagePath="assets/"/>
+        <None Include="../README.md" Pack="true" PackagePath=""/>
+    </ItemGroup>
+    
+    <ItemGroup>
         <Content Include="Templates\BasePluginTemplate\**\*" Pack="true" PackagePath="contentFiles/Templates/BasePluginTemplate/"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="CookBookPages\**\*">
+            <Pack>true</Pack>
+            <PackagePath>contentFiles/CookBookPages/</PackagePath>
+        </Content>
+        <Content Include="DemoScripts\**\*">
+            <Pack>true</Pack>
+            <PackagePath>contentFiles/DemoScripts/</PackagePath>
+        </Content>
+    </ItemGroup>
+    
 </Project>

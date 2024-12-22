@@ -47,9 +47,6 @@ public class SqliteDatabase : ISqliteDatabase
     /// <summary>
     ///     Opens the database connection, with an option to enable foreign key constraints.
     /// </summary>
-    /// <param name="enableForeignKeys">
-    ///     A boolean indicating whether to enable foreign key constraints (default is true).
-    /// </param>
     public void OpenConnection()
     {
         SafeGuard();
