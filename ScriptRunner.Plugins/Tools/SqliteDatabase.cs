@@ -75,6 +75,24 @@ public class SqliteDatabase : ISqliteDatabase
     }
 
     /// <summary>
+    /// Retrieves the active database connection.
+    /// </summary>
+    /// <returns>The active <see cref="IDbConnection"/> instance.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the connection is not initialized or is not open.
+    /// </exception>
+    /// <remarks>
+    /// This method provides access to the underlying connection used by the database.
+    /// Ensure the connection is properly opened by calling <see cref="OpenConnection"/> before using this method.
+    /// </remarks>
+    public IDbConnection GetConnection()
+    {
+        if (_connection is null || _connection.State != ConnectionState.Open)
+            throw new InvalidOperationException("The database connection is not open.");
+        return _connection;
+    }
+
+    /// <summary>
     ///     Executes a non-query SQL command (e.g., INSERT, UPDATE, DELETE) with optional parameters.
     /// </summary>
     /// <param name="query">The SQL query to execute.</param>

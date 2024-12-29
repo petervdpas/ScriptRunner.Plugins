@@ -25,6 +25,12 @@ public interface IDatabase
     void CloseConnection();
 
     /// <summary>
+    /// Retrieves the underlying database connection.
+    /// </summary>
+    /// <returns>The active <see cref="IDbConnection"/>.</returns>
+    IDbConnection GetConnection();
+    
+    /// <summary>
     /// Executes a non-query command (INSERT, UPDATE, DELETE, etc.).
     /// </summary>
     /// <param name="query">The SQL query to execute.</param>
