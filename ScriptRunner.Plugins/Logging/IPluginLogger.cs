@@ -3,32 +3,36 @@
 namespace ScriptRunner.Plugins.Logging;
 
 /// <summary>
-///     Defines a logging interface for plugins, enabling decoupled and customizable logging functionality.
+/// Defines a logging interface for plugins, enabling decoupled and customizable logging functionality.
 /// </summary>
 public interface IPluginLogger
 {
     /// <summary>
-    ///     Logs a debug message, typically used for diagnostic purposes.
+    /// Logs a debug message, optionally with structured arguments.
     /// </summary>
-    /// <param name="message">The debug message to log.</param>
-    void Debug(string message);
+    /// <param name="message">The debug message to log. Can be null.</param>
+    /// <param name="args">Optional arguments to format the message.</param>
+    void Debug(string message, params object[] args);
 
     /// <summary>
-    ///     Logs an informational message, typically used for general-purpose information about application flow.
+    /// Logs an informational message, optionally with structured arguments.
     /// </summary>
-    /// <param name="message">The informational message to log.</param>
-    void Information(string message);
+    /// <param name="message">The informational message to log. Can be null.</param>
+    /// <param name="args">Optional arguments to format the message.</param>
+    void Information(string message, params object[] args);
 
     /// <summary>
-    ///     Logs a warning message, typically used to highlight potential issues or non-critical problems.
+    /// Logs a warning message, optionally with structured arguments.
     /// </summary>
-    /// <param name="message">The warning message to log.</param>
-    void Warning(string message);
+    /// <param name="message">The warning message to log. Can be null.</param>
+    /// <param name="args">Optional arguments to format the message.</param>
+    void Warning(string message, params object[] args);
 
     /// <summary>
-    ///     Logs an error message, typically used to record exceptions or critical issues.
+    /// Logs an error message, optionally with structured arguments or exception details.
     /// </summary>
-    /// <param name="message">The error message to log.</param>
+    /// <param name="message">The error message to log. Can be null.</param>
     /// <param name="exception">An optional exception related to the error.</param>
-    void Error(string message, Exception? exception = null);
+    /// <param name="args">Optional arguments to format the message.</param>
+    void Error(string message, Exception? exception = null, params object[] args);
 }
