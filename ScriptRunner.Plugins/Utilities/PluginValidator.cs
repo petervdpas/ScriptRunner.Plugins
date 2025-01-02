@@ -79,7 +79,7 @@ public class PluginValidator : IPluginValidator
                 throw new ArgumentException($"Missing required configuration key: {setting.Key}");
             }
 
-            if (!IsValidType(value, setting.Type))
+            if (value != null && !IsValidType(value, setting.Type))
             {
                 throw new ArgumentException($"Invalid type for key '{setting.Key}'. Expected {setting.Type}, but got {value?.GetType().Name ?? "null"}.");
             }

@@ -38,7 +38,7 @@ public abstract class BaseAsyncServicePlugin : IAsyncServicePlugin
     /// </summary>
     /// <param name="configuration">A dictionary containing configuration key-value pairs for the plugin.</param>
     /// <returns>A <see cref="Task" /> representing the asynchronous initialization operation.</returns>
-    public virtual Task InitializeAsync(ExpandoObject configurationn)
+    public virtual Task InitializeAsync(ExpandoObject configuration)
     {
         // Default implementation: Do nothing
         return Task.CompletedTask;
