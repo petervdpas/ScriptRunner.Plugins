@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -36,58 +34,41 @@ public static class PluginSettingsLoader
         }
 
         var jsonContent = File.ReadAllText(settingsPath);
-        return JsonConvert.DeserializeObject<PluginSettingDefinition[]>(jsonContent)
-               ?? [];
+        return JsonConvert.DeserializeObject<PluginSettingDefinition[]>(jsonContent) ?? [];
     }
-    
+
     /// <summary>
-    /// Merges the plugin settings schema with user-defined values.
+    /// Merges two collections of plugin settings and returns a unified collection of <see cref="PluginSettingDefinition"/>.
     /// </summary>
     /// <param name="schema">The settings schema loaded from the plugin's <c>plugin.settings.json</c> file.</param>
-    /// <param name="userValues">An <see cref="ExpandoObject"/> containing user-defined settings values.</param>
+    /// <param name="userValues">A collection of <see cref="PluginSettingDefinition"/> representing user-defined settings.</param>
     /// <returns>
-    /// An <see cref="ExpandoObject"/> containing the merged settings, where user-defined values override
-    /// schema defaults if present.
+    /// A merged collection of <see cref="PluginSettingDefinition"/> where user-defined values override schema defaults.
     /// </returns>
     /// <remarks>
-    /// This method iterates over the settings schema and checks if each key exists in the user-defined values.
-    /// If a key is present in <paramref name="userValues"/>, its value is used; otherwise, the default value
-    /// from the schema is applied.
+    /// This method ensures that the resulting settings collection contains all keys from the schema,
+    /// with user-defined values taking precedence.
     /// </remarks>
-    public static ExpandoObject MergeSettings(
-        PluginSettingDefinition[] schema,
-        ExpandoObject? userValues)
+    public static IEnumerable<PluginSettingDefinition> MergeSettings(
+        IEnumerable<PluginSettingDefinition> schema,
+        IEnumerable<PluginSettingDefinition>? userValues)
     {
-        var mergedSettings = new ExpandoObject();
-        IDictionary<string, object?> mergedDictionary = mergedSettings;
+        var userDictionary = userValues?.ToDictionary(setting => setting.Key, setting => setting) 
+                             ?? new Dictionary<string, PluginSettingDefinition>();
 
-        // Safely cast userValues to a dictionary for easier access
-        IDictionary<string, object?>? userDictionary = userValues;
-
-        foreach (var setting in schema)
+        return schema.Select(schemaSetting =>
         {
-            // Use user-defined value if available; otherwise, fall back to default
-            if (userDictionary != null && userDictionary.TryGetValue(setting.Key, out var value))
+            if (userDictionary.TryGetValue(schemaSetting.Key, out var userSetting))
             {
-                mergedDictionary[setting.Key] = value;
+                return new PluginSettingDefinition
+                {
+                    Key = schemaSetting.Key,
+                    Type = schemaSetting.Type,
+                    Value = userSetting.Value ?? schemaSetting.Value
+                };
             }
-            else
-            {
-                mergedDictionary[setting.Key] = setting.DefaultValue;
-            }
-        }
 
-        if (userDictionary == null) return mergedSettings;
-        
-        var schemaKeys = new HashSet<string>(schema.Select(s => s.Key));
-        foreach (var userKey in userDictionary.Keys)
-        {
-            if (!schemaKeys.Contains(userKey))
-            {
-                throw new ArgumentException($"Unexpected key '{userKey}' found in user-defined settings.");
-            }
-        }
-
-        return mergedSettings;
+            return schemaSetting;
+        }).ToList();
     }
 }

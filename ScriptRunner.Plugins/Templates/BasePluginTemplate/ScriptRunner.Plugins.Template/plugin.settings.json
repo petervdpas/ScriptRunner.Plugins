@@ -2,19 +2,16 @@
   {
     "Key": "SomeKey",
     "Type": "string",
-    "DefaultValue": "DefaultValue",
-    "Description": "A sample string setting."
+    "Value": "DefaultValue"
   },
   {
     "Key": "MaxRetries",
     "Type": "int",
-    "DefaultValue": 3,
-    "Description": "The maximum number of retry attempts."
+    "Value": 3
   },
   {
     "Key": "EnableLogging",
     "Type": "bool",
-    "DefaultValue": true,
-    "Description": "Flag to enable or disable logging."
+    "Value": true
   }
 ]
