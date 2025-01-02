@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ScriptRunner.Plugins" Version="1.6.64"/>
+        <PackageReference Include="ScriptRunner.Plugins" Version="1.6.66"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -19,7 +19,7 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-    
+
     <Target Name="SeparatePluginAndDependencies" AfterTargets="Build">
 
         <!-- Ensure Dependencies subdirectory exists -->

@@ -128,7 +128,7 @@ public static class DateTimeExtensions
     {
         return !date.IsWeekend();
     }
-    
+
     /// <summary>
     ///     Returns the number of days remaining in the month for the given <see cref="DateTime" />.
     /// </summary>

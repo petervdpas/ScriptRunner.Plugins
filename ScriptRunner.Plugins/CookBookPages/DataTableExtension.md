@@ -10,30 +10,31 @@ toc-title: Table of Content
 toc-own-page: true  
 ---
 
-# Recipe: Exploring DataTable Extensions  
+# Recipe: Exploring DataTable Extensions
 
-## Goal  
+## Goal
 
-Demonstrate the usage of the **DataTableExtensions** library to perform various operations on **DataTable** objects in ScriptRunner scripts.  
-
----
-
-## Steps  
-
-### 1. Write a Script  
-
-Create a ScriptRunner script that uses the **DataTableExtensions** library. The script will showcase operations 
-such as filtering rows, sorting data, adding new rows, exporting to CSV, and more.  
-
-### 2. Run the Script  
-
-Execute the script in ScriptRunner to observe the results of each operation.  
+Demonstrate the usage of the **DataTableExtensions** library to perform various operations on **DataTable** objects in
+ScriptRunner scripts.
 
 ---
 
-## Example Script  
+## Steps
 
-Below is an example script that demonstrates the functionality of the **DataTableExtensions** library:  
+### 1. Write a Script
+
+Create a ScriptRunner script that uses the **DataTableExtensions** library. The script will showcase operations
+such as filtering rows, sorting data, adding new rows, exporting to CSV, and more.
+
+### 2. Run the Script
+
+Execute the script in ScriptRunner to observe the results of each operation.
+
+---
+
+## Example Script
+
+Below is an example script that demonstrates the functionality of the **DataTableExtensions** library:
 
 ```csharp
 /*
@@ -122,10 +123,11 @@ return "DataTableExtensions demo completed.";
     - Modify the script to accept user inputs for dynamic filtering or sorting criteria.
 
 3. **Integrate with Other Extensions**:
-    - Combine **DataTableExtensions** with other extensions for advanced scenarios, such as exporting to Excel or generating reports.
+    - Combine **DataTableExtensions** with other extensions for advanced scenarios, such as exporting to Excel or
+      generating reports.
 
 ---
 
-This recipe demonstrates how to leverage the **DataTableExtensions** library to simplify and enhance **DataTable** 
+This recipe demonstrates how to leverage the **DataTableExtensions** library to simplify and enhance **DataTable**
 operations in ScriptRunner. Start using these powerful extensions to handle all your data table needs efficiently!
 

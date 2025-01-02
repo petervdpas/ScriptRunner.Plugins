@@ -37,13 +37,13 @@ public class SqliteDatabase : ISqliteDatabase
     }
 
     /// <summary>
-    /// Sets foreign key constraints in the SQLite database.
+    ///     Sets foreign key constraints in the SQLite database.
     /// </summary>
     public void SetForeignKeysEnabled(bool enableForeignKeys = true)
     {
         _enableForeignKeys = enableForeignKeys;
     }
-    
+
     /// <summary>
     ///     Opens the database connection, with an option to enable foreign key constraints.
     /// </summary>
@@ -75,15 +75,15 @@ public class SqliteDatabase : ISqliteDatabase
     }
 
     /// <summary>
-    /// Retrieves the active database connection.
+    ///     Retrieves the active database connection.
     /// </summary>
-    /// <returns>The active <see cref="IDbConnection"/> instance.</returns>
+    /// <returns>The active <see cref="IDbConnection" /> instance.</returns>
     /// <exception cref="InvalidOperationException">
-    /// Thrown if the connection is not initialized or is not open.
+    ///     Thrown if the connection is not initialized or is not open.
     /// </exception>
     /// <remarks>
-    /// This method provides access to the underlying connection used by the database.
-    /// Ensure the connection is properly opened by calling <see cref="OpenConnection"/> before using this method.
+    ///     This method provides access to the underlying connection used by the database.
+    ///     Ensure the connection is properly opened by calling <see cref="OpenConnection" /> before using this method.
     /// </remarks>
     public IDbConnection GetConnection()
     {

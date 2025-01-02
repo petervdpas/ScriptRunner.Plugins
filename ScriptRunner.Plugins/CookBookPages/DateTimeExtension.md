@@ -10,32 +10,32 @@ toc-title: Table of Content
 toc-own-page: true  
 ---
 
-# Recipe: Exploring DateTime Extensions  
+# Recipe: Exploring DateTime Extensions
 
-## Goal  
+## Goal
 
-Demonstrate the usage of the **DateTimeExtensions** library to perform various operations 
-on dates and times in ScriptRunner scripts.  
-
----
-
-## Steps  
-
-### 1. Write a Script  
-
-Create a ScriptRunner script that uses the **DateTimeExtensions** library. The script will showcase operations 
-such as formatting dates, calculating Unix timestamps, finding start and end of the day, adding working days, 
-checking if a date is a weekend or weekday, and more.  
-
-### 2. Run the Script  
-
-Execute the script in ScriptRunner to observe the results of each operation.  
+Demonstrate the usage of the **DateTimeExtensions** library to perform various operations
+on dates and times in ScriptRunner scripts.
 
 ---
 
-## Example Script  
+## Steps
 
-Below is an example script that demonstrates the functionality of the **DateTimeExtensions** library:  
+### 1. Write a Script
+
+Create a ScriptRunner script that uses the **DateTimeExtensions** library. The script will showcase operations
+such as formatting dates, calculating Unix timestamps, finding start and end of the day, adding working days,
+checking if a date is a weekend or weekday, and more.
+
+### 2. Run the Script
+
+Execute the script in ScriptRunner to observe the results of each operation.
+
+---
+
+## Example Script
+
+Below is an example script that demonstrates the functionality of the **DateTimeExtensions** library:
 
 ```csharp
 /*
@@ -105,7 +105,8 @@ return "DateTimeExtensions demo completed.";
     - Extracts year, month, and day using **GetYear**, **GetMonth**, and **GetDay**.
 
 3. **Unix Timestamps**:
-    - Convert the current date to a Unix timestamp with **ToUnixTimestamp** and back to a **DateTime** with **FromUnixTimestamp**.
+    - Convert the current date to a Unix timestamp with **ToUnixTimestamp** and back to a **DateTime** with *
+      *FromUnixTimestamp**.
 
 4. **Start and End of Day**:
     - Calculate the start and end times of the current day using **StartOfDay** and **EndOfDay**.
@@ -117,7 +118,8 @@ return "DateTimeExtensions demo completed.";
     - Determines if the current date is a weekend or weekday using **IsWeekend** and **IsWeekday**.
 
 7. **Month Calculations**:
-    - Retrieves the total days in the current month with **TotalDaysInMonth** and the remaining days in the month with **DaysRemainingInMonth**.
+    - Retrieves the total days in the current month with **TotalDaysInMonth** and the remaining days in the month with *
+      *DaysRemainingInMonth**.
 
 8. **Time Difference**:
     - Computes the time difference between the current date and a future date using **GetTimeDifference**.
@@ -137,6 +139,6 @@ return "DateTimeExtensions demo completed.";
 
 ---
 
-This recipe demonstrates how to leverage the **DateTimeExtensions** library to simplify 
-and enhance date-time operations in ScriptRunner. Start using these powerful extensions 
+This recipe demonstrates how to leverage the **DateTimeExtensions** library to simplify
+and enhance date-time operations in ScriptRunner. Start using these powerful extensions
 to handle all your date and time needs effortlessly!

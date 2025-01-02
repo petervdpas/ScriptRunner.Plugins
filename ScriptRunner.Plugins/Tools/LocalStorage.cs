@@ -10,32 +10,32 @@ using ScriptRunner.Plugins.Interfaces;
 namespace ScriptRunner.Plugins.Tools;
 
 /// <summary>
-/// Provides a thread-safe local storage implementation with support for TTL and event hooks.
-/// Implements <see cref="ILocalStorage" />.
+///     Provides a thread-safe local storage implementation with support for TTL and event hooks.
+///     Implements <see cref="ILocalStorage" />.
 /// </summary>
 public class LocalStorage : ILocalStorage
 {
+    private readonly Dictionary<string, DateTime> _expirationData = new();
     private readonly object _lock = new();
     private readonly dynamic _tempData = new ExpandoObject();
-    private readonly Dictionary<string, DateTime> _expirationData = new();
 
     /// <summary>
-    /// Triggered when a new key-value pair is added to the storage.
+    ///     Triggered when a new key-value pair is added to the storage.
     /// </summary>
     public event Action<string, object> OnDataAdded = null!;
 
     /// <summary>
-    /// Triggered when an existing key-value pair in the storage is updated.
+    ///     Triggered when an existing key-value pair in the storage is updated.
     /// </summary>
     public event Action<string, object> OnDataUpdated = null!;
 
     /// <summary>
-    /// Triggered when a key-value pair is removed from the storage.
+    ///     Triggered when a key-value pair is removed from the storage.
     /// </summary>
     public event Action<string> OnDataRemoved = null!;
 
     /// <summary>
-    /// Adds or updates a value in the storage with optional TTL.
+    ///     Adds or updates a value in the storage with optional TTL.
     /// </summary>
     public void SetData(string key, object value, TimeSpan? ttl = null)
     {
@@ -67,7 +67,7 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    /// Retrieves a value from the storage.
+    ///     Retrieves a value from the storage.
     /// </summary>
     public T? GetData<T>(string key)
     {
@@ -80,10 +80,8 @@ public class LocalStorage : ILocalStorage
 
             // Check TTL expiration
             if (!_expirationData.TryGetValue(key, out var expiration) || DateTime.UtcNow <= expiration)
-            {
                 return tempDataDict.TryGetValue(key, out var value) ? (T)value : default;
-            }
-            
+
             tempDataDict.Remove(key);
             _expirationData.Remove(key);
             OnDataRemoved(key);
@@ -92,7 +90,7 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    /// Removes a key and its value from the storage.
+    ///     Removes a key and its value from the storage.
     /// </summary>
     public void RemoveData(string key)
     {
@@ -103,14 +101,14 @@ public class LocalStorage : ILocalStorage
         {
             var tempDataDict = (IDictionary<string, object>)_tempData;
             if (!tempDataDict.Remove(key)) return;
-            
+
             _expirationData.Remove(key);
             OnDataRemoved(key);
         }
     }
 
     /// <summary>
-    /// Clears all entries from the storage.
+    ///     Clears all entries from the storage.
     /// </summary>
     public void ClearData()
     {
@@ -121,15 +119,12 @@ public class LocalStorage : ILocalStorage
             tempDataDict.Clear();
             _expirationData.Clear();
 
-            foreach (var key in keys)
-            {
-                OnDataRemoved?.Invoke(key);
-            }
+            foreach (var key in keys) OnDataRemoved?.Invoke(key);
         }
     }
 
     /// <summary>
-    /// Lists all keys and their values.
+    ///     Lists all keys and their values.
     /// </summary>
     public string ListAllData()
     {
@@ -141,7 +136,7 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    /// Retrieves all keys matching a regex pattern.
+    ///     Retrieves all keys matching a regex pattern.
     /// </summary>
     public IEnumerable<string> GetKeysMatching(string pattern)
     {
@@ -157,7 +152,7 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    /// Searches keys by their associated values.
+    ///     Searches keys by their associated values.
     /// </summary>
     public IEnumerable<string> SearchKeysByValue(object value)
     {
@@ -169,7 +164,7 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    /// Retrieves the entire storage as a dictionary.
+    ///     Retrieves the entire storage as a dictionary.
     /// </summary>
     public IDictionary<string, object> GetStorage()
     {
@@ -180,7 +175,7 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    /// Saves the storage data to a file.
+    ///     Saves the storage data to a file.
     /// </summary>
     public void SaveToFile(string filePath, JsonSerializerOptions? options = null)
     {
@@ -195,7 +190,7 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    /// Loads storage data from a file.
+    ///     Loads storage data from a file.
     /// </summary>
     public void LoadFromFile(string filePath, JsonSerializerOptions? options = null)
     {
@@ -208,13 +203,11 @@ public class LocalStorage : ILocalStorage
         lock (_lock)
         {
             var json = File.ReadAllText(filePath);
-            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json, options ?? new JsonSerializerOptions());
+            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json,
+                options ?? new JsonSerializerOptions());
             if (data == null) return;
 
-            foreach (var kvp in data)
-            {
-                SetData(kvp.Key, kvp.Value);
-            }
+            foreach (var kvp in data) SetData(kvp.Key, kvp.Value);
         }
     }
 }

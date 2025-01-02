@@ -49,7 +49,7 @@ public class PluginValidator : IPluginValidator
     }
 
     /// <summary>
-    /// Validates an <see cref="ExpandoObject" /> against a plugin's JSON schema.
+    ///     Validates an <see cref="ExpandoObject" /> against a plugin's JSON schema.
     /// </summary>
     /// <param name="configuration">The <see cref="ExpandoObject" /> to validate.</param>
     /// <param name="schemaPath">The file path to the JSON schema.</param>
@@ -67,35 +67,26 @@ public class PluginValidator : IPluginValidator
                      ?? throw new ArgumentException("Invalid schema format.");
 
         if (configuration is not IDictionary<string, object?> configDict)
-        {
             throw new ArgumentException("Configuration is not a valid ExpandoObject.");
-        }
 
         // Validate required keys and types
         foreach (var setting in schema)
         {
             if (!configDict.TryGetValue(setting.Key, out var value))
-            {
                 throw new ArgumentException($"Missing required configuration key: {setting.Key}");
-            }
 
             if (value != null && !IsValidType(value, setting.Type))
-            {
-                throw new ArgumentException($"Invalid type for key '{setting.Key}'. Expected {setting.Type}, but got {value?.GetType().Name ?? "null"}.");
-            }
+                throw new ArgumentException(
+                    $"Invalid type for key '{setting.Key}'. Expected {setting.Type}, but got {value?.GetType().Name ?? "null"}.");
         }
 
         // Validate for unexpected keys
         var schemaKeys = new HashSet<string>(schema.Select(s => s.Key));
         foreach (var key in configDict.Keys)
-        {
             if (!schemaKeys.Contains(key))
-            {
                 throw new ArgumentException($"Unexpected configuration key: {key}");
-            }
-        }
     }
-    
+
     /// <summary>
     ///     Validates the metadata attributes of a plugin to ensure required fields are provided.
     /// </summary>
@@ -152,9 +143,9 @@ public class PluginValidator : IPluginValidator
             throw new PluginInitializationException(
                 $"Plugin {pluginType.Name} declares the following services in its metadata but does not implement them: {string.Join(", ", missingServices)}.");
     }
-    
+
     /// <summary>
-    /// Determines if a value matches the expected type.
+    ///     Determines if a value matches the expected type.
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <param name="expectedType">The expected type as a string.</param>

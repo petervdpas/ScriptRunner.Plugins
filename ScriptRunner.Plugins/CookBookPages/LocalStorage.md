@@ -14,7 +14,7 @@ toc-own-page: true
 
 ## Goal
 
-Demonstrate how to use the **LocalStorage** tool to store, retrieve, and manage temporary data with event hooks 
+Demonstrate how to use the **LocalStorage** tool to store, retrieve, and manage temporary data with event hooks
 and time-to-live (TTL) functionality in ScriptRunner scripts.
 
 ---
@@ -24,6 +24,7 @@ and time-to-live (TTL) functionality in ScriptRunner scripts.
 ### 1. Write a Script
 
 Create a ScriptRunner script that showcases the features of the **LocalStorage** tool. The script will demonstrate:
+
 - Adding, updating, and removing data.
 - Retrieving values with optional TTL functionality.
 - Responding to data changes using event hooks.
@@ -135,5 +136,5 @@ return "LocalStorage demo completed.";
 
 ---
 
-This recipe demonstrates the flexibility of the **LocalStorage** tool in handling temporary data storage 
+This recipe demonstrates the flexibility of the **LocalStorage** tool in handling temporary data storage
 and event-driven operations. Experiment with it and adapt it to your scripting needs!  

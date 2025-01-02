@@ -9,18 +9,18 @@ namespace ScriptRunner.Plugins.Interfaces;
 public interface ISqliteDatabase : IDatabase
 {
     /// <summary>
-    /// Sets foreign key constraints in the SQLite database.
+    ///     Sets foreign key constraints in the SQLite database.
     /// </summary>
     void SetForeignKeysEnabled(bool enableForeignKeys = true);
-    
+
     /// <summary>
-    /// Loads entities from the database.
+    ///     Loads entities from the database.
     /// </summary>
     /// <returns>A collection of entities.</returns>
     IEnumerable<Entity?> LoadEntities();
 
     /// <summary>
-    /// Loads relationships from the database.
+    ///     Loads relationships from the database.
     /// </summary>
     /// <returns>A collection of relationships.</returns>
     IEnumerable<Relationship> LoadRelationships();

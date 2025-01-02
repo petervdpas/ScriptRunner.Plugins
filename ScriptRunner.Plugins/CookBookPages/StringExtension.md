@@ -10,31 +10,32 @@ toc-title: Table of Content
 toc-own-page: true  
 ---
 
-# Recipe: Exploring String Extensions  
+# Recipe: Exploring String Extensions
 
-## Goal  
+## Goal
 
-Demonstrate the usage of the **StringExtensions** library to perform various operations on strings in ScriptRunner scripts.  
+Demonstrate the usage of the **StringExtensions** library to perform various operations on strings in ScriptRunner
+scripts.
 
 ---
 
-## Steps  
+## Steps
 
-### 1. Write a Script  
+### 1. Write a Script
 
 Create a ScriptRunner script that uses the **StringExtensions** library.  
 The script will showcase operations such as reversing a string, case conversions, removing whitespace,  
-checking for palindromes, and converting to various string cases like PascalCase, camelCase, snake_case, and kebab-case.  
+checking for palindromes, and converting to various string cases like PascalCase, camelCase, snake_case, and kebab-case.
 
-### 2. Run the Script  
+### 2. Run the Script
 
-Execute the script in ScriptRunner to observe the results of each operation.  
+Execute the script in ScriptRunner to observe the results of each operation.
 
 ---
 
-## Example Script  
+## Example Script
 
-Below is an example script that demonstrates the functionality of the **StringExtensions** library:  
+Below is an example script that demonstrates the functionality of the **StringExtensions** library:
 
 ```csharp
 /*
@@ -133,9 +134,10 @@ return "StringExtensions demo completed.";
     - Use the extension methods to create complex string manipulations, such as generating unique identifiers.
 
 3. **Explore Additional Use Cases**:
-    - Use these methods in scenarios such as formatting user input, generating API-friendly keys, or preparing text for database storage.
+    - Use these methods in scenarios such as formatting user input, generating API-friendly keys, or preparing text for
+      database storage.
 
 ---
 
-This recipe demonstrates how to leverage the **StringExtensions** library to simplify and enhance string 
+This recipe demonstrates how to leverage the **StringExtensions** library to simplify and enhance string
 operations in ScriptRunner. Experiment with the methods to fit your use cases!

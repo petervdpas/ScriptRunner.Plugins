@@ -19,28 +19,28 @@ using ScriptRunner.Plugins.Models;
 namespace ScriptRunner.Plugins.Utilities;
 
 /// <summary>
-/// Implementation of the IAvaloniaControlFactory interface for generating Avalonia controls.
+///     Implementation of the IAvaloniaControlFactory interface for generating Avalonia controls.
 /// </summary>
 public class AvaloniaControlFactory : IAvaloniaControlFactory
 {
+    private readonly string[] _formats = ["yyyy-MM-dd", "dd/MM/yyyy"];
     private readonly ILogger<AvaloniaControlFactory> _logger;
     private ExpandoObject? _expando;
-    private readonly string[] _formats = ["yyyy-MM-dd", "dd/MM/yyyy"];
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AvaloniaControlFactory"/> class.
+    ///     Initializes a new instance of the <see cref="AvaloniaControlFactory" /> class.
     /// </summary>
     /// <param name="logger">
-    /// An instance of <see cref="ILogger{TCategoryName}"/> used for logging diagnostic and error information.
+    ///     An instance of <see cref="ILogger{TCategoryName}" /> used for logging diagnostic and error information.
     /// </param>
     /// <exception cref="ArgumentNullException">
-    /// Thrown if the <paramref name="logger"/> parameter is <c>null</c>.
+    ///     Thrown if the <paramref name="logger" /> parameter is <c>null</c>.
     /// </exception>
     public AvaloniaControlFactory(ILogger<AvaloniaControlFactory> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
-    
+
     /// <summary>
     ///     Generates Avalonia controls for each property in an ExpandoObject.
     /// </summary>
@@ -520,7 +520,7 @@ public class AvaloniaControlFactory : IAvaloniaControlFactory
     {
         return attribute.ControlParameters.TryGetValue("AcceptsReturn", out var acceptsReturn) && acceptsReturn is true;
     }
-    
+
     /// <summary>
     ///     Determines if the specified <see cref="DateTime" /> falls within the allowable range
     ///     for <see cref="DateTimeOffset" />.
@@ -543,32 +543,45 @@ public class AvaloniaControlFactory : IAvaloniaControlFactory
     }
 
     /// <summary>
-    /// Creates an Avalonia control based on the value type and binds it to the specified key in the associated ExpandoObject.
+    ///     Creates an Avalonia control based on the value type and binds it to the specified key in the associated
+    ///     ExpandoObject.
     /// </summary>
     /// <param name="value">
-    /// The value associated with the key. The type of the value determines the type of control created.
-    /// Supported types include <see cref="string"/>, <see cref="int"/>, <see cref="bool"/>, and <see cref="DateTime"/>.
+    ///     The value associated with the key. The type of the value determines the type of control created.
+    ///     Supported types include <see cref="string" />, <see cref="int" />, <see cref="bool" />, and <see cref="DateTime" />
+    ///     .
     /// </param>
     /// <param name="key">
-    /// The key in the <see cref="ExpandoObject"/> that the control's binding will reference.
+    ///     The key in the <see cref="ExpandoObject" /> that the control's binding will reference.
     /// </param>
     /// <returns>
-    /// A <see cref="Control"/> instance that is dynamically created and bound to the specified key and value.
+    ///     A <see cref="Control" /> instance that is dynamically created and bound to the specified key and value.
     /// </returns>
     /// <remarks>
-    /// The method dynamically creates an appropriate control based on the type of the <paramref name="value"/>:
-    /// <list type="bullet">
-    /// <item><description><see cref="TextBox"/> for <see cref="string"/> values.</description></item>
-    /// <item><description><see cref="NumericUpDown"/> for <see cref="int"/> values.</description></item>
-    /// <item><description><see cref="CheckBox"/> for <see cref="bool"/> values.</description></item>
-    /// <item><description><see cref="DatePicker"/> for <see cref="DateTime"/> values.</description></item>
-    /// <item><description><see cref="TextBox"/> for unsupported types.</description></item>
-    /// </list>
-    /// Each control is bound to the corresponding key in the <see cref="ExpandoObject"/>, allowing two-way synchronization
-    /// between the control and the underlying data source.
+    ///     The method dynamically creates an appropriate control based on the type of the <paramref name="value" />:
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <description><see cref="TextBox" /> for <see cref="string" /> values.</description>
+    ///         </item>
+    ///         <item>
+    ///             <description><see cref="NumericUpDown" /> for <see cref="int" /> values.</description>
+    ///         </item>
+    ///         <item>
+    ///             <description><see cref="CheckBox" /> for <see cref="bool" /> values.</description>
+    ///         </item>
+    ///         <item>
+    ///             <description><see cref="DatePicker" /> for <see cref="DateTime" /> values.</description>
+    ///         </item>
+    ///         <item>
+    ///             <description><see cref="TextBox" /> for unsupported types.</description>
+    ///         </item>
+    ///     </list>
+    ///     Each control is bound to the corresponding key in the <see cref="ExpandoObject" />, allowing two-way
+    ///     synchronization
+    ///     between the control and the underlying data source.
     /// </remarks>
     /// <exception cref="ArgumentNullException">
-    /// Thrown if the <paramref name="value"/> or <paramref name="key"/> is null.
+    ///     Thrown if the <paramref name="value" /> or <paramref name="key" /> is null.
     /// </exception>
     private Control CreateControlForValue(object? value, string key)
     {

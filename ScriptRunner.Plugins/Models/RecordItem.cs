@@ -8,17 +8,17 @@ using ReactiveUI;
 namespace ScriptRunner.Plugins.Models;
 
 /// <summary>
-/// Represents a record item that maps to a row in a <see cref="DataTable"/>, 
-/// along with its dynamic type information and display properties.
+///     Represents a record item that maps to a row in a <see cref="DataTable" />,
+///     along with its dynamic type information and display properties.
 /// </summary>
 public class RecordItem : ReactiveObject
 {
     private bool _isDirty;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="RecordItem"/> class.
+    ///     Initializes a new instance of the <see cref="RecordItem" /> class.
     /// </summary>
-    /// <param name="dataRow">The <see cref="DataRow"/> that this record item represents.</param>
+    /// <param name="dataRow">The <see cref="DataRow" /> that this record item represents.</param>
     /// <param name="dynamicType">The dynamically generated type defining the schema for the record.</param>
     public RecordItem(DataRow dataRow, Type dynamicType)
     {
@@ -43,24 +43,24 @@ public class RecordItem : ReactiveObject
     }
 
     /// <summary>
-    /// Gets the <see cref="DataRow"/> represented by this record item.
+    ///     Gets the <see cref="DataRow" /> represented by this record item.
     /// </summary>
     public DataRow DataRow { get; }
 
     /// <summary>
-    /// Gets or sets the display name for the record, which is constructed dynamically 
-    /// based on specific properties defined in the dynamic type.
+    ///     Gets or sets the display name for the record, which is constructed dynamically
+    ///     based on specific properties defined in the dynamic type.
     /// </summary>
     public string DisplayName { get; set; }
 
     /// <summary>
-    /// Gets or sets the detailed fields associated with the record. 
-    /// These fields are constructed based on the dynamic type's properties.
+    ///     Gets or sets the detailed fields associated with the record.
+    ///     These fields are constructed based on the dynamic type's properties.
     /// </summary>
     public ObservableCollection<DetailField> Details { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether the record has unsaved changes.
+    ///     Gets a value indicating whether the record has unsaved changes.
     /// </summary>
     public bool IsDirty
     {
@@ -69,7 +69,7 @@ public class RecordItem : ReactiveObject
     }
 
     /// <summary>
-    /// Marks the record as dirty, indicating that it has unsaved changes.
+    ///     Marks the record as dirty, indicating that it has unsaved changes.
     /// </summary>
     public void MarkAsDirty()
     {
@@ -77,7 +77,7 @@ public class RecordItem : ReactiveObject
     }
 
     /// <summary>
-    /// Marks the record as clean, indicating that all changes have been saved.
+    ///     Marks the record as clean, indicating that all changes have been saved.
     /// </summary>
     public void MarkAsClean()
     {

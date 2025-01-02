@@ -10,30 +10,30 @@ toc-title: Table of Content
 toc-own-page: true  
 ---
 
-# Recipe: Exploring Math Extensions  
+# Recipe: Exploring Math Extensions
 
-## Goal  
+## Goal
 
-Demonstrate the usage of the **MathExtensions** library to perform mathematical operations in ScriptRunner scripts.  
+Demonstrate the usage of the **MathExtensions** library to perform mathematical operations in ScriptRunner scripts.
 
-## Steps  
+## Steps
 
-### 1. Write a Script  
+### 1. Write a Script
 
-Create a ScriptRunner script that uses the **MathExtensions** library. 
-The script will showcase various mathematical operations such as 
-addition, subtraction, multiplication, division, power calculation, clamping values, 
-absolute values, modulus, square root, and factorials.  
+Create a ScriptRunner script that uses the **MathExtensions** library.
+The script will showcase various mathematical operations such as
+addition, subtraction, multiplication, division, power calculation, clamping values,
+absolute values, modulus, square root, and factorials.
 
-### 2. Run the Script  
+### 2. Run the Script
 
-Execute the script in ScriptRunner to see the results of each operation.  
+Execute the script in ScriptRunner to see the results of each operation.
 
 ---
 
-## Example Script  
+## Example Script
 
-Below is an example script that demonstrates the functionality of the **MathExtensions** library:  
+Below is an example script that demonstrates the functionality of the **MathExtensions** library:
 
 ```csharp
 /*
@@ -104,7 +104,8 @@ return "MathExtension demo completed.";
 
 ## Explanation of the Script
 
-1. **Basic Arithmetic**: Demonstrates addition, subtraction, multiplication, and division using **Add**, **Subtract**, **Multiply**, and **Divide** methods.
+1. **Basic Arithmetic**: Demonstrates addition, subtraction, multiplication, and division using **Add**, **Subtract**, *
+   *Multiply**, and **Divide** methods.
 2. **Power Calculation**: Uses the **Power** method to raise a number to a specific exponent.
 3. **Clamping Values**: Utilizes the **Clamp** method to ensure a value lies within a specified range.
 4. **Absolute Value**: Converts a negative number to a positive one using the **Abs** method.
@@ -122,5 +123,5 @@ return "MathExtension demo completed.";
 
 ---
 
-This recipe provides an overview of the MathExtensions library and its utility in creating powerful 
+This recipe provides an overview of the MathExtensions library and its utility in creating powerful
 mathematical scripts in ScriptRunner. Try it out and extend it further to fit your needs!

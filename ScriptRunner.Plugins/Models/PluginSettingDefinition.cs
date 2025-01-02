@@ -3,7 +3,7 @@
 namespace ScriptRunner.Plugins.Models;
 
 /// <summary>
-/// Represents a single configuration setting for a plugin.
+///     Represents a single configuration setting for a plugin.
 /// </summary>
 public class PluginSettingDefinition : ReactiveObject
 {
@@ -12,7 +12,7 @@ public class PluginSettingDefinition : ReactiveObject
     private object? _value;
 
     /// <summary>
-    /// Gets or sets the key of the setting.
+    ///     Gets or sets the key of the setting.
     /// </summary>
     public string Key
     {
@@ -21,7 +21,7 @@ public class PluginSettingDefinition : ReactiveObject
     }
 
     /// <summary>
-    /// Gets or sets the type of the setting (e.g., "string", "int", "bool").
+    ///     Gets or sets the type of the setting (e.g., "string", "int", "bool").
     /// </summary>
     public string Type
     {
@@ -30,7 +30,7 @@ public class PluginSettingDefinition : ReactiveObject
     }
 
     /// <summary>
-    /// Gets or sets the value for the setting.
+    ///     Gets or sets the value for the setting.
     /// </summary>
     public object? Value
     {

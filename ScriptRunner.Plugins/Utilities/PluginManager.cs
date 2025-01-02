@@ -3,9 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
-using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
@@ -17,10 +15,10 @@ namespace ScriptRunner.Plugins.Utilities;
 /// </summary>
 public class PluginManager : IPluginManager
 {
-    private readonly ConcurrentDictionary<string, bool> _processedReferences = new();
     private readonly List<PluginPathModel> _allPlugins = [];
     private readonly ILogger<PluginManager> _logger;
     private readonly string _pluginRootDirectory;
+    private readonly ConcurrentDictionary<string, bool> _processedReferences = new();
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="PluginManager" /> class.
@@ -72,8 +70,11 @@ public class PluginManager : IPluginManager
     /// <summary>
     ///     Gets the list of discovered plugins.
     /// </summary>
-    /// <returns>A read-only list of <see cref="PluginPathModel"/> representing the discovered plugins.</returns>
-    public IReadOnlyList<PluginPathModel> GetDiscoveredPlugins() => _allPlugins.AsReadOnly();
+    /// <returns>A read-only list of <see cref="PluginPathModel" /> representing the discovered plugins.</returns>
+    public IReadOnlyList<PluginPathModel> GetDiscoveredPlugins()
+    {
+        return _allPlugins.AsReadOnly();
+    }
 
     /// <summary>
     ///     Extracts the main DLL file path from a .deps.json file.

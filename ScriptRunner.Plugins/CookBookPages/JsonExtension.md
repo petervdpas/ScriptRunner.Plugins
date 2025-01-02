@@ -10,30 +10,32 @@ toc-title: Table of Content
 toc-own-page: true  
 ---
 
-# Recipe: Exploring JSON Extensions  
+# Recipe: Exploring JSON Extensions
 
-## Goal  
+## Goal
 
-Demonstrate the usage of the **JsonExtensions** library to perform JSON serialization, deserialization, and reformatting in ScriptRunner scripts.  
+Demonstrate the usage of the **JsonExtensions** library to perform JSON serialization, deserialization, and reformatting
+in ScriptRunner scripts.
 
 ---
 
-## Steps  
+## Steps
 
-### 1. Write a Script  
+### 1. Write a Script
 
 Create a ScriptRunner script that uses the **JsonExtensions** library.  
-The script will showcase operations like converting objects to JSON, reformatting JSON strings, and deserializing JSON back into objects.  
+The script will showcase operations like converting objects to JSON, reformatting JSON strings, and deserializing JSON
+back into objects.
 
-### 2. Run the Script  
+### 2. Run the Script
 
-Execute the script in ScriptRunner to observe the JSON manipulations and their results.  
+Execute the script in ScriptRunner to observe the JSON manipulations and their results.
 
 ---
 
-## Example Script  
+## Example Script
 
-Below is an example script that demonstrates the functionality of the **JsonExtensions** library:  
+Below is an example script that demonstrates the functionality of the **JsonExtensions** library:
 
 ```csharp
 /*
@@ -131,5 +133,5 @@ return "JsonExtensions demo completed.";
 
 ---
 
-This recipe demonstrates the powerful JSON manipulation capabilities of the **JsonExtensions** library in ScriptRunner. 
+This recipe demonstrates the powerful JSON manipulation capabilities of the **JsonExtensions** library in ScriptRunner.
 Use these methods to simplify JSON-related tasks in your scripts!
