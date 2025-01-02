@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -28,10 +29,26 @@ public static class PluginSettingsLoader
     public static PluginSettingDefinition[] LoadSettings(string pluginPath)
     {
         var settingsPath = Path.Combine(pluginPath, "plugin.settings.json");
-        if (!File.Exists(settingsPath)) throw new FileNotFoundException($"Settings file not found at: {settingsPath}");
+        if (!File.Exists(settingsPath))
+            throw new FileNotFoundException($"Settings file not found at: {settingsPath}");
 
         var jsonContent = File.ReadAllText(settingsPath);
-        return JsonConvert.DeserializeObject<PluginSettingDefinition[]>(jsonContent) ?? [];
+        var settings = JsonConvert.DeserializeObject<PluginSettingDefinition[]>(jsonContent) ?? [];
+
+        // Filter out invalid entries
+        var validSettings = settings.Where(IsValidPluginSettingDefinition).ToArray();
+
+        // Log any invalid entries for debugging
+        var invalidSettings = settings.Except(validSettings).ToList();
+        
+        if (invalidSettings.Count == 0) return validSettings;
+        
+        foreach (var invalidSetting in invalidSettings)
+        {
+            Console.WriteLine($"Invalid plugin setting detected: {JsonConvert.SerializeObject(invalidSetting)}");
+        }
+
+        return validSettings;
     }
 
     /// <summary>
@@ -78,5 +95,16 @@ public static class PluginSettingsLoader
             .ToList();
 
         return mergedSettings;
+    }
+    
+    /// <summary>
+    /// Validates a <see cref="PluginSettingDefinition"/> object.
+    /// </summary>
+    /// <param name="setting">The setting to validate.</param>
+    /// <returns>True if the setting is valid; otherwise, false.</returns>
+    private static bool IsValidPluginSettingDefinition(PluginSettingDefinition setting)
+    {
+        return !string.IsNullOrWhiteSpace(setting.Key) &&
+               !string.IsNullOrWhiteSpace(setting.Type);
     }
 }
