@@ -9,7 +9,7 @@
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>ScriptRunner.Plugins</PackageId>
-        <Version>1.6.66</Version>
+        <Version>1.6.68</Version>
         <Authors>Peter van de Pas</Authors>
         <Description>A plugin framework for ScriptRunner</Description>
         <PackageTags>ScriptRunner;Plugins;DependencyInjection;Avalonia;UIComponents;Logging;DynamicControls;ReactiveUI;CodeAnalysis;Sqlite</PackageTags>

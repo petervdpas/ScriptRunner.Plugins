@@ -35,36 +35,48 @@ public static class PluginSettingsLoader
     }
 
     /// <summary>
-    ///     Merges two collections of plugin settings and returns a unified collection of
-    ///     <see cref="PluginSettingDefinition" />.
+    /// Merges two collections of plugin settings and returns a unified collection of
+    /// <see cref="PluginSettingDefinition" />.
     /// </summary>
     /// <param name="schema">The settings schema loaded from the plugin's <c>plugin.settings.json</c> file.</param>
     /// <param name="userValues">A collection of <see cref="PluginSettingDefinition" /> representing user-defined settings.</param>
     /// <returns>
-    ///     A merged collection of <see cref="PluginSettingDefinition" /> where user-defined values override schema defaults.
+    /// A merged collection of <see cref="PluginSettingDefinition" /> where user-defined values override schema defaults.
     /// </returns>
-    /// <remarks>
-    ///     This method ensures that the resulting settings collection contains all keys from the schema,
-    ///     with user-defined values taking precedence.
-    /// </remarks>
     public static IEnumerable<PluginSettingDefinition> MergeSettings(
         IEnumerable<PluginSettingDefinition> schema,
         IEnumerable<PluginSettingDefinition>? userValues)
     {
-        var userDictionary = userValues?.ToDictionary(setting => setting.Key, setting => setting)
+        // Create a dictionary from userValues to look up user-defined settings by key.
+        var userDictionary = userValues?
+                                 .GroupBy(setting => setting.Key)
+                                 .ToDictionary(group => group.Key, group => group.First())
                              ?? new Dictionary<string, PluginSettingDefinition>();
 
-        return schema.Select(schemaSetting =>
-        {
-            if (userDictionary.TryGetValue(schemaSetting.Key, out var userSetting))
-                return new PluginSettingDefinition
-                {
-                    Key = schemaSetting.Key,
-                    Type = schemaSetting.Type,
-                    Value = userSetting.Value ?? schemaSetting.Value
-                };
+        // Merge schema and user values
+        var mergedSettings = schema
+            .GroupBy(schemaSetting => schemaSetting.Key)
+            .Select(group =>
+            {
+                var schemaSetting = group.First();
 
-            return schemaSetting;
-        }).ToList();
+                // Check if a user-defined value exists for this key
+                if (userDictionary.TryGetValue(schemaSetting.Key, out var userSetting))
+                {
+                    // Return a new PluginSettingDefinition with user-defined value overriding the schema
+                    return new PluginSettingDefinition
+                    {
+                        Key = schemaSetting.Key,
+                        Type = schemaSetting.Type,
+                        Value = userSetting.Value ?? schemaSetting.Value
+                    };
+                }
+
+                // If no user-defined value exists, return the schema setting as is
+                return schemaSetting;
+            })
+            .ToList();
+
+        return mergedSettings;
     }
 }
