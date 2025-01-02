@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using ScriptRunner.Plugins.Interfaces;
@@ -37,7 +38,7 @@ public abstract class BaseAsyncServicePlugin : IAsyncServicePlugin
     /// </summary>
     /// <param name="configuration">A dictionary containing configuration key-value pairs for the plugin.</param>
     /// <returns>A <see cref="Task" /> representing the asynchronous initialization operation.</returns>
-    public virtual Task InitializeAsync(IDictionary<string, object> configuration)
+    public virtual Task InitializeAsync(ExpandoObject configurationn)
     {
         // Default implementation: Do nothing
         return Task.CompletedTask;
@@ -61,7 +62,7 @@ public abstract class BaseAsyncServicePlugin : IAsyncServicePlugin
     ///     Calls <see cref="InitializeAsync" /> to ensure compatibility with <see cref="IPlugin" />.
     ///     Includes unwrapping of any <see cref="AggregateException" /> to surface the inner exception.
     /// </remarks>
-    public void Initialize(IDictionary<string, object> configuration)
+    public void Initialize(ExpandoObject configuration)
     {
         try
         {

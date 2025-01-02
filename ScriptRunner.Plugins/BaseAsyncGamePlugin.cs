@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Threading.Tasks;
 using ScriptRunner.Plugins.Interfaces;
 
@@ -22,7 +23,7 @@ public abstract class BaseAsyncGamePlugin : IAsyncGamePlugin
     /// <summary>
     ///     Asynchronously initializes the plugin using the specified configuration.
     /// </summary>
-    public virtual Task InitializeAsync(IDictionary<string, object> configuration)
+    public virtual Task InitializeAsync(ExpandoObject configuration)
     {
         return Task.CompletedTask; // Default no-op
     }
@@ -83,7 +84,7 @@ public abstract class BaseAsyncGamePlugin : IAsyncGamePlugin
     ///     Calls <see cref="InitializeAsync" /> to ensure compatibility with <see cref="IPlugin" />.
     ///     Includes unwrapping of any <see cref="AggregateException" /> to surface the inner exception.
     /// </remarks>
-    public void Initialize(IDictionary<string, object> configuration)
+    public void Initialize(ExpandoObject configuration)
     {
         try
         {

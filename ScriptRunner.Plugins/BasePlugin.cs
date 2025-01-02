@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Dynamic;
 using ScriptRunner.Plugins.Interfaces;
 
 namespace ScriptRunner.Plugins;
@@ -29,7 +30,7 @@ public abstract class BasePlugin : IPlugin
     ///     This method provides a default no-op implementation. Derived classes can override it to perform
     ///     initialization tasks such as reading configuration values or setting up internal state.
     /// </remarks>
-    public virtual void Initialize(IDictionary<string, object> configuration)
+    public virtual void Initialize(ExpandoObject configuration)
     {
         // Default implementation: Do nothing
     }

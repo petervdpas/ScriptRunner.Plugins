@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Dynamic;
 
 namespace ScriptRunner.Plugins.Interfaces;
 
@@ -16,7 +17,7 @@ public interface IPlugin
     ///     Initializes the plugin with the specified configuration.
     /// </summary>
     /// <param name="configuration">A dictionary containing configuration key-value pairs for the plugin.</param>
-    void Initialize(IDictionary<string, object> configuration);
+    void Initialize(ExpandoObject configuration);
 
     /// <summary>
     ///     Executes the plugin's main functionality.

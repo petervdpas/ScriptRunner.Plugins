@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Dynamic;
 using System.Threading.Tasks;
 
 namespace ScriptRunner.Plugins.Interfaces;
@@ -21,7 +22,7 @@ public interface IAsyncPlugin : IPlugin
     ///     This method should be used to perform setup tasks that require asynchronous operations,
     ///     such as reading configurations from a remote source, establishing network connections, or preparing resources.
     /// </remarks>
-    Task InitializeAsync(IDictionary<string, object> configuration);
+    Task InitializeAsync(ExpandoObject configuration);
 
     /// <summary>
     ///     Asynchronously executes the main functionality of the plugin.

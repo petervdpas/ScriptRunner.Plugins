@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Threading.Tasks;
 using ScriptRunner.Plugins.Interfaces;
 
@@ -33,7 +34,7 @@ public abstract class BaseAsyncPlugin : IAsyncPlugin
     ///     This method provides a default no-op implementation. Derived classes can override it to perform
     ///     asynchronous initialization tasks, such as reading configurations or establishing connections.
     /// </remarks>
-    public virtual Task InitializeAsync(IDictionary<string, object> configuration)
+    public virtual Task InitializeAsync(ExpandoObject configuration)
     {
         return Task.CompletedTask;
     }
@@ -59,7 +60,7 @@ public abstract class BaseAsyncPlugin : IAsyncPlugin
     ///     Calls <see cref="InitializeAsync" /> to ensure compatibility with <see cref="IPlugin" />.
     ///     Includes unwrapping of any <see cref="AggregateException" /> to surface the inner exception.
     /// </remarks>
-    public void Initialize(IDictionary<string, object> configuration)
+    public void Initialize(ExpandoObject configuration)
     {
         try
         {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Dynamic;
 using ScriptRunner.Plugins.Interfaces;
 
 namespace ScriptRunner.Plugins;
@@ -28,7 +29,7 @@ public abstract class BaseGamePlugin : IGamePlugin
     ///     This method provides a default no-op implementation. Derived classes can override it to perform
     ///     initialization tasks, such as setting up game resources or configurations.
     /// </remarks>
-    public virtual void Initialize(IDictionary<string, object> configuration)
+    public virtual void Initialize(ExpandoObject configuration)
     {
         // Default implementation: Do nothing
     }

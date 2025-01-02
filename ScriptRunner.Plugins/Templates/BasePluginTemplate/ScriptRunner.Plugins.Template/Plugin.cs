@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
+using Newtonsoft.Json;
 using ScriptRunner.Plugins.Attributes;
+using ScriptRunner.Plugins.Models;
 using ScriptRunner.Plugins.Utilities;
 
 namespace ScriptRunner.Plugins.Template;
@@ -25,16 +28,14 @@ public class Plugin : BasePlugin
     ///     Gets the name of the plugin.
     /// </summary>
     public override string Name => "Your Plugin Name";
-
+    
     /// <summary>
     ///     Initializes the plugin using the provided configuration.
     /// </summary>
     /// <param name="configuration">A dictionary containing configuration key-value pairs for the plugin.</param>
-    public override void Initialize(IDictionary<string, object> configuration)
+    public override void Initialize(ExpandoObject configuration)
     {
-        Console.WriteLine(configuration.TryGetValue("SomeKey", out var someValue)
-            ? $"SomeKey value: {someValue}"
-            : "SomeKey not found in configuration.");
+        ExpandoObjectHelper.DisplayValues(configuration);
     }
 
     /// <summary>

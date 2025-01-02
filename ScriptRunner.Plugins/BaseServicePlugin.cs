@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Dynamic;
 using Microsoft.Extensions.DependencyInjection;
 using ScriptRunner.Plugins.Interfaces;
 
@@ -45,7 +46,7 @@ public abstract class BaseServicePlugin : IServicePlugin
     ///     This method provides a default no-op implementation. Derived classes can override it to perform
     ///     initialization tasks such as reading configuration values or setting up internal state.
     /// </remarks>
-    public virtual void Initialize(IDictionary<string, object> configuration)
+    public virtual void Initialize(ExpandoObject configuration)
     {
     }
 
