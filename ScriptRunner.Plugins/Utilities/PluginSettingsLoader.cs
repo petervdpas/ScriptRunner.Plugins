@@ -33,22 +33,33 @@ public static class PluginSettingsLoader
             throw new FileNotFoundException($"Settings file not found at: {settingsPath}");
 
         var jsonContent = File.ReadAllText(settingsPath);
-        var settings = JsonConvert.DeserializeObject<PluginSettingDefinition[]>(jsonContent) ?? [];
 
-        // Filter out invalid entries
-        var validSettings = settings.Where(IsValidPluginSettingDefinition).ToArray();
-
-        // Log any invalid entries for debugging
-        var invalidSettings = settings.Except(validSettings).ToList();
-        
-        if (invalidSettings.Count == 0) return validSettings;
-        
-        foreach (var invalidSetting in invalidSettings)
+        try
         {
-            Console.WriteLine($"Invalid plugin setting detected: {JsonConvert.SerializeObject(invalidSetting)}");
-        }
+            // Deserialize JSON
+            var rawSettings = JsonConvert.DeserializeObject<RawPluginSettingDefinition[]>(jsonContent);
 
-        return validSettings;
+            if (rawSettings == null || rawSettings.Length == 0)
+            {
+                Console.WriteLine("No valid plugin settings were found in the file.");
+                return [];
+            }
+
+            // Map to PluginSettingDefinition and populate Value with DefaultValue
+            var settings = rawSettings.Select(s => new PluginSettingDefinition
+            {
+                Key = s.Key,
+                Type = s.Type,
+                Value = s.DefaultValue
+            }).ToArray();
+
+            return settings;
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"Error parsing JSON in {settingsPath}: {ex.Message}");
+            return [];
+        }
     }
 
     /// <summary>
