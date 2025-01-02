@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Dynamic;
-using Newtonsoft.Json;
 using ScriptRunner.Plugins.Attributes;
-using ScriptRunner.Plugins.Models;
 using ScriptRunner.Plugins.Utilities;
 
 namespace ScriptRunner.Plugins.Template;

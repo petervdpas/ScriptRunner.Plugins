@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 using ScriptRunner.Plugins.Models;
 
@@ -43,7 +44,7 @@ public static class PluginSettingsLoader
     /// Merges the plugin settings schema with user-defined values.
     /// </summary>
     /// <param name="schema">The settings schema loaded from the plugin's <c>plugin.settings.json</c> file.</param>
-    /// <param name="userValues">A dictionary containing user-defined settings values.</param>
+    /// <param name="userValues">An <see cref="ExpandoObject"/> containing user-defined settings values.</param>
     /// <returns>
     /// An <see cref="ExpandoObject"/> containing the merged settings, where user-defined values override
     /// schema defaults if present.
@@ -55,17 +56,36 @@ public static class PluginSettingsLoader
     /// </remarks>
     public static ExpandoObject MergeSettings(
         PluginSettingDefinition[] schema,
-        IDictionary<string, object?> userValues)
+        ExpandoObject? userValues)
     {
         var mergedSettings = new ExpandoObject();
-        IDictionary<string, object?> dictionary = mergedSettings;
+        IDictionary<string, object?> mergedDictionary = mergedSettings;
+
+        // Safely cast userValues to a dictionary for easier access
+        IDictionary<string, object?>? userDictionary = userValues;
 
         foreach (var setting in schema)
         {
             // Use user-defined value if available; otherwise, fall back to default
-            dictionary[setting.Key] = userValues.TryGetValue(setting.Key, out var value)
-                ? value
-                : setting.DefaultValue;
+            if (userDictionary != null && userDictionary.TryGetValue(setting.Key, out var value))
+            {
+                mergedDictionary[setting.Key] = value;
+            }
+            else
+            {
+                mergedDictionary[setting.Key] = setting.DefaultValue;
+            }
+        }
+
+        if (userDictionary == null) return mergedSettings;
+        
+        var schemaKeys = new HashSet<string>(schema.Select(s => s.Key));
+        foreach (var userKey in userDictionary.Keys)
+        {
+            if (!schemaKeys.Contains(userKey))
+            {
+                throw new ArgumentException($"Unexpected key '{userKey}' found in user-defined settings.");
+            }
         }
 
         return mergedSettings;
