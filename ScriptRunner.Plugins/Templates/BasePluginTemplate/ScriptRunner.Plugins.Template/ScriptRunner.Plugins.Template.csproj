@@ -10,9 +10,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ScriptRunner.Plugins" Version="1.6.58"/>
+        <PackageReference Include="ScriptRunner.Plugins" Version="1.6.60"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- Include plugin.settings.json in the build output -->
+        <None Include="plugin.settings.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+    
     <Target Name="SeparatePluginAndDependencies" AfterTargets="Build">
 
         <!-- Ensure Dependencies subdirectory exists -->
