@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ScriptRunner.Plugins" Version="1.6.74"/>
+        <PackageReference Include="ScriptRunner.Plugins" Version="1.6.76"/>
     </ItemGroup>
 
     <ItemGroup>

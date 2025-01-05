@@ -29,8 +29,13 @@ public static class PluginSettingsLoader
     public static PluginSettingDefinition[] LoadSettings(string pluginPath)
     {
         var settingsPath = Path.Combine(pluginPath, "plugin.settings.json");
+        
+        // Check if the settings file exists
         if (!File.Exists(settingsPath))
-            throw new FileNotFoundException($"Settings file not found at: {settingsPath}");
+        {
+            Console.WriteLine($"Settings file not found: {settingsPath}");
+            return [];
+        }
 
         var jsonContent = File.ReadAllText(settingsPath);
 
@@ -57,7 +62,14 @@ public static class PluginSettingsLoader
         }
         catch (JsonException ex)
         {
+            // Handle JSON parsing errors gracefully
             Console.WriteLine($"Error parsing JSON in {settingsPath}: {ex.Message}");
+            return [];
+        }
+        catch (Exception ex)
+        {
+            // Catch unexpected errors
+            Console.WriteLine($"Unexpected error loading settings from {settingsPath}: {ex.Message}");
             return [];
         }
     }
