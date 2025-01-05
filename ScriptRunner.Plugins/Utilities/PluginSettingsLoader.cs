@@ -26,14 +26,17 @@ public static class PluginSettingsLoader
     ///     This method expects a file named <c>plugin.settings.json</c> to exist in the provided directory.
     ///     The file should contain a JSON array of settings definitions.
     /// </remarks>
-    public static PluginSettingDefinition[] LoadSettings(string pluginPath)
+    public static PluginSettingDefinition[] LoadSettings(string pluginPath, bool showLogging = false)
     {
         var settingsPath = Path.Combine(pluginPath, "plugin.settings.json");
         
         // Check if the settings file exists
         if (!File.Exists(settingsPath))
         {
-            Console.WriteLine($"Settings file not found: {settingsPath}");
+            if (showLogging)
+            {
+                Console.WriteLine($"Settings file not found: {settingsPath}");
+            }
             return [];
         }
 
@@ -46,7 +49,10 @@ public static class PluginSettingsLoader
 
             if (rawSettings == null || rawSettings.Length == 0)
             {
-                Console.WriteLine("No valid plugin settings were found in the file.");
+                if (showLogging)
+                {
+                    Console.WriteLine("No valid plugin settings were found in the file.");
+                }
                 return [];
             }
 
@@ -63,13 +69,19 @@ public static class PluginSettingsLoader
         catch (JsonException ex)
         {
             // Handle JSON parsing errors gracefully
-            Console.WriteLine($"Error parsing JSON in {settingsPath}: {ex.Message}");
+            if (showLogging)
+            {
+                Console.WriteLine($"Error parsing JSON in {settingsPath}: {ex.Message}");
+            }
             return [];
         }
         catch (Exception ex)
         {
             // Catch unexpected errors
-            Console.WriteLine($"Unexpected error loading settings from {settingsPath}: {ex.Message}");
+            if (showLogging)
+            {
+                Console.WriteLine($"Unexpected error loading settings from {settingsPath}: {ex.Message}");
+            }
             return [];
         }
     }
