@@ -14,7 +14,7 @@ public interface IPluginManager
     /// <exception cref="System.IO.DirectoryNotFoundException">
     ///     Thrown if the plugin root directory does not exist.
     /// </exception>
-    void DiscoverPlugins();
+    void DiscoverPlugins(bool showLogging = false);
 
     /// <summary>
     ///     Retrieves the list of plugins that have been discovered.

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,7 +17,6 @@ public class PluginManager : IPluginManager
     private readonly List<PluginPathModel> _allPlugins = [];
     private readonly ILogger<PluginManager> _logger;
     private readonly string _pluginRootDirectory;
-    private readonly ConcurrentDictionary<string, bool> _processedReferences = new();
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="PluginManager" /> class.
@@ -37,25 +35,34 @@ public class PluginManager : IPluginManager
     /// <exception cref="DirectoryNotFoundException">
     ///     Thrown if the plugin root directory does not exist.
     /// </exception>
-    public void DiscoverPlugins()
+    public void DiscoverPlugins(bool showLogging = false)
     {
         if (!Directory.Exists(_pluginRootDirectory))
             throw new DirectoryNotFoundException($"Plugin root directory not found: {_pluginRootDirectory}");
 
         foreach (var pluginDir in Directory.GetDirectories(_pluginRootDirectory))
+        {
             try
             {
                 var depsJsonFile = Directory.GetFiles(pluginDir, "*.deps.json").FirstOrDefault();
                 if (depsJsonFile == null)
                 {
-                    _logger.LogWarning("No .deps.json file found in plugin directory: {PluginDir}", pluginDir);
+                    if (showLogging)
+                    {
+                        _logger.LogWarning("No .deps.json file found in plugin directory: {PluginDir}", pluginDir);
+                    }
+
                     continue;
                 }
 
                 var mainPluginDll = GetPluginDllFromDepsJson(depsJsonFile);
                 if (mainPluginDll == null)
                 {
-                    _logger.LogWarning("No main DLL specified in .deps.json file: {DepsJson}", depsJsonFile);
+                    if (showLogging)
+                    {
+                        _logger.LogWarning("No main DLL specified in .deps.json file: {DepsJson}", depsJsonFile);
+                    }
+
                     continue;
                 }
 
@@ -65,6 +72,7 @@ public class PluginManager : IPluginManager
             {
                 _logger.LogError(ex, "Failed to process plugin directory: {PluginDir}", pluginDir);
             }
+        }
     }
 
     /// <summary>
