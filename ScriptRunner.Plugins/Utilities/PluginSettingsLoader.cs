@@ -16,6 +16,7 @@ public static class PluginSettingsLoader
     ///     Loads the plugin settings schema from a JSON file.
     /// </summary>
     /// <param name="pluginPath">The directory path where the plugin is located.</param>
+    /// <param name="showLogging">A flag to set logging on or off</param>
     /// <returns>
     ///     An array of <see cref="PluginSettingDefinition" /> objects representing the plugin's settings schema.
     /// </returns>
