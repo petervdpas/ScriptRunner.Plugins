@@ -22,6 +22,37 @@ namespace ScriptRunner.Plugins.Utilities;
 public class PluginValidator : IPluginValidator
 {
     /// <summary>
+    /// Validates plugin metadata to ensure compatibility and required fields.
+    /// </summary>
+    /// <param name="metadata">The metadata associated with the plugin.</param>
+    /// <exception cref="PluginInitializationException">
+    /// Thrown if the plugin metadata is incompatible or missing required fields.
+    /// </exception>
+    public void ValidateMetadata(PluginMetadataAttribute metadata)
+    {
+        const string currentSystemVersion = PluginSystemConstants.CurrentPluginSystemVersion;
+        const string currentFrameworkVersion = PluginSystemConstants.CurrentFrameworkVersion;
+
+        if (string.IsNullOrWhiteSpace(metadata.Name))
+            throw new PluginInitializationException("Plugin must have a non-empty Name property in its metadata.");
+
+        if (string.IsNullOrWhiteSpace(metadata.Version))
+            throw new PluginInitializationException("Plugin must have a non-empty Version property in its metadata.");
+
+        if (string.IsNullOrWhiteSpace(metadata.PluginSystemVersion))
+            throw new PluginInitializationException("Plugin must specify the PluginSystemVersion.");
+
+        if (metadata.PluginSystemVersion != currentSystemVersion)
+            throw new PluginInitializationException(
+                $"Plugin is not compatible with the current plugin system version ({currentSystemVersion}). Required: {metadata.PluginSystemVersion}.");
+
+        if (!string.IsNullOrWhiteSpace(metadata.FrameworkVersion) &&
+            metadata.FrameworkVersion != currentFrameworkVersion)
+            throw new PluginInitializationException(
+                $"Plugin specifies a framework version ({metadata.FrameworkVersion}) that does not match the required version ({currentFrameworkVersion}).");
+    }
+
+    /// <summary>
     ///     Validates a plugin type to ensure it conforms to the required standards.
     /// </summary>
     /// <param name="pluginType">The type of the plugin to validate.</param>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Dynamic;
 using System.IO;
+using ScriptRunner.Plugins.Attributes;
 using ScriptRunner.Plugins.Exceptions;
 
 namespace ScriptRunner.Plugins.Interfaces;
@@ -10,6 +11,15 @@ namespace ScriptRunner.Plugins.Interfaces;
 /// </summary>
 public interface IPluginValidator
 {
+    /// <summary>
+    /// Validates plugin metadata to ensure compatibility and required fields.
+    /// </summary>
+    /// <param name="metadata">The metadata associated with the plugin.</param>
+    /// <exception cref="PluginInitializationException">
+    /// Thrown if the plugin metadata is incompatible or missing required fields.
+    /// </exception>
+    void ValidateMetadata(PluginMetadataAttribute metadata);
+    
     /// <summary>
     ///     Validates a plugin type to ensure it conforms to required standards.
     /// </summary>
