@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
+using ScriptRunner.Plugins.Utilities;
 
 namespace ScriptRunner.Plugins;
 
@@ -13,14 +15,41 @@ namespace ScriptRunner.Plugins;
 ///     lifecycle and frame-based methods, allowing derived classes to override only the methods relevant to their
 ///     behavior.
 /// </remarks>
-public abstract class BaseGamePlugin : IGamePlugin
+public abstract class BaseGamePlugin : IGamePlugin, ILocalStorageConsumer
 {
+    private ILocalStorage? _localStorage;
+
     /// <summary>
     ///     Gets the name of the plugin.
     /// </summary>
     /// <value>A string representing the name of the plugin.</value>
     public abstract string Name { get; }
 
+    /// <summary>
+    ///     Sets the local storage instance for the plugin.
+    /// </summary>
+    /// <param name="localStorage">The local storage instance to associate with this plugin.</param>
+    public void SetLocalStorage(ILocalStorage localStorage)
+    {
+        _localStorage = localStorage;
+    }
+
+    /// <summary>
+    ///     Gets the local storage instance associated with the plugin.
+    /// </summary>
+    /// <returns>
+    ///     The <see cref="ILocalStorage" /> instance associated with the plugin.
+    /// </returns>
+    public ILocalStorage GetLocalStorage()
+    {
+        return _localStorage ?? throw new InvalidOperationException("LocalStorage has not been set.");
+    }
+    
+    /// <summary>
+    ///     Gets the local storage instance for the plugin.
+    /// </summary>
+    protected ILocalStorage LocalStorage => _localStorage ?? throw new InvalidOperationException("LocalStorage is not set.");
+    
     /// <summary>
     ///     Initializes the plugin with the specified configuration.
     /// </summary>
@@ -31,7 +60,8 @@ public abstract class BaseGamePlugin : IGamePlugin
     /// </remarks>
     public virtual void Initialize(IEnumerable<PluginSettingDefinition> configuration)
     {
-        // Default implementation: Do nothing
+        // Store settings into LocalStorage
+        PluginSettingsHelper.StoreSettings(LocalStorage, configuration);
     }
 
     /// <summary>
@@ -55,7 +85,9 @@ public abstract class BaseGamePlugin : IGamePlugin
     /// </remarks>
     public virtual void OnStart()
     {
-        // Default implementation: Do nothing
+        // Example: Retrieve settings on start
+        var initialState = PluginSettingsHelper.RetrieveSetting<string>(LocalStorage, "InitialState");
+        Console.WriteLine($"{Name} started with state: {initialState}");
     }
 
     /// <summary>
@@ -67,7 +99,7 @@ public abstract class BaseGamePlugin : IGamePlugin
     /// </remarks>
     public virtual void OnStop()
     {
-        // Default implementation: Do nothing
+        Console.WriteLine($"{Name} is stopping...");
     }
 
     /// <summary>
@@ -79,7 +111,7 @@ public abstract class BaseGamePlugin : IGamePlugin
     /// </remarks>
     public virtual void OnDispose()
     {
-        // Default implementation: Do nothing
+        Console.WriteLine($"{Name} is disposing...");
     }
 
     /// <summary>
@@ -91,7 +123,7 @@ public abstract class BaseGamePlugin : IGamePlugin
     /// </remarks>
     public virtual void Update()
     {
-        // Default implementation: Do nothing
+        Console.WriteLine($"{Name} is updating...");
     }
 
     /// <summary>
@@ -103,6 +135,6 @@ public abstract class BaseGamePlugin : IGamePlugin
     /// </remarks>
     public virtual void Render()
     {
-        // Default implementation: Do nothing
+        Console.WriteLine($"{Name} is rendering...");
     }
 }

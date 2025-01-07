@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ScriptRunner.Plugins.Attributes;
+using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
 using ScriptRunner.Plugins.Utilities;
 
@@ -26,14 +27,18 @@ public class Plugin : BasePlugin
     ///     Gets the name of the plugin.
     /// </summary>
     public override string Name => "Your Plugin Name";
-
+    
     /// <summary>
     ///     Initializes the plugin using the provided configuration.
     /// </summary>
     /// <param name="configuration">A dictionary containing configuration key-value pairs for the plugin.</param>
     public override void Initialize(IEnumerable<PluginSettingDefinition> configuration)
     {
-        PluginSettingsHelper.DisplayValues(configuration);
+        base.Initialize(configuration); // Stores settings in LocalStorage by default
+
+        // Use LocalStorage directly for internal logic
+        var someValue = PluginSettingsHelper.RetrieveSetting<string>(LocalStorage, "SomeKey");
+        Console.WriteLine($"Retrieved SomeKey: {someValue}");
     }
 
     /// <summary>
@@ -41,6 +46,14 @@ public class Plugin : BasePlugin
     /// </summary>
     public override void Execute()
     {
-        Console.WriteLine("Your Plugin executed.");
+        // Access LocalStorage for plugin behavior
+        var pluginName = PluginSettingsHelper.RetrieveSetting<string>(LocalStorage, "PluginName") ?? "Unknown";
+        Console.WriteLine($"Executing plugin: {pluginName}");
+
+        // Example: Passing LocalStorage to a service
+        /*
+        var service = new MyService(this); // Pass plugin as ILocalStorageConsumer
+        service.DoSomething();
+        */
     }
 }

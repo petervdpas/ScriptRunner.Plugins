@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
+using ScriptRunner.Plugins.Utilities;
 
 namespace ScriptRunner.Plugins;
 
@@ -14,8 +16,10 @@ namespace ScriptRunner.Plugins;
 ///     initialization
 ///     and execution, while requiring derived classes to specify their name and service registrations.
 /// </remarks>
-public abstract class BaseServicePlugin : IServicePlugin
+public abstract class BaseServicePlugin : IServicePlugin, ILocalStorageConsumer
 {
+    private ILocalStorage? _localStorage;
+
     /// <summary>
     ///     Gets the name of the plugin.
     /// </summary>
@@ -27,6 +31,31 @@ public abstract class BaseServicePlugin : IServicePlugin
     /// </remarks>
     public abstract string Name { get; }
 
+    /// <summary>
+    ///     Sets the local storage instance for the plugin.
+    /// </summary>
+    /// <param name="localStorage">The local storage instance to associate with this plugin.</param>
+    public void SetLocalStorage(ILocalStorage localStorage)
+    {
+        _localStorage = localStorage;
+    }
+
+    /// <summary>
+    ///     Gets the local storage instance associated with the plugin.
+    /// </summary>
+    /// <returns>
+    ///     The <see cref="ILocalStorage" /> instance associated with the plugin.
+    /// </returns>
+    public ILocalStorage GetLocalStorage()
+    {
+        return _localStorage ?? throw new InvalidOperationException("LocalStorage has not been set.");
+    }
+    
+    /// <summary>
+    ///     Gets the local storage instance for the plugin.
+    /// </summary>
+    protected ILocalStorage LocalStorage => _localStorage ?? throw new InvalidOperationException("LocalStorage is not set.");
+    
     /// <summary>
     ///     Registers the plugin's services in the provided dependency injection container.
     /// </summary>
@@ -48,6 +77,8 @@ public abstract class BaseServicePlugin : IServicePlugin
     /// </remarks>
     public virtual void Initialize(IEnumerable<PluginSettingDefinition> configuration)
     {
+        // Store settings into LocalStorage
+        PluginSettingsHelper.StoreSettings(LocalStorage, configuration);
     }
 
     /// <summary>
@@ -59,5 +90,6 @@ public abstract class BaseServicePlugin : IServicePlugin
     /// </remarks>
     public virtual void Execute()
     {
+        // Default implementation: No-op
     }
 }

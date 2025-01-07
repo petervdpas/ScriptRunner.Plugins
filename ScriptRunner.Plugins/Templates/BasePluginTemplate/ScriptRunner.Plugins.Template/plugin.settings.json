@@ -1,8 +1,8 @@
 [
   {
-    "Key": "SomeKey",
+    "Key": "PluginName",
     "Type": "string",
-    "Value": "DefaultValue"
+    "Value": "The name of you plugin here!"
   },
   {
     "Key": "MaxRetries",

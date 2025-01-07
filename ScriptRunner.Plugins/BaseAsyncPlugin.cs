@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
+using ScriptRunner.Plugins.Utilities;
 
 namespace ScriptRunner.Plugins;
 
@@ -14,8 +15,10 @@ namespace ScriptRunner.Plugins;
 ///     asynchronous behavior for initialization and execution, while requiring derived classes to
 ///     define a unique name.
 /// </remarks>
-public abstract class BaseAsyncPlugin : IAsyncPlugin
+public abstract class BaseAsyncPlugin : IAsyncPlugin, ILocalStorageConsumer
 {
+    private ILocalStorage? _localStorage;
+
     /// <summary>
     ///     Gets the name of the plugin.
     /// </summary>
@@ -26,6 +29,31 @@ public abstract class BaseAsyncPlugin : IAsyncPlugin
     public abstract string Name { get; }
 
     /// <summary>
+    /// Allows the plugin host to provide an ILocalStorage instance.
+    /// </summary>
+    /// <param name="localStorage">The local storage instance to associate with this plugin.</param>
+    public void SetLocalStorage(ILocalStorage localStorage)
+    {
+        _localStorage = localStorage;
+    }
+
+    /// <summary>
+    ///     Gets the local storage instance associated with the plugin.
+    /// </summary>
+    /// <returns>
+    ///     The <see cref="ILocalStorage" /> instance associated with the plugin.
+    /// </returns>
+    public ILocalStorage GetLocalStorage()
+    {
+        return _localStorage ?? throw new InvalidOperationException("LocalStorage has not been set.");
+    }
+    
+    /// <summary>
+    /// Gets the associated ILocalStorage instance for the plugin.
+    /// </summary>
+    protected ILocalStorage LocalStorage => _localStorage ?? throw new InvalidOperationException("LocalStorage is not set.");
+    
+    /// <summary>
     ///     Asynchronously initializes the plugin using the specified configuration.
     /// </summary>
     /// <param name="configuration">A dictionary containing configuration key-value pairs for the plugin.</param>
@@ -34,9 +62,11 @@ public abstract class BaseAsyncPlugin : IAsyncPlugin
     ///     This method provides a default no-op implementation. Derived classes can override it to perform
     ///     asynchronous initialization tasks, such as reading configurations or establishing connections.
     /// </remarks>
-    public virtual Task InitializeAsync(IEnumerable<PluginSettingDefinition> configuration)
+    public virtual async Task InitializeAsync(IEnumerable<PluginSettingDefinition> configuration)
     {
-        return Task.CompletedTask;
+        // Default implementation: Store settings in LocalStorage
+        PluginSettingsHelper.StoreSettings(LocalStorage, configuration);
+        await Task.CompletedTask;
     }
 
     /// <summary>
@@ -47,9 +77,9 @@ public abstract class BaseAsyncPlugin : IAsyncPlugin
     ///     This method provides a default no-op implementation. Derived classes can override it to define
     ///     the plugin's core asynchronous behavior.
     /// </remarks>
-    public virtual Task ExecuteAsync()
+    public virtual async Task ExecuteAsync()
     {
-        return Task.CompletedTask;
+        await Task.CompletedTask;
     }
 
     /// <summary>
