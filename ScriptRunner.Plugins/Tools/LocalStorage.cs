@@ -33,17 +33,17 @@ public class LocalStorage : ILocalStorage
     /// <summary>
     ///     Triggered when a new key-value pair is added to the storage.
     /// </summary>
-    public event Action<string, object> OnDataAdded = (key, value) => { };
+    public event Action<string, object>? OnDataAdded = (key, value) => { };
 
     /// <summary>
     ///     Triggered when an existing key-value pair in the storage is updated.
     /// </summary>
-    public event Action<string, object> OnDataUpdated = (key, value) => { };
+    public event Action<string, object>? OnDataUpdated = (key, value) => { };
 
     /// <summary>
     ///     Triggered when a key-value pair is removed from the storage.
     /// </summary>
-    public event Action<string> OnDataRemoved = key => { };
+    public event Action<string>? OnDataRemoved = key => { };
 
     /// <summary>
     ///     Adds or updates a value in the storage with optional TTL.
@@ -59,6 +59,12 @@ public class LocalStorage : ILocalStorage
         lock (_lock)
         {
             var tempDataDict = (IDictionary<string, object>)_tempData;
+
+            // Serialize complex objects to JSON for consistency
+            if (value is not string && value is not int && value is not bool)
+            {
+                value = $"__json__:{JsonSerializer.Serialize(value)}";
+            }
 
             if (!tempDataDict.TryAdd(key, value))
             {
@@ -94,11 +100,25 @@ public class LocalStorage : ILocalStorage
 
             // Check TTL expiration
             if (!_expirationData.TryGetValue(key, out var expiration) || DateTime.UtcNow <= expiration)
-                return tempDataDict.TryGetValue(key, out var value) ? (T)value : default;
+            {
+                if (tempDataDict.TryGetValue(key, out var value))
+                {
+                    return value switch
+                    {
+                        T typedValue => typedValue,
+                        string strValue when strValue.StartsWith("__json__:") => JsonSerializer.Deserialize<T>(strValue.Substring("__json__:".Length)),
+                        _ => throw new InvalidCastException(
+                            $"Unable to cast object of type '{value.GetType()}' to type '{typeof(T)}'.")
+                    };
+                }
+            }
+            else
+            {
+                tempDataDict.Remove(key);
+                _expirationData.Remove(key);
+                OnDataRemoved?.Invoke(key);
+            }
 
-            tempDataDict.Remove(key);
-            _expirationData.Remove(key);
-            OnDataRemoved(key);
             return default;
         }
     }
@@ -117,7 +137,7 @@ public class LocalStorage : ILocalStorage
             if (!tempDataDict.Remove(key)) return;
 
             _expirationData.Remove(key);
-            OnDataRemoved(key);
+            OnDataRemoved?.Invoke(key);
         }
     }
 
@@ -235,7 +255,7 @@ public class LocalStorage : ILocalStorage
     /// </param>
     /// <param name="key">The key associated with the event.</param>
     /// <param name="value">The value associated with the event.</param>
-    private void RaiseEvent(Action<string, object> eventHandler, string key, object value)
+    private void RaiseEvent(Action<string, object>? eventHandler, string key, object value)
     {
         if (!_suppressEvents) eventHandler?.Invoke(key, value);
     }

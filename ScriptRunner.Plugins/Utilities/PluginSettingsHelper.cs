@@ -41,9 +41,18 @@ public static class PluginSettingsHelper
     /// <returns>The value of the setting, or default if not found.</returns>
     public static T? RetrieveSetting<T>(ILocalStorage localStorage, string key)
     {
-        if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Key cannot be null or whitespace.", nameof(key));
+        if (string.IsNullOrWhiteSpace(key))
+            throw new ArgumentException("Key cannot be null or whitespace.", nameof(key));
 
-        return localStorage.GetData<T>(key);
+        try
+        {
+            return localStorage.GetData<T>(key);
+        }
+        catch (InvalidCastException ex)
+        {
+            Console.WriteLine($"Error retrieving setting: {ex.Message}");
+            return default; // Handle gracefully or log
+        }
     }
 
     /// <summary>
