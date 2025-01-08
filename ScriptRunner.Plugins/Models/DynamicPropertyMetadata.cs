@@ -6,7 +6,7 @@ namespace ScriptRunner.Plugins.Models;
 /// <summary>
 ///     Defines a structure for property metadata in dynamically created classes.
 /// </summary>
-public class PropertyDefinition
+public class DynamicPropertyMetadata
 {
     /// <summary>
     ///     Gets or sets the name of the property.

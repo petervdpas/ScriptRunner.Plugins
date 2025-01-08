@@ -11,10 +11,10 @@ public interface IDynamicClassBuilder
     /// <summary>
     ///     Adds a new property definition to the dynamic class being constructed.
     /// </summary>
-    /// <param name="property">
+    /// <param name="dynamicProperty">
     ///     The metadata for the property to be added, including its name, type, and additional attributes.
     /// </param>
-    void AddProperty(PropertyDefinition property);
+    void AddProperty(DynamicPropertyMetadata dynamicProperty);
 
     /// <summary>
     ///     Builds and returns the dynamically created class type based on the specified properties.

@@ -14,18 +14,18 @@ namespace ScriptRunner.Plugins.Tools;
 /// <param name="className">The name of the class to be created dynamically.</param>
 public class DynamicClassBuilder(string className) : IDynamicClassBuilder
 {
-    private readonly List<PropertyDefinition> _properties = [];
+    private readonly List<DynamicPropertyMetadata> _properties = [];
 
     /// <summary>
     ///     Adds a new property to the dynamic class being constructed.
     /// </summary>
-    /// <param name="property">
+    /// <param name="dynamicProperty">
     ///     The metadata for the property to be added, including the name, type, UI control, and additional
     ///     attributes.
     /// </param>
-    public void AddProperty(PropertyDefinition property)
+    public void AddProperty(DynamicPropertyMetadata dynamicProperty)
     {
-        _properties.Add(property);
+        _properties.Add(dynamicProperty);
     }
 
     /// <summary>
