@@ -60,10 +60,10 @@ public class LocalStorage : ILocalStorage
         {
             var tempDataDict = (IDictionary<string, object>)_tempData;
 
-            // Serialize complex objects to JSON for consistency
-            if (value is not string && value is not int && value is not bool)
+            // Serialize only non-primitive types to JSON
+            if (value is not (string or int or bool or double or float))
             {
-                value = $"__json__:{JsonSerializer.Serialize(value)}";
+                value = JsonSerializer.Serialize(value);
             }
 
             if (!tempDataDict.TryAdd(key, value))
@@ -101,23 +101,30 @@ public class LocalStorage : ILocalStorage
             // Check TTL expiration
             if (!_expirationData.TryGetValue(key, out var expiration) || DateTime.UtcNow <= expiration)
             {
-                if (tempDataDict.TryGetValue(key, out var value))
+                if (!tempDataDict.TryGetValue(key, out var value)) return default;
+                switch (value)
                 {
-                    return value switch
-                    {
-                        T typedValue => typedValue,
-                        string strValue when strValue.StartsWith("__json__:") => JsonSerializer.Deserialize<T>(strValue.Substring("__json__:".Length)),
-                        _ => throw new InvalidCastException(
-                            $"Unable to cast object of type '{value.GetType()}' to type '{typeof(T)}'.")
-                    };
+                    case T typedValue:
+                        return typedValue;
+                    case string strValue when typeof(T) != typeof(string):
+                        try
+                        {
+                            return JsonSerializer.Deserialize<T>(strValue);
+                        }
+                        catch (JsonException ex)
+                        {
+                            Console.WriteLine($"Failed to deserialize key '{key}' to type '{typeof(T)}': {ex.Message}");
+                            return default;
+                        }
+                    default:
+                        throw new InvalidCastException(
+                            $"Unable to cast object of type '{value.GetType()}' to type '{typeof(T)}'.");
                 }
             }
-            else
-            {
-                tempDataDict.Remove(key);
-                _expirationData.Remove(key);
-                OnDataRemoved?.Invoke(key);
-            }
+
+            tempDataDict.Remove(key);
+            _expirationData.Remove(key);
+            OnDataRemoved?.Invoke(key);
 
             return default;
         }
