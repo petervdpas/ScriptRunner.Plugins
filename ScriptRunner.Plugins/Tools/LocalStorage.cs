@@ -18,21 +18,32 @@ public class LocalStorage : ILocalStorage
     private readonly Dictionary<string, DateTime> _expirationData = new();
     private readonly object _lock = new();
     private readonly dynamic _tempData = new ExpandoObject();
+    private bool _suppressEvents;
 
+    /// <summary>
+    /// Temporarily enables or disables the invocation of event handlers for data operations.
+    /// </summary>
+    /// <param name="suppress">
+    /// If <c>true</c>, event handlers for data operations (such as <see cref="OnDataAdded"/>,
+    /// <see cref="OnDataUpdated"/>, and <see cref="OnDataRemoved"/>) will not be invoked.
+    /// If <c>false</c>, event handlers will be invoked as usual.
+    /// </param>
+    public void SuppressEvents(bool suppress) => _suppressEvents = suppress;
+    
     /// <summary>
     ///     Triggered when a new key-value pair is added to the storage.
     /// </summary>
-    public event Action<string, object> OnDataAdded = null!;
+    public event Action<string, object> OnDataAdded = (key, value) => { };
 
     /// <summary>
     ///     Triggered when an existing key-value pair in the storage is updated.
     /// </summary>
-    public event Action<string, object> OnDataUpdated = null!;
+    public event Action<string, object> OnDataUpdated = (key, value) => { };
 
     /// <summary>
     ///     Triggered when a key-value pair is removed from the storage.
     /// </summary>
-    public event Action<string> OnDataRemoved = null!;
+    public event Action<string> OnDataRemoved = key => { };
 
     /// <summary>
     ///     Adds or updates a value in the storage with optional TTL.
@@ -41,6 +52,9 @@ public class LocalStorage : ILocalStorage
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException("Key cannot be null or whitespace.", nameof(key));
+
+        if (value == null)
+            throw new ArgumentNullException(nameof(value), "Value cannot be null.");
 
         lock (_lock)
         {
@@ -54,14 +68,14 @@ public class LocalStorage : ILocalStorage
                 else
                     _expirationData.Remove(key);
 
-                OnDataUpdated(key, value);
+                RaiseEvent(OnDataUpdated, key, value);
             }
             else
             {
                 if (ttl.HasValue)
                     _expirationData[key] = DateTime.UtcNow.Add(ttl.Value);
 
-                OnDataAdded(key, value);
+                RaiseEvent(OnDataAdded, key, value);
             }
         }
     }
@@ -209,5 +223,20 @@ public class LocalStorage : ILocalStorage
 
             foreach (var kvp in data) SetData(kvp.Key, kvp.Value);
         }
+    }
+    
+    /// <summary>
+    /// Invokes the specified event handler with the provided key and value, 
+    /// if events are not suppressed.
+    /// </summary>
+    /// <param name="eventHandler">
+    /// The event handler to invoke. This action typically corresponds to 
+    /// <see cref="OnDataAdded"/> or <see cref="OnDataUpdated"/>.
+    /// </param>
+    /// <param name="key">The key associated with the event.</param>
+    /// <param name="value">The value associated with the event.</param>
+    private void RaiseEvent(Action<string, object> eventHandler, string key, object value)
+    {
+        if (!_suppressEvents) eventHandler?.Invoke(key, value);
     }
 }
