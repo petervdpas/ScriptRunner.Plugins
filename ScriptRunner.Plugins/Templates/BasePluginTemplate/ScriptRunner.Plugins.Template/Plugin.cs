@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using ScriptRunner.Plugins.Attributes;
-using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
 using ScriptRunner.Plugins.Utilities;
 
