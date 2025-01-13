@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
 using ScriptRunner.Plugins.Utilities;
@@ -15,8 +14,6 @@ namespace ScriptRunner.Plugins;
 /// </remarks>
 public abstract class BasePlugin : IPlugin, ILocalStorageConsumer
 {
-    private ILocalStorage? _localStorage;
-    
     /// <summary>
     ///     Gets the name of the plugin.
     /// </summary>
@@ -32,9 +29,9 @@ public abstract class BasePlugin : IPlugin, ILocalStorageConsumer
     /// <param name="localStorage">The local storage instance to associate with this plugin.</param>
     public void SetLocalStorage(ILocalStorage localStorage)
     {
-        _localStorage = localStorage;
+        PluginSettingsHelper.InitializeLocalStorage(localStorage);
     }
-    
+
     /// <summary>
     ///     Gets the local storage instance associated with the plugin.
     /// </summary>
@@ -43,13 +40,8 @@ public abstract class BasePlugin : IPlugin, ILocalStorageConsumer
     /// </returns>
     public ILocalStorage GetLocalStorage()
     {
-        return _localStorage ?? throw new InvalidOperationException("LocalStorage has not been set.");
+        return PluginSettingsHelper.FetchLocalStorage();
     }
-    
-    /// <summary>
-    /// Gets the associated ILocalStorage instance for the plugin.
-    /// </summary>
-    protected ILocalStorage LocalStorage => _localStorage ?? throw new InvalidOperationException("LocalStorage is not set.");
     
     /// <summary>
     ///     Initializes the plugin with the specified configuration.
@@ -62,7 +54,7 @@ public abstract class BasePlugin : IPlugin, ILocalStorageConsumer
     public virtual void Initialize(IEnumerable<PluginSettingDefinition> configuration)
     {
         // Default implementation: Store settings in LocalStorage
-        PluginSettingsHelper.StoreSettings(LocalStorage, configuration);
+        PluginSettingsHelper.StoreSettings(configuration);
     }
 
     /// <summary>

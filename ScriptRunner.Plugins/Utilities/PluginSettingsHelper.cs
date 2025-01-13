@@ -11,24 +11,45 @@ namespace ScriptRunner.Plugins.Utilities;
 /// </summary>
 public static class PluginSettingsHelper
 {
+    private static ILocalStorage? _localStorage;
+
+    /// <summary>
+    /// Initializes the <see cref="ILocalStorage" /> instance for the plugin.
+    /// </summary>
+    /// <param name="localStorage">The local storage instance to set.</param>
+    public static void InitializeLocalStorage(ILocalStorage localStorage)
+    {
+        _localStorage = localStorage ?? throw new ArgumentNullException(nameof(localStorage));
+    }
+    
+    /// <summary>
+    /// Returns the <see cref="ILocalStorage" /> instance of the plugin.
+    /// </summary>
+    public static ILocalStorage FetchLocalStorage()
+    {
+        return _localStorage ?? throw new InvalidOperationException("LocalStorage has not been initialized.");
+    }
+    
     /// <summary>
     /// Stores plugin settings into <see cref="ILocalStorage" />.
     /// </summary>
-    /// <param name="localStorage">The local storage instance for the plugin.</param>
     /// <param name="settings">The settings to store.</param>
-    public static void StoreSettings(ILocalStorage localStorage, IEnumerable<PluginSettingDefinition> settings)
+    public static void StoreSettings(IEnumerable<PluginSettingDefinition> settings)
     {
+        if (_localStorage == null)
+            throw new InvalidOperationException("LocalStorage has not been initialized.");
+
         ArgumentNullException.ThrowIfNull(settings, nameof(settings));
 
         foreach (var setting in settings)
         {
             if (setting.Value is null)
             {
-                throw new ArgumentNullException(nameof(settings), 
+                throw new ArgumentNullException(nameof(settings),
                     $"The value for setting with key '{setting.Key}' cannot be null.");
             }
 
-            localStorage.SetData(setting.Key, setting.Value);
+            _localStorage.SetData(setting.Key, setting.Value);
         }
     }
 
@@ -36,17 +57,19 @@ public static class PluginSettingsHelper
     /// Retrieves a plugin setting value from <see cref="ILocalStorage" />.
     /// </summary>
     /// <typeparam name="T">The expected type of the setting value.</typeparam>
-    /// <param name="localStorage">The local storage instance for the plugin.</param>
     /// <param name="key">The key of the setting to retrieve.</param>
     /// <returns>The value of the setting, or default if not found.</returns>
-    public static T? RetrieveSetting<T>(ILocalStorage localStorage, string key)
+    public static T? RetrieveSetting<T>(string key)
     {
+        if (_localStorage == null)
+            throw new InvalidOperationException("LocalStorage has not been initialized.");
+
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException("Key cannot be null or whitespace.", nameof(key));
 
         try
         {
-            return localStorage.GetData<T>(key);
+            return _localStorage.GetData<T>(key);
         }
         catch (InvalidCastException ex)
         {
@@ -56,12 +79,14 @@ public static class PluginSettingsHelper
     }
 
     /// <summary>
-    ///     Displays all plugin settings stored in <see cref="ILocalStorage" />.
+    /// Displays all plugin settings stored in <see cref="ILocalStorage" />.
     /// </summary>
-    /// <param name="localStorage">The local storage instance for the plugin.</param>
-    public static void DisplayStoredSettings(ILocalStorage localStorage)
+    public static void DisplayStoredSettings()
     {
-        var data = localStorage.GetStorage();
+        if (_localStorage == null)
+            throw new InvalidOperationException("LocalStorage has not been initialized.");
+
+        var data = _localStorage.GetStorage();
         if (data.Count == 0)
         {
             Console.WriteLine("No settings found in local storage.");

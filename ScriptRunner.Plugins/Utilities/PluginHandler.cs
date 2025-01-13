@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
+using ScriptRunner.Plugins.Tools;
 
 namespace ScriptRunner.Plugins.Utilities;
 
@@ -19,11 +20,7 @@ public static class PluginHandler
     /// <param name="configuration">
     /// A collection of <see cref="PluginSettingDefinition"/> objects containing the plugin's configuration settings.
     /// </param>
-    /// <param name="localStorage">The local storage instance to be associated with the plugin, if applicable.</param>
     /// <param name="serviceCollection">The dependency injection service collection for registering plugin services.</param>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if <paramref name="localStorage"/> is <c>null</c> and the plugin requires local storage.
-    /// </exception>
     /// <remarks>
     /// This method determines the type of the plugin (e.g., asynchronous, service-based, or standard) and initializes it
     /// accordingly. For asynchronous plugins, their initialization and execution methods are awaited. For service plugins,
@@ -32,17 +29,16 @@ public static class PluginHandler
     public static async Task InitPluginAsync(
         IPlugin plugin,
         IEnumerable<PluginSettingDefinition> configuration,
-        ILocalStorage localStorage,
         IServiceCollection serviceCollection)
     {
         ArgumentNullException.ThrowIfNull(plugin);
         ArgumentNullException.ThrowIfNull(configuration);
-        ArgumentNullException.ThrowIfNull(localStorage);
         ArgumentNullException.ThrowIfNull(serviceCollection);
 
         // Handle LocalStorageConsumer logic
         if (plugin is ILocalStorageConsumer localStorageConsumer)
         {
+            var localStorage = new LocalStorage();
             if (localStorage == null) throw new InvalidOperationException("LocalStorage instance is not initialized.");
             localStorageConsumer.SetLocalStorage(localStorage);
         }

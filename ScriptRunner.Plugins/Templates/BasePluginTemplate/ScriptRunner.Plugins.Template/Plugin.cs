@@ -36,7 +36,7 @@ public class Plugin : BasePlugin
         base.Initialize(configuration); // Stores settings in LocalStorage by default
 
         // Use LocalStorage directly for internal logic
-        var someValue = PluginSettingsHelper.RetrieveSetting<string>(LocalStorage, "SomeKey");
+        var someValue = PluginSettingsHelper.RetrieveSetting<string>("SomeKey");
         Console.WriteLine($"Retrieved SomeKey: {someValue}");
     }
 
@@ -46,7 +46,7 @@ public class Plugin : BasePlugin
     public override void Execute()
     {
         // Access LocalStorage for plugin behavior
-        var pluginName = PluginSettingsHelper.RetrieveSetting<string>(LocalStorage, "PluginName") ?? "Unknown";
+        var pluginName = PluginSettingsHelper.RetrieveSetting<string>("PluginName") ?? "Unknown";
         Console.WriteLine($"Executing plugin: {pluginName}");
 
         // Example: Passing LocalStorage to a service

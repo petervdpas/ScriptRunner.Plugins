@@ -17,8 +17,6 @@ namespace ScriptRunner.Plugins;
 /// </remarks>
 public abstract class BaseAsyncPlugin : IAsyncPlugin, ILocalStorageConsumer
 {
-    private ILocalStorage? _localStorage;
-
     /// <summary>
     ///     Gets the name of the plugin.
     /// </summary>
@@ -34,7 +32,7 @@ public abstract class BaseAsyncPlugin : IAsyncPlugin, ILocalStorageConsumer
     /// <param name="localStorage">The local storage instance to associate with this plugin.</param>
     public void SetLocalStorage(ILocalStorage localStorage)
     {
-        _localStorage = localStorage;
+        PluginSettingsHelper.InitializeLocalStorage(localStorage);
     }
 
     /// <summary>
@@ -45,13 +43,8 @@ public abstract class BaseAsyncPlugin : IAsyncPlugin, ILocalStorageConsumer
     /// </returns>
     public ILocalStorage GetLocalStorage()
     {
-        return _localStorage ?? throw new InvalidOperationException("LocalStorage has not been set.");
+        return PluginSettingsHelper.FetchLocalStorage();
     }
-    
-    /// <summary>
-    /// Gets the associated ILocalStorage instance for the plugin.
-    /// </summary>
-    protected ILocalStorage LocalStorage => _localStorage ?? throw new InvalidOperationException("LocalStorage is not set.");
     
     /// <summary>
     ///     Asynchronously initializes the plugin using the specified configuration.
@@ -65,7 +58,7 @@ public abstract class BaseAsyncPlugin : IAsyncPlugin, ILocalStorageConsumer
     public virtual async Task InitializeAsync(IEnumerable<PluginSettingDefinition> configuration)
     {
         // Default implementation: Store settings in LocalStorage
-        PluginSettingsHelper.StoreSettings(LocalStorage, configuration);
+        PluginSettingsHelper.StoreSettings(configuration);
         await Task.CompletedTask;
     }
 
