@@ -69,12 +69,49 @@ public static class PluginSettingsHelper
 
         try
         {
-            return _localStorage.GetData<T>(key);
+            var value = _localStorage.GetData<object>(key);
+
+            switch (value)
+            {
+                case null:
+                    return default;
+                case string stringValue:
+                {
+                    // Handle conversion to int
+                    if (typeof(T) == typeof(int))
+                    {
+                        if (int.TryParse(stringValue, out var intValue))
+                        {
+                            return (T)(object)intValue;
+                        }
+                    }
+
+                    // Handle conversion to bool
+                    if (typeof(T) == typeof(bool))
+                    {
+                        if (bool.TryParse(stringValue, out var boolValue))
+                        {
+                            return (T)(object)boolValue;
+                        }
+                    }
+
+                    break;
+                }
+            }
+
+            // Perform a safe cast if value is already of the desired type
+            if (value is T typedValue)
+            {
+                return typedValue;
+            }
+
+            // Attempt to convert value to the desired type
+            return (T)Convert.ChangeType(value, typeof(T));
         }
-        catch (InvalidCastException ex)
+        catch (Exception ex) when (ex is InvalidCastException or FormatException)
         {
             Console.WriteLine($"Error retrieving setting: {ex.Message}");
-            return default; // Handle gracefully or log
+            return default; 
         }
     }
 
