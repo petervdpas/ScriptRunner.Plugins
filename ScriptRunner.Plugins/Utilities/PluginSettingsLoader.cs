@@ -27,19 +27,11 @@ public static class PluginSettingsLoader
     ///     This method expects a file named <c>plugin.settings.json</c> to exist in the provided directory.
     ///     The file should contain a JSON array of settings definitions.
     /// </remarks>
-     public static PluginSettingDefinition[] LoadSettings(string pluginPath, bool showLogging = false)
+    public static PluginSettingDefinition[] LoadSettings(string pluginPath, bool showLogging = false)
     {
-        if (string.IsNullOrWhiteSpace(pluginPath))
-        {
-            if (showLogging)
-            {
-                Console.WriteLine("Plugin path is null or empty.");
-            }
-            return [];
-        }
-
         var settingsPath = Path.Combine(pluginPath, "plugin.settings.json");
-
+        
+        // Check if the settings file exists
         if (!File.Exists(settingsPath))
         {
             if (showLogging)
@@ -49,19 +41,7 @@ public static class PluginSettingsLoader
             return [];
         }
 
-        string jsonContent;
-        try
-        {
-            jsonContent = File.ReadAllText(settingsPath);
-        }
-        catch (Exception ex)
-        {
-            if (showLogging)
-            {
-                Console.WriteLine($"Error reading settings file: {ex.Message}");
-            }
-            return [];
-        }
+        var jsonContent = File.ReadAllText(settingsPath);
 
         try
         {
@@ -77,20 +57,19 @@ public static class PluginSettingsLoader
                 return [];
             }
 
-            // Map to PluginSettingDefinition and sanitize DefaultValue
+            // Map to PluginSettingDefinition and populate Value with DefaultValue
             var settings = rawSettings.Select(s => new PluginSettingDefinition
             {
                 Key = s.Key,
                 Type = s.Type,
-                Value = s.DefaultValue is string stringValue 
-                    ? stringValue.Trim('"')  // Remove unnecessary quotes
-                    : s.DefaultValue
+                Value = s.DefaultValue
             }).ToArray();
 
             return settings;
         }
         catch (JsonException ex)
         {
+            // Handle JSON parsing errors gracefully
             if (showLogging)
             {
                 Console.WriteLine($"Error parsing JSON in {settingsPath}: {ex.Message}");
@@ -99,6 +78,7 @@ public static class PluginSettingsLoader
         }
         catch (Exception ex)
         {
+            // Catch unexpected errors
             if (showLogging)
             {
                 Console.WriteLine($"Unexpected error loading settings from {settingsPath}: {ex.Message}");
@@ -106,7 +86,6 @@ public static class PluginSettingsLoader
             return [];
         }
     }
-
 
     /// <summary>
     /// Merges two collections of plugin settings and returns a unified collection of
@@ -153,7 +132,7 @@ public static class PluginSettingsLoader
 
         return mergedSettings;
     }
-    
+
     /// <summary>
     /// Validates if a value is compatible with the specified type.
     /// </summary>

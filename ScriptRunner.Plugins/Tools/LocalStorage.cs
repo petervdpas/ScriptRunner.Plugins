@@ -60,8 +60,8 @@ public class LocalStorage : ILocalStorage
         {
             var tempDataDict = (IDictionary<string, object>)_tempData;
 
-            // Serialize only non-primitive types to JSON
-            if (value is not (string or int or bool or double or float))
+            // Serialize only non-primitive types, explicitly excluding strings
+            if (value is not (int or bool or double or float or string))
             {
                 value = JsonSerializer.Serialize(value);
             }
@@ -248,7 +248,17 @@ public class LocalStorage : ILocalStorage
                 options ?? new JsonSerializerOptions());
             if (data == null) return;
 
-            foreach (var kvp in data) SetData(kvp.Key, kvp.Value);
+            foreach (var kvp in data)
+            {
+                var value = kvp.Value;
+                
+                if (kvp.Value is string strValue && strValue.StartsWith('\"') && strValue.EndsWith('\"'))
+                {
+                    value = strValue.Trim('"'); 
+                }
+
+                SetData(kvp.Key, value);
+            }
         }
     }
     
