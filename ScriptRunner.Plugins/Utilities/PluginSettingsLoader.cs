@@ -27,7 +27,7 @@ public static class PluginSettingsLoader
     ///     This method expects a file named <c>plugin.settings.json</c> to exist in the provided directory.
     ///     The file should contain a JSON array of settings definitions.
     /// </remarks>
-    public static PluginSettingDefinition[] LoadSettings(string pluginPath, bool showLogging = false)
+     public static PluginSettingDefinition[] LoadSettings(string pluginPath, bool showLogging = false)
     {
         if (string.IsNullOrWhiteSpace(pluginPath))
         {
@@ -39,7 +39,7 @@ public static class PluginSettingsLoader
         }
 
         var settingsPath = Path.Combine(pluginPath, "plugin.settings.json");
-        
+
         if (!File.Exists(settingsPath))
         {
             if (showLogging)
@@ -77,27 +77,14 @@ public static class PluginSettingsLoader
                 return [];
             }
 
-            // Map to PluginSettingDefinition and validate default values
-            var settings = rawSettings.Select(s =>
+            // Map to PluginSettingDefinition and sanitize DefaultValue
+            var settings = rawSettings.Select(s => new PluginSettingDefinition
             {
-                // Validate default value compatibility
-                var value = s.DefaultValue;
-                if (value != null && !IsValueCompatibleWithType(value, s.Type))
-                {
-                    if (showLogging)
-                    {
-                        Console.WriteLine($"Default value for key '{s.Key}' is incompatible with type '{s.Type}'. Using null.");
-                    }
-                    value = null;
-                }
-
-                return new PluginSettingDefinition
-                {
-                    Key = s.Key,
-                    Type = s.Type,
-                    Value = value
-                };
-                
+                Key = s.Key,
+                Type = s.Type,
+                Value = s.DefaultValue is string stringValue 
+                    ? stringValue.Trim('"')  // Remove unnecessary quotes
+                    : s.DefaultValue
             }).ToArray();
 
             return settings;
@@ -119,6 +106,7 @@ public static class PluginSettingsLoader
             return [];
         }
     }
+
 
     /// <summary>
     /// Merges two collections of plugin settings and returns a unified collection of
