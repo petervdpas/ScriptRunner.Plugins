@@ -26,7 +26,7 @@ public static class PluginSettingsLoader
     public static PluginSettingDefinition[] LoadSettings(string pluginPath, bool showLogging = false)
     {
         var settingsPath = Path.Combine(pluginPath, "plugin.settings.json");
-        
+
         if (!File.Exists(settingsPath))
         {
             if (showLogging)
@@ -40,8 +40,8 @@ public static class PluginSettingsLoader
 
         try
         {
-            // Deserialize JSON
-            var rawSettings = JsonConvert.DeserializeObject<RawPluginSettingDefinition[]>(jsonContent);
+            // Deserialize JSON using SerializationHelper
+            var rawSettings = SerializationHelper.Deserialize<RawPluginSettingDefinition[]>(jsonContent);
 
             if (rawSettings == null || rawSettings.Length == 0)
             {
@@ -55,31 +55,28 @@ public static class PluginSettingsLoader
             // Map to PluginSettingDefinition and validate types
             var settings = rawSettings.Select(s =>
             {
-                var value = s.DefaultValue;
-                if (value is string strValue)
-                {
-                    // Clean up escaped strings
-                    value = strValue.Trim('"');
-                }
+                var value = SerializationHelper.Deserialize<object>(s.DefaultValue?.ToString() ?? string.Empty);
 
                 if (IsValueCompatibleWithType(value, s.Type))
+                {
                     return new PluginSettingDefinition
                     {
                         Key = s.Key,
                         Type = s.Type,
                         Value = value
                     };
+                }
+
                 if (showLogging)
                 {
                     Console.WriteLine($"Warning: Default value for key '{s.Key}' is not compatible with type '{s.Type}'. Setting it to null.");
                 }
-                value = null; // Reset incompatible values
 
                 return new PluginSettingDefinition
                 {
                     Key = s.Key,
                     Type = s.Type,
-                    Value = value
+                    Value = null
                 };
             }).ToArray();
 
@@ -116,37 +113,27 @@ public static class PluginSettingsLoader
         IEnumerable<PluginSettingDefinition> schema,
         IEnumerable<PluginSettingDefinition>? userValues)
     {
-        // Create a dictionary from userValues to look up user-defined settings by key.
         var userDictionary = userValues?
                                  .GroupBy(setting => setting.Key)
-                                 .ToDictionary(group => group.Key, group => group.First())
+                                 .ToDictionary(
+                                     group => group.Key, 
+                                     group => group.First())
                              ?? new Dictionary<string, PluginSettingDefinition>();
 
-        // Merge schema and user values
-        var mergedSettings = schema
-            .GroupBy(schemaSetting => schemaSetting.Key)
-            .Select(group =>
+        return schema.Select(schemaSetting =>
+        {
+            if (userDictionary.TryGetValue(schemaSetting.Key, out var userSetting))
             {
-                var schemaSetting = group.First();
-
-                // Check if a user-defined value exists for this key
-                if (userDictionary.TryGetValue(schemaSetting.Key, out var userSetting))
+                return new PluginSettingDefinition
                 {
-                    // Return a new PluginSettingDefinition with user-defined value overriding the schema
-                    return new PluginSettingDefinition
-                    {
-                        Key = schemaSetting.Key,
-                        Type = schemaSetting.Type,
-                        Value = userSetting.Value ?? schemaSetting.Value
-                    };
-                }
+                    Key = schemaSetting.Key,
+                    Type = schemaSetting.Type,
+                    Value = userSetting.Value ?? schemaSetting.Value
+                };
+            }
 
-                // If no user-defined value exists, return the schema setting as is
-                return schemaSetting;
-            })
-            .ToList();
-
-        return mergedSettings;
+            return schemaSetting;
+        }).ToList();
     }
 
     /// <summary>
@@ -161,6 +148,8 @@ public static class PluginSettingsLoader
             "string" => value is string,
             "int" => int.TryParse(value.ToString(), out _),
             "bool" => bool.TryParse(value.ToString(), out _),
+            "double" => double.TryParse(value.ToString(), out _),
+            "float" => float.TryParse(value.ToString(), out _),
             _ => true
         };
     }

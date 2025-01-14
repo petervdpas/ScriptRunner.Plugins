@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
 
@@ -44,15 +43,13 @@ public static class PluginSettingsHelper
 
         foreach (var setting in settings)
         {
-            setting.Value = setting.Value switch
+            if (setting.Value == null)
             {
-                null => throw new ArgumentNullException(nameof(settings),
-                    $"The value for setting with key '{setting.Key}' cannot be null."),
-                string stringValue => stringValue.Trim('"'),
-                _ => setting.Value
-            };
+                throw new ArgumentNullException(nameof(settings), $"The value for setting with key '{setting.Key}' cannot be null.");
+            }
 
-            _localStorage.SetData(setting.Key, setting.Value);
+            var serializedValue = SerializationHelper.Serialize(setting.Value);
+            _localStorage.SetData(setting.Key, serializedValue);
         }
     }
 
@@ -67,53 +64,20 @@ public static class PluginSettingsHelper
         if (_localStorage == null)
             throw new InvalidOperationException("LocalStorage has not been initialized.");
 
-        if (string.IsNullOrWhiteSpace(key))
-            throw new ArgumentException("Key cannot be null or whitespace.", nameof(key));
+        var serializedValue = _localStorage.GetData<string>(key);
+
+        if (string.IsNullOrEmpty(serializedValue))
+        {
+            return default;
+        }
 
         try
         {
-            var value = _localStorage.GetData<object>(key);
-
-            switch (value)
-            {
-                case null:
-                    return default;
-                case string stringValue:
-                    stringValue = stringValue.Trim('"');
-
-                    // Handle conversion to int
-                    if (typeof(T) == typeof(int) && int.TryParse(stringValue, out var intValue))
-                        return (T)(object)intValue;
-
-                    // Handle conversion to bool
-                    if (typeof(T) == typeof(bool) && bool.TryParse(stringValue, out var boolValue))
-                        return (T)(object)boolValue;
-
-                    // Handle conversion to float
-                    if (typeof(T) == typeof(float) && float.TryParse(stringValue, out var floatValue))
-                        return (T)(object)floatValue;
-
-                    // Handle conversion to double
-                    if (typeof(T) == typeof(double) && double.TryParse(stringValue, out var doubleValue))
-                        return (T)(object)doubleValue;
-
-                    // Return as string if T is string
-                    if (typeof(T) == typeof(string))
-                        return (T)(object)stringValue;
-
-                    break;
-            }
-
-            // Direct cast if value is already of the desired type
-            if (value is T typedValue)
-                return typedValue;
-
-            // Attempt conversion for other types
-            return (T)Convert.ChangeType(value, typeof(T));
+            return SerializationHelper.Deserialize<T>(serializedValue);
         }
-        catch (Exception ex) when (ex is InvalidCastException or FormatException)
+        catch (Exception ex)
         {
-            Console.WriteLine($"Error retrieving setting: {ex.Message}");
+            Console.WriteLine($"Error deserializing setting for key '{key}': {ex.Message}");
             return default;
         }
     }
@@ -136,15 +100,7 @@ public static class PluginSettingsHelper
         Console.WriteLine("Stored plugin settings:");
         foreach (var (key, value) in data)
         {
-            // Handle special formatting for complex objects
-            var displayValue = value switch
-            {
-                null => "null",
-                JsonElement jsonElement => jsonElement.ToString(),
-                _ => value.ToString()
-            };
-
-            Console.WriteLine($"- Key: {key}, Value: {displayValue}");
+            Console.WriteLine($"- Key: {key}, Value: {value}");
         }
     }
 }

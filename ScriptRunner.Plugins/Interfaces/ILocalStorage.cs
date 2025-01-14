@@ -111,19 +111,17 @@ public interface ILocalStorage
     ///     Saves the current storage data to a file in JSON format.
     /// </summary>
     /// <param name="filePath">The path to the file where the data will be saved.</param>
-    /// <param name="options">Optional JSON serializer options.</param>
     /// <exception cref="ArgumentException">Thrown if the file path is null or whitespace.</exception>
     /// <exception cref="IOException">Thrown if there is an error writing to the file.</exception>
-    void SaveToFile(string filePath, JsonSerializerOptions? options = null);
+    void SaveToFile(string filePath);
 
     /// <summary>
     ///     Loads storage data from a JSON file.
     /// </summary>
     /// <param name="filePath">The path to the file from which the data will be loaded.</param>
-    /// <param name="options">Optional JSON serializer options.</param>
     /// <exception cref="ArgumentException">Thrown if the file path is null or whitespace.</exception>
     /// <exception cref="FileNotFoundException">Thrown if the specified file does not exist.</exception>
     /// <exception cref="IOException">Thrown if there is an error reading the file.</exception>
     /// <exception cref="JsonException">Thrown if the file contents cannot be deserialized.</exception>
-    void LoadFromFile(string filePath, JsonSerializerOptions? options = null);
+    void LoadFromFile(string filePath);
 }

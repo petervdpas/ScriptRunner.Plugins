@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using ScriptRunner.Plugins.Interfaces;
+using ScriptRunner.Plugins.Utilities;
 
 namespace ScriptRunner.Plugins.Tools;
 
 /// <summary>
-///     Provides a thread-safe local storage implementation with support for TTL and event hooks.
-///     Implements <see cref="ILocalStorage" />.
+/// Provides a thread-safe local storage implementation with support for TTL and event hooks.
+/// Implements <see cref="ILocalStorage" />.
 /// </summary>
 public class LocalStorage : ILocalStorage
 {
@@ -20,12 +20,6 @@ public class LocalStorage : ILocalStorage
     private readonly dynamic _tempData = new ExpandoObject();
     private bool _suppressEvents;
 
-    // Cached JsonSerializerOptions for reuse
-    private static readonly JsonSerializerOptions? JsonOptions = new()
-    {
-        WriteIndented = false
-    };
-    
     /// <summary>
     /// Temporarily enables or disables the invocation of event handlers for data operations.
     /// </summary>
@@ -35,24 +29,24 @@ public class LocalStorage : ILocalStorage
     /// If <c>false</c>, event handlers will be invoked as usual.
     /// </param>
     public void SuppressEvents(bool suppress) => _suppressEvents = suppress;
-    
+
     /// <summary>
-    ///     Triggered when a new key-value pair is added to the storage.
+    /// Triggered when a new key-value pair is added to the storage.
     /// </summary>
     public event Action<string, object?>? OnDataAdded = (key, value) => { };
 
     /// <summary>
-    ///     Triggered when an existing key-value pair in the storage is updated.
+    /// Triggered when an existing key-value pair in the storage is updated.
     /// </summary>
     public event Action<string, object?>? OnDataUpdated = (key, value) => { };
 
     /// <summary>
-    ///     Triggered when a key-value pair is removed from the storage.
+    /// Triggered when a key-value pair is removed from the storage.
     /// </summary>
     public event Action<string>? OnDataRemoved = key => { };
 
     /// <summary>
-    ///     Adds or updates a value in the storage with optional TTL.
+    /// Adds or updates a value in the storage with optional TTL.
     /// </summary>
     public void SetData(string key, object? value, TimeSpan? ttl = null)
     {
@@ -65,11 +59,7 @@ public class LocalStorage : ILocalStorage
         {
             var tempDataDict = (IDictionary<string, object?>)_tempData;
 
-            // Serialize only non-primitive types explicitly
-            if (value is not (int or bool or double or float or string))
-            {
-                value = JsonSerializer.Serialize(value, JsonOptions);
-            }
+            value = SerializationHelper.Serialize(value);
 
             if (!tempDataDict.TryAdd(key, value))
             {
@@ -92,7 +82,7 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    ///     Retrieves a value from the storage.
+    /// Retrieves a value from the storage.
     /// </summary>
     public T? GetData<T>(string key)
     {
@@ -105,26 +95,9 @@ public class LocalStorage : ILocalStorage
 
             if (!_expirationData.TryGetValue(key, out var expiration) || DateTime.UtcNow <= expiration)
             {
-                if (!tempDataDict.TryGetValue(key, out var value)) return default;
-
-                switch (value)
-                {
-                    case T typedValue:
-                        return typedValue;
-                    case string strValue when typeof(T) != typeof(string):
-                        try
-                        {
-                            return JsonSerializer.Deserialize<T>(strValue);
-                        }
-                        catch (JsonException ex)
-                        {
-                            Console.WriteLine($"Failed to deserialize key '{key}' to type '{typeof(T)}': {ex.Message}");
-                            return default;
-                        }
-                    default:
-                        throw new InvalidCastException(
-                            $"Unable to cast object of type '{value.GetType()}' to type '{typeof(T)}'.");
-                }
+                return !tempDataDict.TryGetValue(key, out var value) 
+                    ? default 
+                    : SerializationHelper.Deserialize<T>(value.ToString() ?? string.Empty);
             }
 
             tempDataDict.Remove(key);
@@ -136,7 +109,7 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    ///     Removes a key and its value from the storage.
+    /// Removes a key and its value from the storage.
     /// </summary>
     public void RemoveData(string key)
     {
@@ -154,7 +127,7 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    ///     Clears all entries from the storage.
+    /// Clears all entries from the storage.
     /// </summary>
     public void ClearData()
     {
@@ -170,19 +143,19 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    ///     Lists all keys and their values.
+    /// Lists all keys and their values.
     /// </summary>
     public string ListAllData()
     {
         lock (_lock)
         {
             var tempDataDict = (IDictionary<string, object>)_tempData;
-            return tempDataDict.Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}: {kvp.Value}\n");
+            return string.Join("\n", tempDataDict.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
         }
     }
 
     /// <summary>
-    ///     Retrieves all keys matching a regex pattern.
+    /// Retrieves all keys matching a regex pattern.
     /// </summary>
     public IEnumerable<string> GetKeysMatching(string pattern)
     {
@@ -198,19 +171,27 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    ///     Searches keys by their associated values.
+    /// Searches for keys in the storage that have the specified value.
     /// </summary>
+    /// <param name="value">The value to search for.</param>
+    /// <returns>A collection of keys that have the specified value.</returns>
     public IEnumerable<string> SearchKeysByValue(object value)
     {
+        if (value == null)
+            throw new ArgumentNullException(nameof(value), "Value cannot be null.");
+
         lock (_lock)
         {
             var tempDataDict = (IDictionary<string, object>)_tempData;
-            return tempDataDict.Where(kvp => kvp.Value.Equals(value)).Select(kvp => kvp.Key).ToList();
+            return tempDataDict
+                .Where(kvp => kvp.Value.Equals(value))
+                .Select(kvp => kvp.Key)
+                .ToList();
         }
     }
 
     /// <summary>
-    ///     Retrieves the entire storage as a dictionary.
+    /// Retrieves the entire storage as a dictionary.
     /// </summary>
     public IDictionary<string, object> GetStorage()
     {
@@ -221,24 +202,24 @@ public class LocalStorage : ILocalStorage
     }
 
     /// <summary>
-    ///     Saves the storage data to a file.
+    /// Saves the storage data to a file.
     /// </summary>
-    public void SaveToFile(string filePath, JsonSerializerOptions? options = null)
+    public void SaveToFile(string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))
             throw new ArgumentException("File path cannot be null or whitespace.", nameof(filePath));
 
         lock (_lock)
         {
-            var json = JsonSerializer.Serialize(GetStorage(), options ?? JsonOptions);
+            var json = SerializationHelper.Serialize(GetStorage());
             File.WriteAllText(filePath, json);
         }
     }
 
     /// <summary>
-    ///     Loads storage data from a file.
+    /// Loads storage data from a file.
     /// </summary>
-    public void LoadFromFile(string filePath, JsonSerializerOptions? options = null)
+    public void LoadFromFile(string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))
             throw new ArgumentException("File path cannot be null or whitespace.", nameof(filePath));
@@ -249,41 +230,17 @@ public class LocalStorage : ILocalStorage
         lock (_lock)
         {
             var json = File.ReadAllText(filePath);
-            var data = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json, options ?? JsonOptions);
+            var data = SerializationHelper.Deserialize<Dictionary<string, object>>(json);
 
-            // Handle a null case explicitly
-            if (data == null)
+            if (data == null) return;
+
+            foreach (var (key, value) in data)
             {
-                Console.WriteLine("No data found in the file. Loading skipped.");
-                return;
-            }
-
-            foreach (var kvp in data)
-            {
-                object? value = kvp.Value.ValueKind switch
-                {
-                    JsonValueKind.String => kvp.Value.GetString(),
-                    JsonValueKind.Number => kvp.Value.TryGetInt32(out var intValue) ? intValue : kvp.Value.GetDouble(),
-                    JsonValueKind.True => true,
-                    JsonValueKind.False => false,
-                    _ => kvp.Value.ToString() // Fallback for complex types
-                };
-
-                SetData(kvp.Key, value);
+                SetData(key, value);
             }
         }
     }
-    
-    /// <summary>
-    /// Invokes the specified event handler with the provided key and value
-    /// if events are not suppressed.
-    /// </summary>
-    /// <param name="eventHandler">
-    /// The event handler to invoke. This action typically corresponds to 
-    /// <see cref="OnDataAdded"/> or <see cref="OnDataUpdated"/>.
-    /// </param>
-    /// <param name="key">The key associated with the event.</param>
-    /// <param name="value">The value associated with the event.</param>
+
     private void RaiseEvent(Action<string, object?>? eventHandler, string key, object? value)
     {
         if (!_suppressEvents) eventHandler?.Invoke(key, value);
