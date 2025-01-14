@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
 
@@ -135,7 +136,15 @@ public static class PluginSettingsHelper
         Console.WriteLine("Stored plugin settings:");
         foreach (var (key, value) in data)
         {
-            Console.WriteLine($"- Key: {key}, Value: {value}");
+            // Handle special formatting for complex objects
+            var displayValue = value switch
+            {
+                null => "null",
+                JsonElement jsonElement => jsonElement.ToString(),
+                _ => value.ToString()
+            };
+
+            Console.WriteLine($"- Key: {key}, Value: {displayValue}");
         }
     }
 }
