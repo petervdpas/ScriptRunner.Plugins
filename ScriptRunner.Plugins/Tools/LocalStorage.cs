@@ -20,6 +20,12 @@ public class LocalStorage : ILocalStorage
     private readonly dynamic _tempData = new ExpandoObject();
     private bool _suppressEvents;
 
+    // Cached JsonSerializerOptions for reuse
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = false
+    };
+    
     /// <summary>
     /// Temporarily enables or disables the invocation of event handlers for data operations.
     /// </summary>
@@ -52,7 +58,6 @@ public class LocalStorage : ILocalStorage
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException("Key cannot be null or whitespace.", nameof(key));
-
         if (value == null)
             throw new ArgumentNullException(nameof(value), "Value cannot be null.");
 
@@ -60,10 +65,10 @@ public class LocalStorage : ILocalStorage
         {
             var tempDataDict = (IDictionary<string, object>)_tempData;
 
-            // Serialize only non-primitive types, explicitly excluding strings
+            // Serialize only non-primitive types explicitly
             if (value is not (int or bool or double or float or string))
             {
-                value = JsonSerializer.Serialize(value);
+                value = JsonSerializer.Serialize(value, JsonOptions);
             }
 
             if (!tempDataDict.TryAdd(key, value))
@@ -98,10 +103,10 @@ public class LocalStorage : ILocalStorage
         {
             var tempDataDict = (IDictionary<string, object>)_tempData;
 
-            // Check TTL expiration
             if (!_expirationData.TryGetValue(key, out var expiration) || DateTime.UtcNow <= expiration)
             {
                 if (!tempDataDict.TryGetValue(key, out var value)) return default;
+
                 switch (value)
                 {
                     case T typedValue:
@@ -225,7 +230,7 @@ public class LocalStorage : ILocalStorage
 
         lock (_lock)
         {
-            var json = JsonSerializer.Serialize(GetStorage(), options ?? new JsonSerializerOptions());
+            var json = JsonSerializer.Serialize(GetStorage(), options ?? JsonOptions);
             File.WriteAllText(filePath, json);
         }
     }
@@ -244,26 +249,25 @@ public class LocalStorage : ILocalStorage
         lock (_lock)
         {
             var json = File.ReadAllText(filePath);
-            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json,
-                options ?? new JsonSerializerOptions());
+            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json, options ?? JsonOptions);
             if (data == null) return;
 
             foreach (var kvp in data)
             {
-                var value = kvp.Value;
-                
                 if (kvp.Value is string strValue && strValue.StartsWith('\"') && strValue.EndsWith('\"'))
                 {
-                    value = strValue.Trim('"'); 
+                    SetData(kvp.Key, strValue.Trim('"'));
                 }
-
-                SetData(kvp.Key, value);
+                else
+                {
+                    SetData(kvp.Key, kvp.Value);
+                }
             }
         }
     }
     
     /// <summary>
-    /// Invokes the specified event handler with the provided key and value, 
+    /// Invokes the specified event handler with the provided key and value
     /// if events are not suppressed.
     /// </summary>
     /// <param name="eventHandler">
