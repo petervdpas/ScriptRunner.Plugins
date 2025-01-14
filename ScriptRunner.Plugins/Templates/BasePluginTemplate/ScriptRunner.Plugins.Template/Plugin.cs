@@ -26,7 +26,7 @@ public class Plugin : BasePlugin
     ///     Gets the name of the plugin.
     /// </summary>
     public override string Name => "Your Plugin Name";
-    
+
     /// <summary>
     ///     Initializes the plugin using the provided configuration.
     /// </summary>

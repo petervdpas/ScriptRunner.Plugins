@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json;
 using ScriptRunner.Plugins.Models;
+using JsonException = Newtonsoft.Json.JsonException;
 
 namespace ScriptRunner.Plugins.Utilities;
 
@@ -29,10 +30,7 @@ public static class PluginSettingsLoader
 
         if (!File.Exists(settingsPath))
         {
-            if (showLogging)
-            {
-                Console.WriteLine($"Settings file not found: {settingsPath}");
-            }
+            if (showLogging) Console.WriteLine($"Settings file not found: {settingsPath}");
             return [];
         }
 
@@ -40,37 +38,38 @@ public static class PluginSettingsLoader
 
         try
         {
-            // Deserialize JSON using SerializationHelper
             var rawSettings = SerializationHelper.Deserialize<RawPluginSettingDefinition[]>(jsonContent);
 
             if (rawSettings == null || rawSettings.Length == 0)
             {
-                if (showLogging)
-                {
-                    Console.WriteLine("No valid plugin settings were found in the file.");
-                }
+                if (showLogging) Console.WriteLine("No valid plugin settings were found in the file.");
                 return [];
             }
 
-            // Map to PluginSettingDefinition and validate types
             var settings = rawSettings.Select(s =>
             {
-                var value = SerializationHelper.Deserialize<object>(s.DefaultValue?.ToString() ?? string.Empty);
+                // Convert DefaultValue from JsonElement if necessary
+                var value = s.DefaultValue switch
+                {
+                    JsonElement { ValueKind: JsonValueKind.String } jsonElement => jsonElement.GetString(),
+                    JsonElement { ValueKind: JsonValueKind.True or JsonValueKind.False } jsonElement => jsonElement
+                        .GetBoolean(),
+                    JsonElement { ValueKind: JsonValueKind.Number } jsonElement => jsonElement.GetDouble(),
+                    JsonElement jsonElement => SerializationHelper.Deserialize<object>(jsonElement.GetRawText()),
+                    _ => s.DefaultValue
+                };
 
                 if (IsValueCompatibleWithType(value, s.Type))
-                {
                     return new PluginSettingDefinition
                     {
                         Key = s.Key,
                         Type = s.Type,
                         Value = value
                     };
-                }
 
                 if (showLogging)
-                {
-                    Console.WriteLine($"Warning: Default value for key '{s.Key}' is not compatible with type '{s.Type}'. Setting it to null.");
-                }
+                    Console.WriteLine(
+                        $"Warning: Default value for key '{s.Key}' is not compatible with type '{s.Type}'. Setting it to null.");
 
                 return new PluginSettingDefinition
                 {
@@ -84,30 +83,24 @@ public static class PluginSettingsLoader
         }
         catch (JsonException ex)
         {
-            if (showLogging)
-            {
-                Console.WriteLine($"Error parsing JSON in {settingsPath}: {ex.Message}");
-            }
+            if (showLogging) Console.WriteLine($"Error parsing JSON in {settingsPath}: {ex.Message}");
             return [];
         }
         catch (Exception ex)
         {
-            if (showLogging)
-            {
-                Console.WriteLine($"Unexpected error loading settings from {settingsPath}: {ex.Message}");
-            }
+            if (showLogging) Console.WriteLine($"Unexpected error loading settings from {settingsPath}: {ex.Message}");
             return [];
         }
     }
 
     /// <summary>
-    /// Merges two collections of plugin settings and returns a unified collection of
-    /// <see cref="PluginSettingDefinition" />.
+    ///     Merges two collections of plugin settings and returns a unified collection of
+    ///     <see cref="PluginSettingDefinition" />.
     /// </summary>
     /// <param name="schema">The settings schema loaded from the plugin's <c>plugin.settings.json</c> file.</param>
     /// <param name="userValues">A collection of <see cref="PluginSettingDefinition" /> representing user-defined settings.</param>
     /// <returns>
-    /// A merged collection of <see cref="PluginSettingDefinition" /> where user-defined values override schema defaults.
+    ///     A merged collection of <see cref="PluginSettingDefinition" /> where user-defined values override schema defaults.
     /// </returns>
     public static IEnumerable<PluginSettingDefinition> MergeSettings(
         IEnumerable<PluginSettingDefinition> schema,
@@ -116,28 +109,26 @@ public static class PluginSettingsLoader
         var userDictionary = userValues?
                                  .GroupBy(setting => setting.Key)
                                  .ToDictionary(
-                                     group => group.Key, 
+                                     group => group.Key,
                                      group => group.First())
                              ?? new Dictionary<string, PluginSettingDefinition>();
 
         return schema.Select(schemaSetting =>
         {
             if (userDictionary.TryGetValue(schemaSetting.Key, out var userSetting))
-            {
                 return new PluginSettingDefinition
                 {
                     Key = schemaSetting.Key,
                     Type = schemaSetting.Type,
                     Value = userSetting.Value ?? schemaSetting.Value
                 };
-            }
 
             return schemaSetting;
         }).ToList();
     }
 
     /// <summary>
-    /// Validates if a value is compatible with the specified type.
+    ///     Validates if a value is compatible with the specified type.
     /// </summary>
     private static bool IsValueCompatibleWithType(object? value, string type)
     {

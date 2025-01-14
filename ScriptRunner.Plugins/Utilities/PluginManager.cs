@@ -41,16 +41,13 @@ public class PluginManager : IPluginManager
             throw new DirectoryNotFoundException($"Plugin root directory not found: {_pluginRootDirectory}");
 
         foreach (var pluginDir in Directory.GetDirectories(_pluginRootDirectory))
-        {
             try
             {
                 var depsJsonFile = Directory.GetFiles(pluginDir, "*.deps.json").FirstOrDefault();
                 if (depsJsonFile == null)
                 {
                     if (showLogging)
-                    {
                         _logger.LogWarning("No .deps.json file found in plugin directory: {PluginDir}", pluginDir);
-                    }
 
                     continue;
                 }
@@ -59,9 +56,7 @@ public class PluginManager : IPluginManager
                 if (mainPluginDll == null)
                 {
                     if (showLogging)
-                    {
                         _logger.LogWarning("No main DLL specified in .deps.json file: {DepsJson}", depsJsonFile);
-                    }
 
                     continue;
                 }
@@ -72,7 +67,6 @@ public class PluginManager : IPluginManager
             {
                 _logger.LogError(ex, "Failed to process plugin directory: {PluginDir}", pluginDir);
             }
-        }
     }
 
     /// <summary>

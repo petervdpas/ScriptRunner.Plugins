@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptRunner.Plugins", "ScriptRunner.Plugins\ScriptRunner.Plugins.csproj", "{5F2D6218-7563-486A-8ACB-5870129DEF70}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptRunner.Plugins.Tests", "ScriptRunner.Plugins.Tests\ScriptRunner.Plugins.Tests.csproj", "{661C33F5-935C-403D-AC99-03F3E13F6395}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{5F2D6218-7563-486A-8ACB-5870129DEF70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F2D6218-7563-486A-8ACB-5870129DEF70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F2D6218-7563-486A-8ACB-5870129DEF70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{661C33F5-935C-403D-AC99-03F3E13F6395}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{661C33F5-935C-403D-AC99-03F3E13F6395}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{661C33F5-935C-403D-AC99-03F3E13F6395}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{661C33F5-935C-403D-AC99-03F3E13F6395}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

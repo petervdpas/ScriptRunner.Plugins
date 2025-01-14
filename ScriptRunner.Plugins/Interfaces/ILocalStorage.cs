@@ -11,15 +11,15 @@ namespace ScriptRunner.Plugins.Interfaces;
 public interface ILocalStorage
 {
     /// <summary>
-    /// Temporarily enables or disables the invocation of event handlers for data operations.
+    ///     Temporarily enables or disables the invocation of event handlers for data operations.
     /// </summary>
     /// <param name="suppress">
-    /// If <c>true</c>, event handlers for data operations (such as <see cref="OnDataAdded"/>, 
-    /// <see cref="OnDataUpdated"/>, and <see cref="OnDataRemoved"/>) will not be invoked. 
-    /// If <c>false</c>, event handlers will be invoked as usual.
+    ///     If <c>true</c>, event handlers for data operations (such as <see cref="OnDataAdded" />,
+    ///     <see cref="OnDataUpdated" />, and <see cref="OnDataRemoved" />) will not be invoked.
+    ///     If <c>false</c>, event handlers will be invoked as usual.
     /// </param>
     void SuppressEvents(bool suppress);
-    
+
     /// <summary>
     ///     Triggered when data is added to the storage.
     /// </summary>

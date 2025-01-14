@@ -14,24 +14,24 @@ public static class PluginSettingsHelper
     private static ILocalStorage? _localStorage;
 
     /// <summary>
-    /// Initializes the <see cref="ILocalStorage" /> instance for the plugin.
+    ///     Initializes the <see cref="ILocalStorage" /> instance for the plugin.
     /// </summary>
     /// <param name="localStorage">The local storage instance to set.</param>
-    public static void InitializeLocalStorage(ILocalStorage localStorage)
+    public static void InitializeLocalStorage(ILocalStorage? localStorage)
     {
         _localStorage = localStorage ?? throw new ArgumentNullException(nameof(localStorage));
     }
-    
+
     /// <summary>
-    /// Returns the <see cref="ILocalStorage" /> instance of the plugin.
+    ///     Returns the <see cref="ILocalStorage" /> instance of the plugin.
     /// </summary>
     public static ILocalStorage FetchLocalStorage()
     {
         return _localStorage ?? throw new InvalidOperationException("LocalStorage has not been initialized.");
     }
-    
+
     /// <summary>
-    /// Stores plugin settings into <see cref="ILocalStorage" />.
+    ///     Stores plugin settings into <see cref="ILocalStorage" />.
     /// </summary>
     /// <param name="settings">The settings to store.</param>
     public static void StoreSettings(IEnumerable<PluginSettingDefinition> settings)
@@ -44,9 +44,8 @@ public static class PluginSettingsHelper
         foreach (var setting in settings)
         {
             if (setting.Value == null)
-            {
-                throw new ArgumentNullException(nameof(settings), $"The value for setting with key '{setting.Key}' cannot be null.");
-            }
+                throw new ArgumentNullException(nameof(settings),
+                    $"The value for setting with key '{setting.Key}' cannot be null.");
 
             var serializedValue = SerializationHelper.Serialize(setting.Value);
             _localStorage.SetData(setting.Key, serializedValue);
@@ -54,7 +53,7 @@ public static class PluginSettingsHelper
     }
 
     /// <summary>
-    /// Retrieves a plugin setting value from <see cref="ILocalStorage" />.
+    ///     Retrieves a plugin setting value from <see cref="ILocalStorage" />.
     /// </summary>
     /// <typeparam name="T">The expected type of the setting value.</typeparam>
     /// <param name="key">The key of the setting to retrieve.</param>
@@ -66,10 +65,7 @@ public static class PluginSettingsHelper
 
         var serializedValue = _localStorage.GetData<string>(key);
 
-        if (string.IsNullOrEmpty(serializedValue))
-        {
-            return default;
-        }
+        if (string.IsNullOrEmpty(serializedValue)) return default;
 
         try
         {
@@ -83,7 +79,7 @@ public static class PluginSettingsHelper
     }
 
     /// <summary>
-    /// Displays all plugin settings stored in <see cref="ILocalStorage" />.
+    ///     Displays all plugin settings stored in <see cref="ILocalStorage" />.
     /// </summary>
     public static void DisplayStoredSettings()
     {
@@ -98,9 +94,6 @@ public static class PluginSettingsHelper
         }
 
         Console.WriteLine("Stored plugin settings:");
-        foreach (var (key, value) in data)
-        {
-            Console.WriteLine($"- Key: {key}, Value: {value}");
-        }
+        foreach (var (key, value) in data) Console.WriteLine($"- Key: {key}, Value: {value}");
     }
 }

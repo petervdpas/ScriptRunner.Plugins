@@ -22,11 +22,11 @@ namespace ScriptRunner.Plugins.Utilities;
 public class PluginValidator : IPluginValidator
 {
     /// <summary>
-    /// Validates plugin metadata to ensure compatibility and required fields.
+    ///     Validates plugin metadata to ensure compatibility and required fields.
     /// </summary>
     /// <param name="metadata">The metadata associated with the plugin.</param>
     /// <exception cref="PluginInitializationException">
-    /// Thrown if the plugin metadata is incompatible or missing required fields.
+    ///     Thrown if the plugin metadata is incompatible or missing required fields.
     /// </exception>
     public void ValidateMetadata(PluginMetadataAttribute metadata)
     {

@@ -27,26 +27,6 @@ public abstract class BaseAsyncPlugin : IAsyncPlugin, ILocalStorageConsumer
     public abstract string Name { get; }
 
     /// <summary>
-    /// Allows the plugin host to provide an ILocalStorage instance.
-    /// </summary>
-    /// <param name="localStorage">The local storage instance to associate with this plugin.</param>
-    public void SetLocalStorage(ILocalStorage localStorage)
-    {
-        PluginSettingsHelper.InitializeLocalStorage(localStorage);
-    }
-
-    /// <summary>
-    ///     Gets the local storage instance associated with the plugin.
-    /// </summary>
-    /// <returns>
-    ///     The <see cref="ILocalStorage" /> instance associated with the plugin.
-    /// </returns>
-    public ILocalStorage GetLocalStorage()
-    {
-        return PluginSettingsHelper.FetchLocalStorage();
-    }
-    
-    /// <summary>
     ///     Asynchronously initializes the plugin using the specified configuration.
     /// </summary>
     /// <param name="configuration">A dictionary containing configuration key-value pairs for the plugin.</param>
@@ -112,5 +92,25 @@ public abstract class BaseAsyncPlugin : IAsyncPlugin, ILocalStorageConsumer
         {
             throw ex.InnerException ?? ex;
         }
+    }
+
+    /// <summary>
+    ///     Allows the plugin host to provide an ILocalStorage instance.
+    /// </summary>
+    /// <param name="localStorage">The local storage instance to associate with this plugin.</param>
+    public void SetLocalStorage(ILocalStorage? localStorage)
+    {
+        PluginSettingsHelper.InitializeLocalStorage(localStorage);
+    }
+
+    /// <summary>
+    ///     Gets the local storage instance associated with the plugin.
+    /// </summary>
+    /// <returns>
+    ///     The <see cref="ILocalStorage" /> instance associated with the plugin.
+    /// </returns>
+    public ILocalStorage GetLocalStorage()
+    {
+        return PluginSettingsHelper.FetchLocalStorage();
     }
 }

@@ -24,26 +24,6 @@ public abstract class BaseAsyncServicePlugin : IAsyncServicePlugin, ILocalStorag
     public abstract string Name { get; }
 
     /// <summary>
-    ///     Sets the local storage instance for the plugin.
-    /// </summary>
-    /// <param name="localStorage">The local storage instance.</param>
-    public void SetLocalStorage(ILocalStorage localStorage)
-    {
-        PluginSettingsHelper.InitializeLocalStorage(localStorage);
-    }
-
-    /// <summary>
-    ///     Gets the local storage instance associated with the plugin.
-    /// </summary>
-    /// <returns>
-    ///     The <see cref="ILocalStorage" /> instance associated with the plugin.
-    /// </returns>
-    public ILocalStorage GetLocalStorage()
-    {
-        return PluginSettingsHelper.FetchLocalStorage();
-    }
-    
-    /// <summary>
     ///     Asynchronously registers the plugin's services into the provided DI container.
     /// </summary>
     public virtual async Task RegisterServicesAsync(IServiceCollection services)
@@ -108,6 +88,26 @@ public abstract class BaseAsyncServicePlugin : IAsyncServicePlugin, ILocalStorag
         {
             throw ex.InnerException ?? ex;
         }
+    }
+
+    /// <summary>
+    ///     Sets the local storage instance for the plugin.
+    /// </summary>
+    /// <param name="localStorage">The local storage instance.</param>
+    public void SetLocalStorage(ILocalStorage? localStorage)
+    {
+        PluginSettingsHelper.InitializeLocalStorage(localStorage);
+    }
+
+    /// <summary>
+    ///     Gets the local storage instance associated with the plugin.
+    /// </summary>
+    /// <returns>
+    ///     The <see cref="ILocalStorage" /> instance associated with the plugin.
+    /// </returns>
+    public ILocalStorage GetLocalStorage()
+    {
+        return PluginSettingsHelper.FetchLocalStorage();
     }
 
     /// <summary>

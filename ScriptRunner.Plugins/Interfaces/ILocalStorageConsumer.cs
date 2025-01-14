@@ -21,7 +21,7 @@ public interface ILocalStorageConsumer
     /// <exception cref="System.ArgumentNullException">
     ///     Thrown if the <paramref name="localStorage" /> argument is <c>null</c>.
     /// </exception>
-    void SetLocalStorage(ILocalStorage localStorage);
+    void SetLocalStorage(ILocalStorage? localStorage);
 
     /// <summary>
     ///     Gets the local storage instance associated with the plugin.

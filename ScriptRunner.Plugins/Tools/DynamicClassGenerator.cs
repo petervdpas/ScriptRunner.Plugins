@@ -55,14 +55,10 @@ public class DynamicClassGenerator : IDynamicClassGenerator
     public (string? AssemblyPath, List<string> Namespaces) GenerateAssemblyFromJson(string json, string outputDllPath)
     {
         if (string.IsNullOrWhiteSpace(json))
-        {
             throw new ArgumentException("JSON content cannot be null or empty.", nameof(json));
-        }
 
         if (string.IsNullOrWhiteSpace(outputDllPath))
-        {
             throw new ArgumentException("Output DLL path cannot be null or empty.", nameof(outputDllPath));
-        }
 
         var rootDefinitions = ParseJsonToRootDefinitions(json);
         if (rootDefinitions.Count == 0)
@@ -125,9 +121,7 @@ public class DynamicClassGenerator : IDynamicClassGenerator
         }
 
         foreach (var diagnostic in result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error))
-        {
             _logger?.Error($"Compilation Error: {diagnostic}");
-        }
 
         return (null, []);
     }
@@ -163,20 +157,12 @@ public class DynamicClassGenerator : IDynamicClassGenerator
             codeBuilder.AppendLine($"    public class {classDef.Name}{interfaces}");
             codeBuilder.AppendLine("    {");
 
-            foreach (var property in classDef.Properties)
-            {
-                codeBuilder.AppendLine(GenerateProperty(property));
-            }
+            foreach (var property in classDef.Properties) codeBuilder.AppendLine(GenerateProperty(property));
 
             foreach (var constructor in classDef.Constructors)
-            {
                 codeBuilder.AppendLine(GenerateConstructor(classDef, constructor));
-            }
 
-            foreach (var method in classDef.Methods)
-            {
-                codeBuilder.AppendLine(GenerateMethod(method));
-            }
+            foreach (var method in classDef.Methods) codeBuilder.AppendLine(GenerateMethod(method));
 
             codeBuilder.AppendLine("    }");
         }
@@ -199,7 +185,8 @@ public class DynamicClassGenerator : IDynamicClassGenerator
         var accessorVisibility = string.IsNullOrEmpty(property.AccessorVisibility)
             ? string.Empty
             : property.AccessorVisibility + " ";
-        return $"        public {property.Type} {property.Name} {{ get; {accessorVisibility}{property.AccessorType}; }}";
+        return
+            $"        public {property.Type} {property.Name} {{ get; {accessorVisibility}{property.AccessorType}; }}";
     }
 
     /// <summary>
@@ -244,7 +231,7 @@ public class DynamicClassGenerator : IDynamicClassGenerator
     {body}
             }}";
     }
-    
+
     /// <summary>
     ///     Parses a JSON string into a list of <see cref="RootDefinition" /> objects, representing namespaces and their
     ///     classes.

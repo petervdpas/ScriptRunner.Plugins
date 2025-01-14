@@ -12,14 +12,14 @@ namespace ScriptRunner.Plugins.Interfaces;
 public interface IPluginValidator
 {
     /// <summary>
-    /// Validates plugin metadata to ensure compatibility and required fields.
+    ///     Validates plugin metadata to ensure compatibility and required fields.
     /// </summary>
     /// <param name="metadata">The metadata associated with the plugin.</param>
     /// <exception cref="PluginInitializationException">
-    /// Thrown if the plugin metadata is incompatible or missing required fields.
+    ///     Thrown if the plugin metadata is incompatible or missing required fields.
     /// </exception>
     void ValidateMetadata(PluginMetadataAttribute metadata);
-    
+
     /// <summary>
     ///     Validates a plugin type to ensure it conforms to required standards.
     /// </summary>

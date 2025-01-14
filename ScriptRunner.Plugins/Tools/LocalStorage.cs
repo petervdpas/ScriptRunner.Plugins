@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Utilities;
 
 namespace ScriptRunner.Plugins.Tools;
 
-/// <summary>
-/// Provides a thread-safe local storage implementation with support for TTL and event hooks.
-/// Implements <see cref="ILocalStorage" />.
-/// </summary>
+/// <inheritdoc />
 public class LocalStorage : ILocalStorage
 {
     private readonly Dictionary<string, DateTime> _expirationData = new();
@@ -19,34 +17,22 @@ public class LocalStorage : ILocalStorage
     private readonly Dictionary<string, object> _tempData = new();
     private bool _suppressEvents;
 
-    /// <summary>
-    /// Temporarily enables or disables the invocation of event handlers for data operations.
-    /// </summary>
-    /// <param name="suppress">
-    /// If <c>true</c>, event handlers for data operations (such as <see cref="OnDataAdded"/>,
-    /// <see cref="OnDataUpdated"/>, and <see cref="OnDataRemoved"/>) will not be invoked.
-    /// If <c>false</c>, event handlers will be invoked as usual.
-    /// </param>
-    public void SuppressEvents(bool suppress) => _suppressEvents = suppress;
+    /// <inheritdoc />
+    public void SuppressEvents(bool suppress)
+    {
+        _suppressEvents = suppress;
+    }
 
-    /// <summary>
-    /// Triggered when a new key-value pair is added to the storage.
-    /// </summary>
+    /// <inheritdoc />
     public event Action<string, object?>? OnDataAdded = (key, value) => { };
 
-    /// <summary>
-    /// Triggered when an existing key-value pair in the storage is updated.
-    /// </summary>
+    /// <inheritdoc />
     public event Action<string, object?>? OnDataUpdated = (key, value) => { };
 
-    /// <summary>
-    /// Triggered when a key-value pair is removed from the storage.
-    /// </summary>
+    /// <inheritdoc />
     public event Action<string>? OnDataRemoved = key => { };
 
-    /// <summary>
-    /// Adds or updates a value in the storage with optional TTL.
-    /// </summary>
+    /// <inheritdoc />
     public void SetData(string key, object? value, TimeSpan? ttl = null)
     {
         if (string.IsNullOrWhiteSpace(key))
@@ -79,9 +65,7 @@ public class LocalStorage : ILocalStorage
         }
     }
 
-    /// <summary>
-    /// Retrieves a value from the storage.
-    /// </summary>
+    /// <inheritdoc />
     public T? GetData<T>(string key)
     {
         if (string.IsNullOrWhiteSpace(key))
@@ -110,9 +94,7 @@ public class LocalStorage : ILocalStorage
         }
     }
 
-    /// <summary>
-    /// Removes a key and its value from the storage.
-    /// </summary>
+    /// <inheritdoc />
     public void RemoveData(string key)
     {
         if (string.IsNullOrWhiteSpace(key))
@@ -127,9 +109,7 @@ public class LocalStorage : ILocalStorage
         }
     }
 
-    /// <summary>
-    /// Clears all entries from the storage.
-    /// </summary>
+    /// <inheritdoc />
     public void ClearData()
     {
         lock (_lock)
@@ -142,9 +122,7 @@ public class LocalStorage : ILocalStorage
         }
     }
 
-    /// <summary>
-    /// Lists all keys and their values.
-    /// </summary>
+    /// <inheritdoc />
     public string ListAllData()
     {
         lock (_lock)
@@ -153,9 +131,7 @@ public class LocalStorage : ILocalStorage
         }
     }
 
-    /// <summary>
-    /// Retrieves all keys matching a regex pattern.
-    /// </summary>
+    /// <inheritdoc />
     public IEnumerable<string> GetKeysMatching(string pattern)
     {
         if (string.IsNullOrWhiteSpace(pattern))
@@ -168,11 +144,7 @@ public class LocalStorage : ILocalStorage
         }
     }
 
-    /// <summary>
-    /// Searches for keys in the storage that have the specified value.
-    /// </summary>
-    /// <param name="value">The value to search for.</param>
-    /// <returns>A collection of keys that have the specified value.</returns>
+    /// <inheritdoc />
     public IEnumerable<string> SearchKeysByValue(object value)
     {
         if (value == null)
@@ -187,9 +159,7 @@ public class LocalStorage : ILocalStorage
         }
     }
 
-    /// <summary>
-    /// Retrieves the entire storage as a dictionary.
-    /// </summary>
+    /// <inheritdoc />
     public IDictionary<string, object> GetStorage()
     {
         lock (_lock)
@@ -198,9 +168,7 @@ public class LocalStorage : ILocalStorage
         }
     }
 
-    /// <summary>
-    /// Saves the storage data to a file.
-    /// </summary>
+    /// <inheritdoc />
     public void SaveToFile(string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))
@@ -213,9 +181,7 @@ public class LocalStorage : ILocalStorage
         }
     }
 
-    /// <summary>
-    /// Loads storage data from a file.
-    /// </summary>
+    /// <inheritdoc />
     public void LoadFromFile(string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))
@@ -227,7 +193,7 @@ public class LocalStorage : ILocalStorage
         lock (_lock)
         {
             var json = File.ReadAllText(filePath);
-            var data = SerializationHelper.Deserialize<Dictionary<string, object?>>(json);
+            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
 
             if (data == null)
             {
@@ -236,17 +202,11 @@ public class LocalStorage : ILocalStorage
             }
 
             foreach (var (key, value) in data)
-            {
-                if (value is string strValue)
-                {
-                    // Plain string values are stored without additional deserialization
-                    SetData(key, strValue);
-                }
+                if (value is JsonElement element && element.ValueKind == JsonValueKind.String)
+                    // Handle string values to strip unnecessary quotes
+                    SetData(key, element.GetString());
                 else
-                {
                     SetData(key, value);
-                }
-            }
         }
     }
 

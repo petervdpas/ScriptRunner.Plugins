@@ -18,21 +18,10 @@ namespace ScriptRunner.Plugins;
 public abstract class BaseServicePlugin : IServicePlugin, ILocalStorageConsumer
 {
     /// <summary>
-    ///     Gets the name of the plugin.
-    /// </summary>
-    /// <value>
-    ///     A string representing the name of the plugin.
-    /// </value>
-    /// <remarks>
-    ///     Derived classes must implement this property to provide a unique name for the plugin.
-    /// </remarks>
-    public abstract string Name { get; }
-
-    /// <summary>
     ///     Sets the local storage instance for the plugin.
     /// </summary>
     /// <param name="localStorage">The local storage instance to associate with this plugin.</param>
-    public void SetLocalStorage(ILocalStorage localStorage)
+    public void SetLocalStorage(ILocalStorage? localStorage)
     {
         PluginSettingsHelper.InitializeLocalStorage(localStorage);
     }
@@ -47,7 +36,18 @@ public abstract class BaseServicePlugin : IServicePlugin, ILocalStorageConsumer
     {
         return PluginSettingsHelper.FetchLocalStorage();
     }
-    
+
+    /// <summary>
+    ///     Gets the name of the plugin.
+    /// </summary>
+    /// <value>
+    ///     A string representing the name of the plugin.
+    /// </value>
+    /// <remarks>
+    ///     Derived classes must implement this property to provide a unique name for the plugin.
+    /// </remarks>
+    public abstract string Name { get; }
+
     /// <summary>
     ///     Registers the plugin's services in the provided dependency injection container.
     /// </summary>

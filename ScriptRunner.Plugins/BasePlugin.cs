@@ -15,19 +15,10 @@ namespace ScriptRunner.Plugins;
 public abstract class BasePlugin : IPlugin, ILocalStorageConsumer
 {
     /// <summary>
-    ///     Gets the name of the plugin.
-    /// </summary>
-    /// <value>A string representing the name of the plugin.</value>
-    /// <remarks>
-    ///     Derived classes must implement this property to provide a unique identifier for the plugin.
-    /// </remarks>
-    public abstract string Name { get; }
-
-    /// <summary>
-    /// Allows the plugin host to provide an ILocalStorage instance.
+    ///     Allows the plugin host to provide an ILocalStorage instance.
     /// </summary>
     /// <param name="localStorage">The local storage instance to associate with this plugin.</param>
-    public void SetLocalStorage(ILocalStorage localStorage)
+    public void SetLocalStorage(ILocalStorage? localStorage)
     {
         PluginSettingsHelper.InitializeLocalStorage(localStorage);
     }
@@ -42,7 +33,16 @@ public abstract class BasePlugin : IPlugin, ILocalStorageConsumer
     {
         return PluginSettingsHelper.FetchLocalStorage();
     }
-    
+
+    /// <summary>
+    ///     Gets the name of the plugin.
+    /// </summary>
+    /// <value>A string representing the name of the plugin.</value>
+    /// <remarks>
+    ///     Derived classes must implement this property to provide a unique identifier for the plugin.
+    /// </remarks>
+    public abstract string Name { get; }
+
     /// <summary>
     ///     Initializes the plugin with the specified configuration.
     /// </summary>
