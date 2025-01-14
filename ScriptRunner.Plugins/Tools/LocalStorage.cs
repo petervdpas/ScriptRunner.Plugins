@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -17,7 +16,7 @@ public class LocalStorage : ILocalStorage
 {
     private readonly Dictionary<string, DateTime> _expirationData = new();
     private readonly object _lock = new();
-    private readonly dynamic _tempData = new ExpandoObject();
+    private readonly Dictionary<string, object> _tempData = new();
     private bool _suppressEvents;
 
     /// <summary>
@@ -57,14 +56,12 @@ public class LocalStorage : ILocalStorage
 
         lock (_lock)
         {
-            var tempDataDict = (IDictionary<string, object?>)_tempData;
-
             // Serialize non-string objects; keep strings as-is
             var serializedValue = value is string strValue ? strValue : SerializationHelper.Serialize(value);
 
-            if (!tempDataDict.TryAdd(key, serializedValue))
+            if (!_tempData.TryAdd(key, serializedValue))
             {
-                tempDataDict[key] = serializedValue;
+                _tempData[key] = serializedValue;
 
                 if (ttl.HasValue)
                     _expirationData[key] = DateTime.UtcNow.Add(ttl.Value);
@@ -93,11 +90,9 @@ public class LocalStorage : ILocalStorage
 
         lock (_lock)
         {
-            var tempDataDict = (IDictionary<string, object>)_tempData;
-
             if (!_expirationData.TryGetValue(key, out var expiration) || DateTime.UtcNow <= expiration)
             {
-                if (!tempDataDict.TryGetValue(key, out var value)) return default;
+                if (!_tempData.TryGetValue(key, out var value)) return default;
 
                 return value switch
                 {
@@ -108,7 +103,7 @@ public class LocalStorage : ILocalStorage
                 };
             }
 
-            tempDataDict.Remove(key);
+            _tempData.Remove(key);
             _expirationData.Remove(key);
             OnDataRemoved?.Invoke(key);
 
@@ -126,8 +121,7 @@ public class LocalStorage : ILocalStorage
 
         lock (_lock)
         {
-            var tempDataDict = (IDictionary<string, object>)_tempData;
-            if (!tempDataDict.Remove(key)) return;
+            if (!_tempData.Remove(key)) return;
 
             _expirationData.Remove(key);
             OnDataRemoved?.Invoke(key);
@@ -141,9 +135,8 @@ public class LocalStorage : ILocalStorage
     {
         lock (_lock)
         {
-            var tempDataDict = (IDictionary<string, object>)_tempData;
-            var keys = tempDataDict.Keys.ToList();
-            tempDataDict.Clear();
+            var keys = _tempData.Keys.ToList();
+            _tempData.Clear();
             _expirationData.Clear();
 
             foreach (var key in keys) OnDataRemoved?.Invoke(key);
@@ -157,8 +150,7 @@ public class LocalStorage : ILocalStorage
     {
         lock (_lock)
         {
-            var tempDataDict = (IDictionary<string, object>)_tempData;
-            return string.Join("\n", tempDataDict.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
+            return string.Join("\n", _tempData.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
         }
     }
 
@@ -173,8 +165,7 @@ public class LocalStorage : ILocalStorage
         lock (_lock)
         {
             var regex = new Regex(pattern);
-            var tempDataDict = (IDictionary<string, object>)_tempData;
-            return tempDataDict.Keys.Where(key => regex.IsMatch(key)).ToList();
+            return _tempData.Keys.Where(key => regex.IsMatch(key)).ToList();
         }
     }
 
@@ -190,8 +181,7 @@ public class LocalStorage : ILocalStorage
 
         lock (_lock)
         {
-            var tempDataDict = (IDictionary<string, object>)_tempData;
-            return tempDataDict
+            return _tempData
                 .Where(kvp => kvp.Value.Equals(value))
                 .Select(kvp => kvp.Key)
                 .ToList();
@@ -205,7 +195,7 @@ public class LocalStorage : ILocalStorage
     {
         lock (_lock)
         {
-            return new Dictionary<string, object>((IDictionary<string, object>)_tempData);
+            return _tempData;
         }
     }
 
