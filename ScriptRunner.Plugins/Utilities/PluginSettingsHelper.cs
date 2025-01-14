@@ -43,11 +43,13 @@ public static class PluginSettingsHelper
 
         foreach (var setting in settings)
         {
-            if (setting.Value is null)
+            setting.Value = setting.Value switch
             {
-                throw new ArgumentNullException(nameof(settings),
-                    $"The value for setting with key '{setting.Key}' cannot be null.");
-            }
+                null => throw new ArgumentNullException(nameof(settings),
+                    $"The value for setting with key '{setting.Key}' cannot be null."),
+                string stringValue => stringValue.Trim('"'),
+                _ => setting.Value
+            };
 
             _localStorage.SetData(setting.Key, setting.Value);
         }
