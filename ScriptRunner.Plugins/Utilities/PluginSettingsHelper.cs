@@ -43,11 +43,13 @@ public static class PluginSettingsHelper
 
         foreach (var setting in settings)
         {
-            if (setting.Value is null)
+            setting.Value = setting.Value switch
             {
-                throw new ArgumentNullException(nameof(settings),
-                    $"The value for setting with key '{setting.Key}' cannot be null.");
-            }
+                null => throw new ArgumentNullException(nameof(settings),
+                    $"The value for setting with key '{setting.Key}' cannot be null."),
+                string stringValue => stringValue.Trim('"'),
+                _ => setting.Value
+            };
 
             _localStorage.SetData(setting.Key, setting.Value);
         }
@@ -76,42 +78,42 @@ public static class PluginSettingsHelper
                 case null:
                     return default;
                 case string stringValue:
-                {
+                    stringValue = stringValue.Trim('"');
+
                     // Handle conversion to int
-                    if (typeof(T) == typeof(int))
-                    {
-                        if (int.TryParse(stringValue, out var intValue))
-                        {
-                            return (T)(object)intValue;
-                        }
-                    }
+                    if (typeof(T) == typeof(int) && int.TryParse(stringValue, out var intValue))
+                        return (T)(object)intValue;
 
                     // Handle conversion to bool
-                    if (typeof(T) == typeof(bool))
-                    {
-                        if (bool.TryParse(stringValue, out var boolValue))
-                        {
-                            return (T)(object)boolValue;
-                        }
-                    }
+                    if (typeof(T) == typeof(bool) && bool.TryParse(stringValue, out var boolValue))
+                        return (T)(object)boolValue;
 
-                    return (T)(object)stringValue;
-                }
+                    // Handle conversion to float
+                    if (typeof(T) == typeof(float) && float.TryParse(stringValue, out var floatValue))
+                        return (T)(object)floatValue;
+
+                    // Handle conversion to double
+                    if (typeof(T) == typeof(double) && double.TryParse(stringValue, out var doubleValue))
+                        return (T)(object)doubleValue;
+
+                    // Return as string if T is string
+                    if (typeof(T) == typeof(string))
+                        return (T)(object)stringValue;
+
+                    break;
             }
 
-            // Perform a safe cast if value is already of the desired type
+            // Direct cast if value is already of the desired type
             if (value is T typedValue)
-            {
                 return typedValue;
-            }
 
-            // Attempt to convert value to the desired type
+            // Attempt conversion for other types
             return (T)Convert.ChangeType(value, typeof(T));
         }
         catch (Exception ex) when (ex is InvalidCastException or FormatException)
         {
             Console.WriteLine($"Error retrieving setting: {ex.Message}");
-            return default; 
+            return default;
         }
     }
 
