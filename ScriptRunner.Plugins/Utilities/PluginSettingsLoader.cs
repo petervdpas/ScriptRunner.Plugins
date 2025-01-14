@@ -23,15 +23,10 @@ public static class PluginSettingsLoader
     /// <exception cref="FileNotFoundException">
     ///     Thrown if the <c>plugin.settings.json</c> file is not found in the specified directory.
     /// </exception>
-    /// <remarks>
-    ///     This method expects a file named <c>plugin.settings.json</c> to exist in the provided directory.
-    ///     The file should contain a JSON array of settings definitions.
-    /// </remarks>
     public static PluginSettingDefinition[] LoadSettings(string pluginPath, bool showLogging = false)
     {
         var settingsPath = Path.Combine(pluginPath, "plugin.settings.json");
         
-        // Check if the settings file exists
         if (!File.Exists(settingsPath))
         {
             if (showLogging)
@@ -57,19 +52,41 @@ public static class PluginSettingsLoader
                 return [];
             }
 
-            // Map to PluginSettingDefinition and populate Value with DefaultValue
-            var settings = rawSettings.Select(s => new PluginSettingDefinition
+            // Map to PluginSettingDefinition and validate types
+            var settings = rawSettings.Select(s =>
             {
-                Key = s.Key,
-                Type = s.Type,
-                Value = s.DefaultValue
+                var value = s.DefaultValue;
+                if (value is string strValue)
+                {
+                    // Clean up escaped strings
+                    value = strValue.Trim('"');
+                }
+
+                if (IsValueCompatibleWithType(value, s.Type))
+                    return new PluginSettingDefinition
+                    {
+                        Key = s.Key,
+                        Type = s.Type,
+                        Value = value
+                    };
+                if (showLogging)
+                {
+                    Console.WriteLine($"Warning: Default value for key '{s.Key}' is not compatible with type '{s.Type}'. Setting it to null.");
+                }
+                value = null; // Reset incompatible values
+
+                return new PluginSettingDefinition
+                {
+                    Key = s.Key,
+                    Type = s.Type,
+                    Value = value
+                };
             }).ToArray();
 
             return settings;
         }
         catch (JsonException ex)
         {
-            // Handle JSON parsing errors gracefully
             if (showLogging)
             {
                 Console.WriteLine($"Error parsing JSON in {settingsPath}: {ex.Message}");
@@ -78,7 +95,6 @@ public static class PluginSettingsLoader
         }
         catch (Exception ex)
         {
-            // Catch unexpected errors
             if (showLogging)
             {
                 Console.WriteLine($"Unexpected error loading settings from {settingsPath}: {ex.Message}");
@@ -136,14 +152,16 @@ public static class PluginSettingsLoader
     /// <summary>
     /// Validates if a value is compatible with the specified type.
     /// </summary>
-    private static bool IsValueCompatibleWithType(object value, string type)
+    private static bool IsValueCompatibleWithType(object? value, string type)
     {
+        if (value == null) return false;
+
         return type.ToLowerInvariant() switch
         {
             "string" => value is string,
             "int" => int.TryParse(value.ToString(), out _),
             "bool" => bool.TryParse(value.ToString(), out _),
-            _ => true // Assume compatibility for unknown types
+            _ => true
         };
     }
 }
