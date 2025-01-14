@@ -21,7 +21,7 @@ public class LocalStorage : ILocalStorage
     private bool _suppressEvents;
 
     // Cached JsonSerializerOptions for reuse
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    private static readonly JsonSerializerOptions? JsonOptions = new()
     {
         WriteIndented = false
     };
@@ -39,12 +39,12 @@ public class LocalStorage : ILocalStorage
     /// <summary>
     ///     Triggered when a new key-value pair is added to the storage.
     /// </summary>
-    public event Action<string, object>? OnDataAdded = (key, value) => { };
+    public event Action<string, object?>? OnDataAdded = (key, value) => { };
 
     /// <summary>
     ///     Triggered when an existing key-value pair in the storage is updated.
     /// </summary>
-    public event Action<string, object>? OnDataUpdated = (key, value) => { };
+    public event Action<string, object?>? OnDataUpdated = (key, value) => { };
 
     /// <summary>
     ///     Triggered when a key-value pair is removed from the storage.
@@ -54,7 +54,7 @@ public class LocalStorage : ILocalStorage
     /// <summary>
     ///     Adds or updates a value in the storage with optional TTL.
     /// </summary>
-    public void SetData(string key, object value, TimeSpan? ttl = null)
+    public void SetData(string key, object? value, TimeSpan? ttl = null)
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException("Key cannot be null or whitespace.", nameof(key));
@@ -63,7 +63,7 @@ public class LocalStorage : ILocalStorage
 
         lock (_lock)
         {
-            var tempDataDict = (IDictionary<string, object>)_tempData;
+            var tempDataDict = (IDictionary<string, object?>)_tempData;
 
             // Serialize only non-primitive types explicitly
             if (value is not (int or bool or double or float or string))
@@ -249,19 +249,27 @@ public class LocalStorage : ILocalStorage
         lock (_lock)
         {
             var json = File.ReadAllText(filePath);
-            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json, options ?? JsonOptions);
-            if (data == null) return;
+            var data = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json, options ?? JsonOptions);
+
+            // Handle a null case explicitly
+            if (data == null)
+            {
+                Console.WriteLine("No data found in the file. Loading skipped.");
+                return;
+            }
 
             foreach (var kvp in data)
             {
-                if (kvp.Value is string strValue && strValue.StartsWith('\"') && strValue.EndsWith('\"'))
+                object? value = kvp.Value.ValueKind switch
                 {
-                    SetData(kvp.Key, strValue.Trim('"'));
-                }
-                else
-                {
-                    SetData(kvp.Key, kvp.Value);
-                }
+                    JsonValueKind.String => kvp.Value.GetString(),
+                    JsonValueKind.Number => kvp.Value.TryGetInt32(out var intValue) ? intValue : kvp.Value.GetDouble(),
+                    JsonValueKind.True => true,
+                    JsonValueKind.False => false,
+                    _ => kvp.Value.ToString() // Fallback for complex types
+                };
+
+                SetData(kvp.Key, value);
             }
         }
     }
@@ -276,7 +284,7 @@ public class LocalStorage : ILocalStorage
     /// </param>
     /// <param name="key">The key associated with the event.</param>
     /// <param name="value">The value associated with the event.</param>
-    private void RaiseEvent(Action<string, object>? eventHandler, string key, object value)
+    private void RaiseEvent(Action<string, object?>? eventHandler, string key, object? value)
     {
         if (!_suppressEvents) eventHandler?.Invoke(key, value);
     }

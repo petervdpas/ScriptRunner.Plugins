@@ -23,12 +23,12 @@ public interface ILocalStorage
     /// <summary>
     ///     Triggered when data is added to the storage.
     /// </summary>
-    event Action<string, object>? OnDataAdded;
+    event Action<string, object?>? OnDataAdded;
 
     /// <summary>
     ///     Triggered when data in the storage is updated.
     /// </summary>
-    event Action<string, object>? OnDataUpdated;
+    event Action<string, object?>? OnDataUpdated;
 
     /// <summary>
     ///     Triggered when data is removed from the storage.
@@ -45,7 +45,7 @@ public interface ILocalStorage
     ///     The entry will expire and be removed after this duration.
     /// </param>
     /// <exception cref="ArgumentException">Thrown if the key is null or whitespace.</exception>
-    void SetData(string key, object value, TimeSpan? ttl = null);
+    void SetData(string key, object? value, TimeSpan? ttl = null);
 
     /// <summary>
     ///     Retrieves a value from the storage.
