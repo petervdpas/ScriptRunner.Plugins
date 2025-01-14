@@ -59,28 +59,25 @@ public class LocalStorage : ILocalStorage
         {
             var tempDataDict = (IDictionary<string, object?>)_tempData;
 
-            value = value switch
-            {
-                string str when str.StartsWith('{') || str.StartsWith('[') => str, // Keep serialized JSON strings as-is
-                _ => SerializationHelper.Serialize(value) // Serialize non-JSON objects
-            };
+            // Serialize value except for plain strings
+            var serializedValue = value as string ?? SerializationHelper.Serialize(value);
 
-            if (!tempDataDict.TryAdd(key, value))
+            if (!tempDataDict.TryAdd(key, serializedValue))
             {
-                tempDataDict[key] = value;
+                tempDataDict[key] = serializedValue;
                 if (ttl.HasValue)
                     _expirationData[key] = DateTime.UtcNow.Add(ttl.Value);
                 else
                     _expirationData.Remove(key);
 
-                RaiseEvent(OnDataUpdated, key, value);
+                RaiseEvent(OnDataUpdated, key, serializedValue);
             }
             else
             {
                 if (ttl.HasValue)
                     _expirationData[key] = DateTime.UtcNow.Add(ttl.Value);
 
-                RaiseEvent(OnDataAdded, key, value);
+                RaiseEvent(OnDataAdded, key, serializedValue);
             }
         }
     }
@@ -99,9 +96,14 @@ public class LocalStorage : ILocalStorage
 
             if (!_expirationData.TryGetValue(key, out var expiration) || DateTime.UtcNow <= expiration)
             {
-                return !tempDataDict.TryGetValue(key, out var value) 
-                    ? default 
-                    : SerializationHelper.Deserialize<T>(value.ToString() ?? string.Empty);
+                if (!tempDataDict.TryGetValue(key, out var value)) return default;
+
+                return value switch
+                {
+                    string strValue => SerializationHelper.Deserialize<T>(strValue),
+                    T castValue => castValue,
+                    _ => default
+                };
             }
 
             tempDataDict.Remove(key);

@@ -20,19 +20,13 @@ public static class SerializationHelper
     /// <returns>A JSON string representation of the object.</returns>
     public static string Serialize(object value)
     {
-        if (value is not string strValue)
+        if (value is string strValue)
         {
-            return JsonSerializer.Serialize(value, JsonOptions);
-        }
-        
-        // Validate if the string is a valid JSON
-        if ((strValue.StartsWith('{') && strValue.EndsWith('}')) || 
-            (strValue.StartsWith('[') && strValue.EndsWith(']')))
-        {
-            return strValue; // Return as-is for valid JSON strings
+            // Return as-is for valid JSON strings or raw strings
+            return strValue;
         }
 
-        // Serialize non-JSON objects
+        // Serialize non-string objects
         return JsonSerializer.Serialize(value, JsonOptions);
     }
 
@@ -47,17 +41,21 @@ public static class SerializationHelper
     public static T? Deserialize<T>(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
+            return default;
 
         try
         {
+            // Directly return if T is string
+            if (typeof(T) == typeof(string))
+                return (T)(object)value;
+
+            // Deserialize for other types
             return JsonSerializer.Deserialize<T>(value, JsonOptions);
         }
-        catch (JsonException)
+        catch
         {
-            // Treat as a raw string if deserialization fails
-            if (typeof(T) == typeof(string)) return (T)(object)value;
-            throw;
+            // Fallback: Return default for failed deserialization
+            return default;
         }
     }
 
