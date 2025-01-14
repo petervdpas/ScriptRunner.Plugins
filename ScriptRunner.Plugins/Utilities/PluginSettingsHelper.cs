@@ -95,7 +95,7 @@ public static class PluginSettingsHelper
                         }
                     }
 
-                    break;
+                    return (T)(object)stringValue;
                 }
             }
 

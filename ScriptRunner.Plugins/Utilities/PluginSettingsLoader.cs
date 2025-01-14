@@ -29,9 +29,17 @@ public static class PluginSettingsLoader
     /// </remarks>
     public static PluginSettingDefinition[] LoadSettings(string pluginPath, bool showLogging = false)
     {
+        if (string.IsNullOrWhiteSpace(pluginPath))
+        {
+            if (showLogging)
+            {
+                Console.WriteLine("Plugin path is null or empty.");
+            }
+            return [];
+        }
+
         var settingsPath = Path.Combine(pluginPath, "plugin.settings.json");
         
-        // Check if the settings file exists
         if (!File.Exists(settingsPath))
         {
             if (showLogging)
@@ -41,7 +49,19 @@ public static class PluginSettingsLoader
             return [];
         }
 
-        var jsonContent = File.ReadAllText(settingsPath);
+        string jsonContent;
+        try
+        {
+            jsonContent = File.ReadAllText(settingsPath);
+        }
+        catch (Exception ex)
+        {
+            if (showLogging)
+            {
+                Console.WriteLine($"Error reading settings file: {ex.Message}");
+            }
+            return [];
+        }
 
         try
         {
@@ -57,19 +77,33 @@ public static class PluginSettingsLoader
                 return [];
             }
 
-            // Map to PluginSettingDefinition and populate Value with DefaultValue
-            var settings = rawSettings.Select(s => new PluginSettingDefinition
+            // Map to PluginSettingDefinition and validate default values
+            var settings = rawSettings.Select(s =>
             {
-                Key = s.Key,
-                Type = s.Type,
-                Value = s.DefaultValue
+                // Validate default value compatibility
+                var value = s.DefaultValue;
+                if (value != null && !IsValueCompatibleWithType(value, s.Type))
+                {
+                    if (showLogging)
+                    {
+                        Console.WriteLine($"Default value for key '{s.Key}' is incompatible with type '{s.Type}'. Using null.");
+                    }
+                    value = null;
+                }
+
+                return new PluginSettingDefinition
+                {
+                    Key = s.Key,
+                    Type = s.Type,
+                    Value = value
+                };
+                
             }).ToArray();
 
             return settings;
         }
         catch (JsonException ex)
         {
-            // Handle JSON parsing errors gracefully
             if (showLogging)
             {
                 Console.WriteLine($"Error parsing JSON in {settingsPath}: {ex.Message}");
@@ -78,7 +112,6 @@ public static class PluginSettingsLoader
         }
         catch (Exception ex)
         {
-            // Catch unexpected errors
             if (showLogging)
             {
                 Console.WriteLine($"Unexpected error loading settings from {settingsPath}: {ex.Message}");
@@ -134,13 +167,16 @@ public static class PluginSettingsLoader
     }
     
     /// <summary>
-    /// Validates a <see cref="PluginSettingDefinition"/> object.
+    /// Validates if a value is compatible with the specified type.
     /// </summary>
-    /// <param name="setting">The setting to validate.</param>
-    /// <returns>True if the setting is valid; otherwise, false.</returns>
-    private static bool IsValidPluginSettingDefinition(PluginSettingDefinition setting)
+    private static bool IsValueCompatibleWithType(object value, string type)
     {
-        return !string.IsNullOrWhiteSpace(setting.Key) &&
-               !string.IsNullOrWhiteSpace(setting.Type);
+        return type.ToLowerInvariant() switch
+        {
+            "string" => value is string,
+            "int" => int.TryParse(value.ToString(), out _),
+            "bool" => bool.TryParse(value.ToString(), out _),
+            _ => true // Assume compatibility for unknown types
+        };
     }
 }
