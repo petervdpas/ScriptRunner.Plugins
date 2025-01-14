@@ -59,7 +59,7 @@ public class LocalStorage : ILocalStorage
         {
             var tempDataDict = (IDictionary<string, object?>)_tempData;
 
-            // Serialize value except for plain strings
+            // Serialize non-string objects; keep strings as-is
             var serializedValue = value as string ?? SerializationHelper.Serialize(value);
 
             if (!tempDataDict.TryAdd(key, serializedValue))
@@ -236,13 +236,15 @@ public class LocalStorage : ILocalStorage
         lock (_lock)
         {
             var json = File.ReadAllText(filePath);
-            var data = SerializationHelper.Deserialize<Dictionary<string, object>>(json);
+            var data = SerializationHelper.Deserialize<Dictionary<string, string>>(json);
 
             if (data == null) return;
 
             foreach (var (key, value) in data)
             {
-                SetData(key, value);
+                // Deserialize the value using SerializationHelper
+                var deserializedValue = SerializationHelper.Deserialize<object>(value);
+                SetData(key, deserializedValue);
             }
         }
     }
