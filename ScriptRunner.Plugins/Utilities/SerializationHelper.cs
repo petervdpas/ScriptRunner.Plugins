@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace ScriptRunner.Plugins.Utilities;
 
@@ -20,14 +19,7 @@ public static class SerializationHelper
     /// <returns>A JSON string representation of the object.</returns>
     public static string Serialize(object value)
     {
-        if (value is string strValue)
-        {
-            // Return as-is for valid JSON strings or raw strings
-            return strValue;
-        }
-
-        // Serialize non-string objects
-        return JsonSerializer.Serialize(value, JsonOptions);
+        return value as string ?? JsonSerializer.Serialize(value, JsonOptions);
     }
 
     /// <summary>
@@ -40,43 +32,16 @@ public static class SerializationHelper
     /// <exception cref="JsonException">Thrown when deserialization fails for non-string types.</exception>
     public static T? Deserialize<T>(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return default;
-
         try
         {
-            // Directly return if T is string
             if (typeof(T) == typeof(string))
                 return (T)(object)value;
 
-            // Deserialize for other types
             return JsonSerializer.Deserialize<T>(value, JsonOptions);
         }
         catch
         {
-            // Fallback: Return default for failed deserialization
-            return default;
+            return default; // Return default for failed deserialization
         }
-    }
-
-    /// <summary>
-    /// Deserializes a <see cref="JsonElement"/> into a .NET object, determining the type dynamically.
-    /// </summary>
-    /// <param name="element">The JSON element to deserialize.</param>
-    /// <returns>
-    /// A .NET object representation of the JSON element. 
-    /// Returns a <see cref="string"/>, <see cref="int"/>, <see cref="double"/>, <see cref="bool"/>, or the element's raw string representation, depending on the JSON type.
-    /// </returns>
-    public static object? Deserialize(JsonElement element)
-    {
-        return element.ValueKind switch
-        {
-            JsonValueKind.String => element.GetString(),
-            JsonValueKind.Number => element.TryGetInt32(out var intValue) ? intValue : element.GetDouble(),
-            JsonValueKind.True => true,
-            JsonValueKind.False => false,
-            JsonValueKind.Object or JsonValueKind.Array => element.GetRawText(), // Preserve nested JSON as string
-            _ => element.ToString() // For null or unknown cases
-        };
     }
 }

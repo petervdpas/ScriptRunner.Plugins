@@ -60,11 +60,12 @@ public class LocalStorage : ILocalStorage
             var tempDataDict = (IDictionary<string, object?>)_tempData;
 
             // Serialize non-string objects; keep strings as-is
-            var serializedValue = value as string ?? SerializationHelper.Serialize(value);
+            var serializedValue = value is string strValue ? strValue : SerializationHelper.Serialize(value);
 
             if (!tempDataDict.TryAdd(key, serializedValue))
             {
                 tempDataDict[key] = serializedValue;
+
                 if (ttl.HasValue)
                     _expirationData[key] = DateTime.UtcNow.Add(ttl.Value);
                 else
@@ -100,9 +101,10 @@ public class LocalStorage : ILocalStorage
 
                 return value switch
                 {
-                    string strValue => SerializationHelper.Deserialize<T>(strValue),
-                    T castValue => castValue,
-                    _ => default
+                    string strValue when typeof(T) == typeof(string) => (T)(object)strValue, // Direct return for string
+                    string strValue => SerializationHelper.Deserialize<T>(strValue), // Deserialize for other types
+                    T castValue => castValue, // Directly cast if value matches T
+                    _ => default // Fallback
                 };
             }
 
@@ -236,15 +238,23 @@ public class LocalStorage : ILocalStorage
         lock (_lock)
         {
             var json = File.ReadAllText(filePath);
-            var data = SerializationHelper.Deserialize<Dictionary<string, string>>(json);
+            var data = SerializationHelper.Deserialize<Dictionary<string, object?>>(json);
 
-            if (data == null) return;
+            if (data == null)
+            {
+                Console.WriteLine("No data found in the file. Loading skipped.");
+                return;
+            }
 
             foreach (var (key, value) in data)
             {
-                // Deserialize the value using SerializationHelper
-                var deserializedValue = SerializationHelper.Deserialize<object>(value);
-                SetData(key, deserializedValue);
+                if (value == null)
+                {
+                    Console.WriteLine($"Warning: Skipping key '{key}' with null value.");
+                    continue;
+                }
+
+                SetData(key, value);
             }
         }
     }
