@@ -59,7 +59,11 @@ public class LocalStorage : ILocalStorage
         {
             var tempDataDict = (IDictionary<string, object?>)_tempData;
 
-            value = SerializationHelper.Serialize(value);
+            value = value switch
+            {
+                string str when str.StartsWith('{') || str.StartsWith('[') => str, // Keep serialized JSON strings as-is
+                _ => SerializationHelper.Serialize(value) // Serialize non-JSON objects
+            };
 
             if (!tempDataDict.TryAdd(key, value))
             {

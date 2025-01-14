@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Text.Json;
 
 namespace ScriptRunner.Plugins.Utilities;
 
@@ -19,11 +20,19 @@ public static class SerializationHelper
     /// <returns>A JSON string representation of the object.</returns>
     public static string Serialize(object value)
     {
-        if (value is string strValue && (strValue.StartsWith('{') || strValue.StartsWith('[')))
+        if (value is not string strValue)
         {
-            // If it's already a valid JSON string, return as-is
-            return strValue;
+            return JsonSerializer.Serialize(value, JsonOptions);
         }
+        
+        // Validate if the string is a valid JSON
+        if ((strValue.StartsWith('{') && strValue.EndsWith('}')) || 
+            (strValue.StartsWith('[') && strValue.EndsWith(']')))
+        {
+            return strValue; // Return as-is for valid JSON strings
+        }
+
+        // Serialize non-JSON objects
         return JsonSerializer.Serialize(value, JsonOptions);
     }
 
@@ -37,13 +46,16 @@ public static class SerializationHelper
     /// <exception cref="JsonException">Thrown when deserialization fails for non-string types.</exception>
     public static T? Deserialize<T>(string value)
     {
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
+
         try
         {
-            return JsonSerializer.Deserialize<T>(value);
+            return JsonSerializer.Deserialize<T>(value, JsonOptions);
         }
-        catch
+        catch (JsonException)
         {
-            // If deserialization fails, treat it as a raw string
+            // Treat as a raw string if deserialization fails
             if (typeof(T) == typeof(string)) return (T)(object)value;
             throw;
         }
@@ -61,11 +73,12 @@ public static class SerializationHelper
     {
         return element.ValueKind switch
         {
-            JsonValueKind.String => element.GetString()?.Trim('"'),
+            JsonValueKind.String => element.GetString(),
             JsonValueKind.Number => element.TryGetInt32(out var intValue) ? intValue : element.GetDouble(),
             JsonValueKind.True => true,
             JsonValueKind.False => false,
-            _ => element.ToString()
+            JsonValueKind.Object or JsonValueKind.Array => element.GetRawText(), // Preserve nested JSON as string
+            _ => element.ToString() // For null or unknown cases
         };
     }
 }
