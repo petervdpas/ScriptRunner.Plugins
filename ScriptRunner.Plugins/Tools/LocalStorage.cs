@@ -56,8 +56,7 @@ public class LocalStorage : ILocalStorage
 
         lock (_lock)
         {
-            // Serialize non-string objects; keep strings as-is
-            var serializedValue = value is string strValue ? strValue : SerializationHelper.Serialize(value);
+            var serializedValue = value as string ?? SerializationHelper.Serialize(value);
 
             if (!_tempData.TryAdd(key, serializedValue))
             {
@@ -238,13 +237,15 @@ public class LocalStorage : ILocalStorage
 
             foreach (var (key, value) in data)
             {
-                if (value == null)
+                if (value is string strValue)
                 {
-                    Console.WriteLine($"Warning: Skipping key '{key}' with null value.");
-                    continue;
+                    // Plain string values are stored without additional deserialization
+                    SetData(key, strValue);
                 }
-
-                SetData(key, value);
+                else
+                {
+                    SetData(key, value);
+                }
             }
         }
     }
