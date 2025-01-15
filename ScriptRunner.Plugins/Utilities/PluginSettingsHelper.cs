@@ -57,13 +57,16 @@ public static class PluginSettingsHelper
     /// </summary>
     /// <typeparam name="T">The expected type of the setting value.</typeparam>
     /// <param name="key">The key of the setting to retrieve.</param>
+    /// <param name="withTrim">bool to remove quotes</param>
     /// <returns>The value of the setting, or default if not found.</returns>
-    public static T? RetrieveSetting<T>(string key)
+    public static T? RetrieveSetting<T>(string key, bool withTrim = false)
     {
         if (_localStorage == null)
             throw new InvalidOperationException("LocalStorage has not been initialized.");
 
-        var serializedValue = _localStorage.GetData<string>(key);
+        var serializedValue = withTrim 
+            ? _localStorage.GetData<string>(key)?.Trim('"') 
+            : _localStorage.GetData<string>(key);
 
         if (string.IsNullOrEmpty(serializedValue)) return default;
 
@@ -94,6 +97,9 @@ public static class PluginSettingsHelper
         }
 
         Console.WriteLine("Stored plugin settings:");
-        foreach (var (key, value) in data) Console.WriteLine($"- Key: {key}, Value: {value}");
+        foreach (var (key, value) in data)
+        {
+            Console.WriteLine($"- Key: {key}, Value: {value}");
+        }
     }
 }
