@@ -59,12 +59,16 @@ public static class PluginSettingsLoader
                     _ => s.DefaultValue
                 };
 
+                // Determine if the setting is marked as secret
+                var isSecret = s.IsSecret;
+                
                 if (IsValueCompatibleWithType(value, s.Type))
                     return new PluginSettingDefinition
                     {
                         Key = s.Key,
                         Type = s.Type,
-                        Value = value
+                        Value = value,
+                        IsSecret = isSecret
                     };
 
                 if (showLogging)
@@ -120,7 +124,8 @@ public static class PluginSettingsLoader
                 {
                     Key = schemaSetting.Key,
                     Type = schemaSetting.Type,
-                    Value = userSetting.Value ?? schemaSetting.Value
+                    Value = userSetting.Value ?? schemaSetting.Value,
+                    IsSecret = schemaSetting.IsSecret
                 };
 
             return schemaSetting;

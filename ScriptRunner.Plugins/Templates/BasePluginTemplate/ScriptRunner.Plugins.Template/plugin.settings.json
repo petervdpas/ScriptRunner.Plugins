@@ -2,16 +2,19 @@
   {
     "Key": "PluginName",
     "Type": "string",
-    "Value": "The name of you plugin here!"
+    "DefaultValue": "The name of you plugin here!",
+    "IsSecret": false
   },
   {
     "Key": "MaxRetries",
     "Type": "int",
-    "Value": 3
+    "DefaultValue": 3,
+    "IsSecret": false
   },
   {
     "Key": "EnableLogging",
     "Type": "bool",
-    "Value": true
+    "DefaultValue": true,
+    "IsSecret": false
   }
 ]

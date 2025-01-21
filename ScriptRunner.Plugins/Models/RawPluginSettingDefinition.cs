@@ -30,4 +30,13 @@ public class RawPluginSettingDefinition
     ///     when no user-defined value is provided.
     /// </remarks>
     public object? DefaultValue { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the setting is a secret.
+    /// </summary>
+    /// <remarks>
+    ///     This field allows marking sensitive settings (e.g., API keys) to distinguish them
+    ///     as secrets that require special handling.
+    /// </remarks>
+    public bool IsSecret { get; set; }
 }

@@ -10,7 +10,8 @@ public class PluginSettingDefinition : ReactiveObject
     private string _key = string.Empty;
     private string _type = "string";
     private object? _value;
-
+    private bool _isSecret;
+    
     /// <summary>
     ///     Gets or sets the key of the setting.
     /// </summary>
@@ -36,5 +37,14 @@ public class PluginSettingDefinition : ReactiveObject
     {
         get => _value;
         set => this.RaiseAndSetIfChanged(ref _value, value);
+    }
+    
+    /// <summary>
+    ///     Gets or sets a value indicating whether the setting is a secret.
+    /// </summary>
+    public bool IsSecret
+    {
+        get => _isSecret;
+        set => this.RaiseAndSetIfChanged(ref _isSecret, value);
     }
 }

@@ -128,22 +128,35 @@ public class PluginSettingsHelperTests
             { "Key1", "\"Value1\"" },
             { "Key2", "true" },
             { "Key3", "Value2" },
-            { "Key4", true } // Stored as a boolean
+            { "Key4", true },
+            { "SecretKey", "SensitiveValue" }
         };
 
         _mockLocalStorage.Setup(x => x.GetStorage())
             .Returns(storedData);
+
+        // Mock the schema to indicate "SecretKey" is a secret
+        var schema = new List<PluginSettingDefinition>
+        {
+            new() { Key = "Key1", Value = "Value1", IsSecret = false },
+            new() { Key = "Key2", Value = true, IsSecret = false },
+            new() { Key = "Key3", Value = "Value2", IsSecret = false },
+            new() { Key = "Key4", Value = true, IsSecret = false },
+            new() { Key = "SecretKey", Value = "SensitiveValue", IsSecret = true }
+        };
+        PluginSettingsHelper.StoreSettings(schema);
 
         using var consoleOutput = new ConsoleOutput();
         PluginSettingsHelper.DisplayStoredSettings();
 
         var output = consoleOutput.GetOutput();
 
-        // Update assertion for Key4 to match "True"
+        // Verify output
         Assert.Contains("- Key: Key1, Value: \"Value1\"", output);
         Assert.Contains("- Key: Key2, Value: true", output);
         Assert.Contains("- Key: Key3, Value: Value2", output);
         Assert.Contains("- Key: Key4, Value: True", output); // Match the expected format
+        Assert.Contains("- Key: SecretKey, Value: *****", output); // Secret key is masked
     }
 
     [Fact]
@@ -157,5 +170,27 @@ public class PluginSettingsHelperTests
 
         var output = consoleOutput.GetOutput();
         Assert.Contains("No settings found in local storage.", output);
+    }
+    
+    [Fact]
+    public void IsSecretSetting_ThrowsException_WhenSchemaNotInitialized()
+    {
+        var field = typeof(PluginSettingsHelper)
+            .GetField("_schema", BindingFlags.Static | BindingFlags.NonPublic);
+
+        // Ensure the schema is not initialized
+        field?.SetValue(null, null);
+
+        var isSecretMethod = typeof(PluginSettingsHelper)
+            .GetMethod("IsSecretSetting", BindingFlags.NonPublic | BindingFlags.Static);
+
+        Assert.NotNull(isSecretMethod);
+
+        var exception = Assert.Throws<TargetInvocationException>(() =>
+            isSecretMethod.Invoke(null, ["AnyKey"])
+        );
+
+        Assert.IsType<InvalidOperationException>(exception.InnerException);
+        Assert.Equal("Settings schema has not been initialized.", exception.InnerException.Message);
     }
 }

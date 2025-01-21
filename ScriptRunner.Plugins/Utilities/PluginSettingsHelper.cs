@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ScriptRunner.Plugins.Interfaces;
 using ScriptRunner.Plugins.Models;
 
@@ -12,7 +13,8 @@ namespace ScriptRunner.Plugins.Utilities;
 public static class PluginSettingsHelper
 {
     private static ILocalStorage? _localStorage;
-
+    private static IEnumerable<PluginSettingDefinition>? _schema;
+    
     /// <summary>
     ///     Initializes the <see cref="ILocalStorage" /> instance for the plugin.
     /// </summary>
@@ -41,13 +43,16 @@ public static class PluginSettingsHelper
 
         ArgumentNullException.ThrowIfNull(settings, nameof(settings));
 
-        foreach (var setting in settings)
+        _schema = settings;
+        
+        foreach (var setting in _schema)
         {
             if (setting.Value == null)
                 throw new ArgumentNullException(nameof(settings),
                     $"The value for setting with key '{setting.Key}' cannot be null.");
 
             var serializedValue = SerializationHelper.Serialize(setting.Value);
+            
             _localStorage.SetData(setting.Key, serializedValue);
         }
     }
@@ -99,7 +104,20 @@ public static class PluginSettingsHelper
         Console.WriteLine("Stored plugin settings:");
         foreach (var (key, value) in data)
         {
-            Console.WriteLine($"- Key: {key}, Value: {value}");
+            var displayValue = IsSecretSetting(key) ? "*****" : value;
+            Console.WriteLine($"- Key: {key}, Value: {displayValue}");
         }
+    }
+    
+    /// <summary>
+    ///     Determines if the setting with the specified key is secret.
+    /// </summary>
+    private static bool IsSecretSetting(string key)
+    {
+        if (_schema == null)
+            throw new InvalidOperationException("Settings schema has not been initialized.");
+
+        var setting = _schema.FirstOrDefault(s => s.Key == key);
+        return setting?.IsSecret ?? false;
     }
 }
