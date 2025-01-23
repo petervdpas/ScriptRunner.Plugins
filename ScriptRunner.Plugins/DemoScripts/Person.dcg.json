@@ -1,6 +1,6 @@
 [
   {
-    "Namespace": "ScriptRunner.DynaModels",
+    "Namespace": "DemoNamespace",
     "Usings": [
       "System"
     ],
@@ -10,18 +10,29 @@
         "Properties": [
           {
             "Name": "Id",
-            "Type": "int"
+            "Type": "int",
+            "AccessorType": "set"
           },
           {
             "Name": "Name",
-            "Type": "string"
+            "Type": "string",
+            "AccessorType": "set"
           },
           {
             "Name": "Age",
-            "Type": "int"
+            "Type": "int",
+            "AccessorType": "set"
           }
         ],
         "Constructors": [
+          {
+            "Parameters": [],
+            "BodyLines": [
+              "Id = 0;",
+              "Name = \"\";",
+              "Age = 0;"
+            ]
+          },
           {
             "Parameters": [
               {

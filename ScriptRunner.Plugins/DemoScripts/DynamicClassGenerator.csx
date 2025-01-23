@@ -12,7 +12,7 @@ string jsonFileName = fileHelper.RelativeToCurrentDirectory("Person.dcg.json");
 string json = fileHelper.ReadFile(jsonFileName);
 
 // Specify the output path for the generated DLL
-string outputDllPath = "./Test.dll";
+string outputDllPath = "./Person.dcg.dll";
 
 // Instantiate the DynamicClassGenerator with a logger
 var logger = GetLogger("DynamicClassGenerator");
@@ -25,16 +25,16 @@ try
 
     if (assemblyPath != null)
     {
-        Console.WriteLine($"Assembly successfully generated at: {assemblyPath}");
-        Console.WriteLine("Generated namespaces:");
+        Dump($"Assembly successfully generated at: {assemblyPath}");
+        Dump("Generated namespaces:");
         foreach (var ns in namespaces)
         {
-            Console.WriteLine($"- {ns}");
+            Dump($"- {ns}");
         }
 
         // Load the generated assembly
         var assembly = System.Reflection.Assembly.LoadFile(Path.GetFullPath(assemblyPath));
-        Console.WriteLine("Assembly loaded successfully!");
+        Dump("Assembly loaded successfully!");
 
         // Get the Person type from the generated assembly
         var personType = assembly.GetType("DemoNamespace.Person");
@@ -47,17 +47,17 @@ try
 
             // Call the Greet method
             var greetMessage = person.Greet();
-            Console.WriteLine(greetMessage); // Output: "Hello, my name is John Doe."
+            Dump(greetMessage); // Output: "Hello, my name is John Doe."
         }
     }
     else
     {
-        Console.WriteLine("Assembly generation failed. Check the log for details.");
+        Dump("Assembly generation failed. Check the log for details.");
     }
 }
 catch (Exception ex)
 {
-    Console.Error.WriteLine($"An error occurred: {ex.Message}");
+    Dump($"An error occurred: {ex.Message}");
 }
 
 return "DynamicClassGenerator demo completed.";
