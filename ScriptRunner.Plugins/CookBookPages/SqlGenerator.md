@@ -1,5 +1,5 @@
 ---
-Title: Dynamically Generating SQL Queries with SqlGenerator
+Title: SQL Queries with SqlGenerator
 Category: Cookbook  
 Author: Peter van de Pas  
 keywords: [CookBook, SqlGenerator, ScriptRunner, Tools, SQL, Dynamic Queries]  
@@ -10,7 +10,7 @@ toc-title: Table of Content
 toc-own-page: true
 ---
 
-# Recipe: Dynamically Generating SQL Queries with SqlGenerator
+# Recipe: Generating SQL Queries with SqlGenerator
 
 ## Goal
 

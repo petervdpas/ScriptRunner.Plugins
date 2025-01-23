@@ -1,0 +1,60 @@
+[
+  {
+    "Namespace": "ScriptRunner.DynaModels",
+    "Usings": [
+      "System"
+    ],
+    "Classes": [
+      {
+        "Name": "Person",
+        "Properties": [
+          {
+            "Name": "Id",
+            "Type": "int"
+          },
+          {
+            "Name": "Name",
+            "Type": "string"
+          },
+          {
+            "Name": "Age",
+            "Type": "int"
+          }
+        ],
+        "Constructors": [
+          {
+            "Parameters": [
+              {
+                "Name": "id",
+                "Type": "int"
+              },
+              {
+                "Name": "name",
+                "Type": "string"
+              },
+              {
+                "Name": "age",
+                "Type": "int"
+              }
+            ],
+            "BodyLines": [
+              "Id = id;",
+              "Name = name;",
+              "Age = age;"
+            ]
+          }
+        ],
+        "Methods": [
+          {
+            "Name": "Greet",
+            "ReturnType": "string",
+            "Parameters": [],
+            "BodyLines": [
+              "return $\"Hello, my name is {Name} and I am {Age} years old.\";"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

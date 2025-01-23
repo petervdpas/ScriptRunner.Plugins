@@ -97,6 +97,10 @@ public class DynamicClassGenerator : IDynamicClassGenerator
             .Select(a => MetadataReference.CreateFromFile(a.Location))
             .ToList();
 
+        // Add the Microsoft.CSharp assembly
+        references.Add(MetadataReference.CreateFromFile(
+            typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo).Assembly.Location));
+
         var projectReferences = AssemblyHelper.GetProjectReferences(references).ToList();
         var utilitiesReferences = AssemblyHelper.LoadUtilitiesReferences(projectReferences).ToList();
         var netStandardReference = AssemblyHelper.GetNetStandardReference();

@@ -1,5 +1,5 @@
 ---
-Title: Utilizing the SqliteDatabase Class in Scripts
+Title: Utilizing SqliteDatabase
 Category: Cookbook  
 Author: Peter van de Pas  
 keywords: [CookBook, LocalStorage, SqliteDatabase, Tools, Data Management]  
