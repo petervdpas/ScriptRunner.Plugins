@@ -2,7 +2,8 @@
 {
     "TaskCategory": "Extensions",
     "TaskName": "DataTableExtensionsDemo",
-    "TaskDetail": "A demo script showcasing DataTable extension methods"
+    "TaskDetail": "A demo script showcasing DataTable extension methods",
+    "RequiredPlugins": []
 }
 */
 

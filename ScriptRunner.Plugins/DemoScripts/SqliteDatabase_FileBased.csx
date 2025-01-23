@@ -2,7 +2,8 @@
 {
     "TaskCategory": "Tools",
     "TaskName": "SqLiteDatabase [FileBased]",
-    "TaskDetail": "Demonstrates the functionality of the SqLiteDatabase class (file-based variant)"
+    "TaskDetail": "Demonstrates the functionality of the SqLiteDatabase class (file-based variant)",
+    "RequiredPlugins": []
 }
 */
 

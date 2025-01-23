@@ -2,7 +2,8 @@
 {
     "TaskCategory": "Extensions",
     "TaskName": "StringExtension",
-    "TaskDetail": "A demo script showcasing string extension methods"
+    "TaskDetail": "A demo script showcasing string extension methods",
+    "RequiredPlugins": []
 }
 */
 

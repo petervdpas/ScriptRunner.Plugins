@@ -2,7 +2,8 @@
 {
     "TaskCategory": "Tools",
     "TaskName": "LocalStorageDemo",
-    "TaskDetail": "Demonstrates the functionality of the LocalStorage class with event hooks and storage operations."
+    "TaskDetail": "Demonstrates the functionality of the LocalStorage class with event hooks and storage operations.",
+    "RequiredPlugins": []
 }
 */
 

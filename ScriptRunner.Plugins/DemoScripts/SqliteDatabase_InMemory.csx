@@ -2,7 +2,8 @@
 {
     "TaskCategory": "Tools",
     "TaskName": "SqLiteDatabase [InMemory]",
-    "TaskDetail": "Demonstrates the functionality of the SqLiteDatabase class (in memory variant)"
+    "TaskDetail": "Demonstrates the functionality of the SqLiteDatabase class (in memory variant)",
+    "RequiredPlugins": []
 }
 */
 

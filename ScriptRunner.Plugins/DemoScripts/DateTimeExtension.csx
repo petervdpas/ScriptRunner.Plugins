@@ -2,7 +2,8 @@
 {
     "TaskCategory": "Extensions",
     "TaskName": "DateTimeExtensions",
-    "TaskDetail": "A demo script showcasing DateTime extension methods"
+    "TaskDetail": "A demo script showcasing DateTime extension methods",
+    "RequiredPlugins": []
 }
 */
 

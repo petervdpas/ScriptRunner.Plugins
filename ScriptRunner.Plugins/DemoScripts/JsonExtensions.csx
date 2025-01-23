@@ -2,7 +2,8 @@
 {
     "TaskCategory": "Extensions",
     "TaskName": "JsonExtensions",
-    "TaskDetail": "A demo script showcasing JSON extension methods"
+    "TaskDetail": "A demo script showcasing JSON extension methods",
+    "RequiredPlugins": []
 }
 */
 

@@ -2,7 +2,8 @@
 {
     "TaskCategory": "Extensions",
     "TaskName": "MathExtension",
-    "TaskDetail": "A demo script for the Math Extension"
+    "TaskDetail": "A demo script for the Math Extension",
+    "RequiredPlugins": []
 }
 */
 
