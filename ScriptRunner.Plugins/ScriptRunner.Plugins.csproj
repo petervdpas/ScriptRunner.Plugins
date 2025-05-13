@@ -9,7 +9,7 @@
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>ScriptRunner.Plugins</PackageId>
-        <Version>1.8.72</Version>
+        <Version>1.8.74</Version>
         <Authors>Peter van de Pas</Authors>
         <Description>A plugin framework for ScriptRunner</Description>
         <PackageTags>ScriptRunner;Plugins;DependencyInjection;Avalonia;UIComponents;Logging;DynamicControls;ReactiveUI;CodeAnalysis;Sqlite</PackageTags>
@@ -29,19 +29,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.2.5" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="11.2.5" />
+        <PackageReference Include="Avalonia" Version="11.3.0" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.13.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
-        <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.3" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.3" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.3" />
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.5" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.5" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
-        <PackageReference Include="System.Reflection.MetadataLoadContext" Version="9.0.3" />
+        <PackageReference Include="System.Reflection.MetadataLoadContext" Version="9.0.5" />
     </ItemGroup>
 
     <ItemGroup>
